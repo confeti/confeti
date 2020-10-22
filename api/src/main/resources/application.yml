@@ -1,0 +1,7 @@
+spring:
+  server:
+    port: ${PORT}
+
+confeti:
+  cluster:
+    webUrl: ${WEB_URL}
