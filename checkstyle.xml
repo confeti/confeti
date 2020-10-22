@@ -10,6 +10,8 @@
 
     <property name="fileExtensions" value="java"/>
 
+    <module name="NewlineAtEndOfFile"/>
+
     <module name="LineLength">
         <property name="fileExtensions" value="java"/>
         <property name="max" value="140"/>
@@ -29,7 +31,6 @@
     </module>
 
     <module name="TreeWalker">
-        <module name="NewlineAtEndOfFile"/>
         <module name="AvoidStarImport">
             <property name="excludes" value="org.junit.jupiter.api.Assertions"/>
         </module>
