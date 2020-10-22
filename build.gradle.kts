@@ -4,6 +4,9 @@ plugins {
 
 allprojects {
     group = "org.confeti"
+}
+
+configure(subprojects.filterNot(project(":web")::equals)) {
     apply(plugin = "java")
 
     repositories {

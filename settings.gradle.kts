@@ -1,3 +1,3 @@
-include("api")
+include("api", "web")
 
 rootProject.name = "confeti"
