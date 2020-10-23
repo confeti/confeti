@@ -51,6 +51,12 @@
         </properties>
     </rule>
 
+    <rule ref="category/java/design.xml/UseUtilityClass">
+        <properties>
+            <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration/preceding-sibling::Annotation/MarkerAnnotation/Name[@Image='SpringBootApplication']" />
+        </properties>
+    </rule>
+
     <rule ref="category/java/codestyle.xml/FieldNamingConventions">
         <properties>
             <property name="publicConstantPattern" value="[A-Z][A-Z_0-9]*" />
