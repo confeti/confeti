@@ -18,20 +18,7 @@ plugins:
   pmd:
     enabled: true
     config:
-      rules:
-        - "java-basic"
-        - "java-clone"
-        - "java-design"
-        - "java-empty"
-        - "java-finalizers"
-        - "java-imports"
-        - "java-migrating"
-        - "java-optimizations"
-        - "java-strictexception"
-        - "java-strings"
-        - "java-sunsecure"
-        - "java-unnecessary"
-        - "java-unusedcode"
+      file: "pmd.xml"
     checks:
       DataClass:
         enabled: false
