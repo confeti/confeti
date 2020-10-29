@@ -1,0 +1,25 @@
+version: '3'
+services:
+  web:
+    build: web
+    expose:
+      - 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    # remove stdin_open option in production:
+    # https://stackoverflow.com/questions/61837934/content-not-from-webpack-is-served-from-app-public-docker
+    stdin_open: true
+  api:
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile
+    expose:
+      - 8080
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - API_URL=http://localhost:8080
+      - WEB_URL=http://localhost:3000
