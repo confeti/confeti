@@ -11,10 +11,12 @@ services:
     # remove stdin_open option in production:
     # https://stackoverflow.com/questions/61837934/content-not-from-webpack-is-served-from-app-public-docker
     stdin_open: true
+
   api:
     build:
       context: ./
-      dockerfile: ./api/Dockerfile
+      # Use ./api/Dockerfile if Cassandra is local and ./api/Dockerfile.astra if you use DataStax Astra
+      dockerfile: ./api/Dockerfile.astra
     expose:
       - 8080
     ports:
@@ -23,3 +25,19 @@ services:
       - PORT=8080
       - API_URL=http://localhost:8080
       - WEB_URL=http://localhost:3000
+#    depends_on:
+#      - cassandra
+
+#    cassandra:
+#      image: cassandra:3.11.8
+#      ports:
+#        - 7000:7000
+#        - 9042:9042
+#      ulimits:
+#        memlock: -1
+
+#     Use this command to create the keyspace after starting of the Cassandra db
+#     docker exec -it `docker ps | grep cassandra:3.11.8 | cut -b 1-12` cqlsh -e "create keyspace confeti WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };"
+#
+#     Use this command to check keyspaces
+#     docker exec -it `docker ps | grep cassandra:3.11.8 | cut -b 1-12` cqlsh -e "describe keyspaces"

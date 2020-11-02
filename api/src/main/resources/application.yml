@@ -5,3 +5,10 @@ spring:
 confeti:
   cluster:
     webUrl: ${WEB_URL}
+  cassandra:
+    local: false
+    session:
+      name: confeti_session
+      keyspace: confeti
+      rf: 1
+      durable: true

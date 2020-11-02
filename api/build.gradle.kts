@@ -10,6 +10,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.jetbrains:annotations:19.0.0")
 
+    // Driver (overriding spring defaults)
+    implementation("com.datastax.oss:java-driver-core:4.9.0")
+    implementation("com.datastax.oss:java-driver-query-builder:4.9.0")
+    implementation("com.datastax.oss:java-driver-mapper-runtime:4.9.0")
+    implementation("com.datastax.oss:native-protocol:1.4.11")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
