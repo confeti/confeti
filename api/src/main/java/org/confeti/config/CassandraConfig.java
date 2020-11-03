@@ -3,6 +3,28 @@ package org.confeti.config;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import lombok.extern.slf4j.Slf4j;
+import org.confeti.db.dao.ConferenceBySpeakerDao;
+import org.confeti.db.dao.ConferenceDao;
+import org.confeti.db.dao.ReportByConferenceDao;
+import org.confeti.db.dao.ReportBySpeakerDao;
+import org.confeti.db.dao.ReportByTagDao;
+import org.confeti.db.dao.ReportDao;
+import org.confeti.db.dao.ReportStatsByCompanyDao;
+import org.confeti.db.dao.ReportStatsByConferenceDao;
+import org.confeti.db.dao.ReportStatsBySpeakerDao;
+import org.confeti.db.dao.SpeakerByConferenceDao;
+import org.confeti.db.dao.SpeakerDao;
+import org.confeti.db.mapper.ConferenceBySpeakerDaoMapperBuilder;
+import org.confeti.db.mapper.ConferenceDaoMapperBuilder;
+import org.confeti.db.mapper.ReportByConferenceDaoMapperBuilder;
+import org.confeti.db.mapper.ReportBySpeakerDaoMapperBuilder;
+import org.confeti.db.mapper.ReportByTagDaoMapperBuilder;
+import org.confeti.db.mapper.ReportDaoMapperBuilder;
+import org.confeti.db.mapper.ReportStatsByCompanyDaoMapperBuilder;
+import org.confeti.db.mapper.ReportStatsByConferenceDaoMapperBuilder;
+import org.confeti.db.mapper.ReportStatsBySpeakerDaoMapperBuilder;
+import org.confeti.db.mapper.SpeakerByConferenceDaoMapperBuilder;
+import org.confeti.db.mapper.SpeakerDaoMapperBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +43,6 @@ public class CassandraConfig {
     @Value("${confeti.cassandra.session.durable:true}")
     private boolean isDurableWrites;
 
-    @Value("${confeti.cassandra.session.name}")
-    private String cassandraSessionName;
-
     @Value("${confeti.cassandra.session.keyspace}")
     private String cassandraSessionKeyspace;
 
@@ -40,7 +59,7 @@ public class CassandraConfig {
                     .withSimpleStrategy(cassandraRF)
                     .withDurableWrites(isDurableWrites)
                     .build());
-            cqlSession.execute(String.format("use %s", cassandraSessionName));
+            cqlSession.execute(String.format("use %s", cassandraSessionKeyspace));
         } else {
             log.info("Loading configuration to Astra");
             final var configReader = DriverConfigLoader.fromClasspath(DRIVER_ASTRA_CONFIG);
@@ -48,5 +67,82 @@ public class CassandraConfig {
         }
 
         return cqlSession;
+    }
+
+    @Bean
+    public ConferenceDao conferenceDao(final CqlSession cqlSession) {
+        final var conferenceMapper = new ConferenceDaoMapperBuilder(cqlSession).build();
+        conferenceMapper.createSchema(cqlSession);
+        return conferenceMapper.conferenceDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public SpeakerDao speakerDao(final CqlSession cqlSession) {
+        final var speakerMapper = new SpeakerDaoMapperBuilder(cqlSession).build();
+        speakerMapper.createSchema(cqlSession);
+        return speakerMapper.speakerDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportDao reportDao(final CqlSession cqlSession) {
+        final var reportMapper = new ReportDaoMapperBuilder(cqlSession).build();
+        reportMapper.createSchema(cqlSession);
+        return reportMapper.reportDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public SpeakerByConferenceDao speakerByConferenceDao(final CqlSession cqlSession) {
+        final var speakerByConferenceMapper = new SpeakerByConferenceDaoMapperBuilder(cqlSession).build();
+        speakerByConferenceMapper.createSchema(cqlSession);
+        return speakerByConferenceMapper.speakerByConferenceDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ConferenceBySpeakerDao conferenceBySpeakerDao(final CqlSession cqlSession) {
+        final var conferenceBySpeakerMapper = new ConferenceBySpeakerDaoMapperBuilder(cqlSession).build();
+        conferenceBySpeakerMapper.createSchema(cqlSession);
+        return conferenceBySpeakerMapper.conferenceBySpeakerDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportByTagDao reportByTagDao(final CqlSession cqlSession) {
+        final var reportByTagMapper = new ReportByTagDaoMapperBuilder(cqlSession).build();
+        reportByTagMapper.createSchema(cqlSession);
+        return reportByTagMapper.reportByTagDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportByConferenceDao reportByConferenceDao(final CqlSession cqlSession) {
+        final var reportByConferenceMapper = new ReportByConferenceDaoMapperBuilder(cqlSession).build();
+        reportByConferenceMapper.createSchema(cqlSession);
+        return reportByConferenceMapper.reportByConferenceDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportBySpeakerDao reportBySpeakerDao(final CqlSession cqlSession) {
+        final var reportBySpeakerMapper = new ReportBySpeakerDaoMapperBuilder(cqlSession).build();
+        reportBySpeakerMapper.createSchema(cqlSession);
+        return reportBySpeakerMapper.reportBySpeakerDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportStatsByConferenceDao reportStatsByConferenceDaoMapperBuilder(final CqlSession cqlSession) {
+        final var reportStatsByConferenceMapper = new ReportStatsByConferenceDaoMapperBuilder(cqlSession).build();
+        reportStatsByConferenceMapper.createSchema(cqlSession);
+        return reportStatsByConferenceMapper.reportStatsByConferenceDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportStatsBySpeakerDao reportStatsBySpeakerDao(final CqlSession cqlSession) {
+        final var reportStatsBySpeakerMapper = new ReportStatsBySpeakerDaoMapperBuilder(cqlSession).build();
+        reportStatsBySpeakerMapper.createSchema(cqlSession);
+        return reportStatsBySpeakerMapper.reportStatsBySpeakerDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportStatsByCompanyDao reportStatsByCompanyDao(final CqlSession cqlSession) {
+        final var reportStatsByCompanyMapper = new ReportStatsByCompanyDaoMapperBuilder(cqlSession).build();
+        reportStatsByCompanyMapper.createSchema(cqlSession);
+        return reportStatsByCompanyMapper.reportStatsByCompanyDao(cqlSession.getKeyspace().get());
     }
 }
