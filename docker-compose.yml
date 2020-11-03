@@ -28,13 +28,13 @@ services:
 #    depends_on:
 #      - cassandra
 
-#    cassandra:
-#      image: cassandra:3.11.8
-#      ports:
-#        - 7000:7000
-#        - 9042:9042
-#      ulimits:
-#        memlock: -1
+#  cassandra:
+#    image: cassandra:3.11.8
+#    ports:
+#      - 7000:7000
+#      - 9042:9042
+#    ulimits:
+#      memlock: -1
 
 #     Use this command to create the keyspace after starting of the Cassandra db
 #     docker exec -it `docker ps | grep cassandra:3.11.8 | cut -b 1-12` cqlsh -e "create keyspace confeti WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };"
