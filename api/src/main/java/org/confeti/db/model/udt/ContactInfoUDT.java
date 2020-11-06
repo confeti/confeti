@@ -23,7 +23,7 @@ import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetEl
 @CqlName(ContactInfoUDT.CONTACT_INFO_UDT)
 public class ContactInfoUDT implements Serializable {
 
-    private static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 1L;
 
     public static final String CONTACT_INFO_UDT = "contact_info";
     public static final String CONTACT_INFO_ATT_COMPANIES = "companies";

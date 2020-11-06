@@ -22,7 +22,7 @@ import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetEl
 @CqlName(ReportSourceUDT.REPORT_SOURCE_UDT)
 public class ReportSourceUDT implements Serializable {
 
-    private static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 1L;
 
     public static final String REPORT_SOURCE_UDT = "report_source";
     public static final String REPORT_SOURCE_ATT_PRESENTATION_URL = "presentation_url";

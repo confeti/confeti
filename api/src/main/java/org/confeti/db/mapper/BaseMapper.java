@@ -6,9 +6,14 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createType;
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.udt;
-import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONFERENCE_SHORT_INFO_ATT_LOGO;
-import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONFERENCE_SHORT_INFO_ATT_NAME;
-import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONFERENCE_SHORT_INFO_ATT_YEAR;
+import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_LOGO;
+import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_NAME;
+import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_YEAR;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_AVATAR;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_BIO;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_CONTACT_INFO;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_ID;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_NAME;
 import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONFERENCE_SHORT_INFO_UDT;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_COMPANIES;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_EMAIL;
@@ -22,15 +27,10 @@ import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_UDT;
 import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_ATT_ADDED_DATE;
 import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_ATT_NAME;
 import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_UDT;
-import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_ATT_AVATAR;
-import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_ATT_BIO;
-import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_ATT_CONTACT_INFO;
-import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_ATT_NAME;
+import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_UDT;
 import static org.confeti.db.model.udt.SpeakerLocationUDT.SPEAKER_LOCATION_ATT_ADDED_DATE;
 import static org.confeti.db.model.udt.SpeakerLocationUDT.SPEAKER_LOCATION_ATT_NAME;
 import static org.confeti.db.model.udt.SpeakerLocationUDT.SPEAKER_LOCATION_UDT;
-import static org.confeti.db.model.udt.SpeakerShortInfoUDT.SPEAKER_SHORT_INFO_ATT_CONTACT_INFO;
-import static org.confeti.db.model.udt.SpeakerShortInfoUDT.SPEAKER_SHORT_INFO_ATT_NAME;
 import static org.confeti.db.model.udt.SpeakerShortInfoUDT.SPEAKER_SHORT_INFO_UDT;
 
 public interface BaseMapper {
@@ -101,9 +101,9 @@ public interface BaseMapper {
      */
     default void createConferenceShortInfoUDT(@NotNull final CqlSession cqlSession) {
         cqlSession.execute(createType(CONFERENCE_SHORT_INFO_UDT).ifNotExists()
-                .withField(CONFERENCE_SHORT_INFO_ATT_LOGO, DataTypes.TEXT)
-                .withField(CONFERENCE_SHORT_INFO_ATT_NAME, DataTypes.TEXT)
-                .withField(CONFERENCE_SHORT_INFO_ATT_YEAR, DataTypes.INT)
+                .withField(CONFERENCE_ATT_LOGO, DataTypes.TEXT)
+                .withField(CONFERENCE_ATT_NAME, DataTypes.TEXT)
+                .withField(CONFERENCE_ATT_YEAR, DataTypes.INT)
                 .build());
     }
 
@@ -135,6 +135,7 @@ public interface BaseMapper {
      *
      * <pre>
      * CREATE TYPE IF NOT EXISTS speaker_short_info (
+     *     id uuid,
      *     contact_info frozen&lt;contact_info&gt;,
      *     name text
      * );
@@ -143,8 +144,9 @@ public interface BaseMapper {
     default void createSpeakerShortInfoUDT(@NotNull final CqlSession cqlSession) {
         createContactInfoUDT(cqlSession);
         cqlSession.execute(createType(SPEAKER_SHORT_INFO_UDT).ifNotExists()
-                .withField(SPEAKER_SHORT_INFO_ATT_CONTACT_INFO, udt(CONTACT_INFO_UDT, true))
-                .withField(SPEAKER_SHORT_INFO_ATT_NAME, DataTypes.TEXT)
+                .withField(SPEAKER_ATT_ID, DataTypes.UUID)
+                .withField(SPEAKER_ATT_CONTACT_INFO, udt(CONTACT_INFO_UDT, true))
+                .withField(SPEAKER_ATT_NAME, DataTypes.TEXT)
                 .build());
     }
 
@@ -153,6 +155,7 @@ public interface BaseMapper {
      *
      * <pre>
      * CREATE TYPE IF NOT EXISTS speaker_full_info (
+     *     id uuid,
      *     avatar text,
      *     bio text,
      *     contact_info frozen&lt;contact_info&gt;,
@@ -162,11 +165,12 @@ public interface BaseMapper {
      */
     default void createSpeakerFullInfoUDT(@NotNull final CqlSession cqlSession) {
         createContactInfoUDT(cqlSession);
-        cqlSession.execute(createType(SPEAKER_SHORT_INFO_UDT).ifNotExists()
-                .withField(SPEAKER_FULL_INFO_ATT_AVATAR, DataTypes.TEXT)
-                .withField(SPEAKER_FULL_INFO_ATT_BIO, DataTypes.TEXT)
-                .withField(SPEAKER_FULL_INFO_ATT_CONTACT_INFO, udt(CONTACT_INFO_UDT, true))
-                .withField(SPEAKER_FULL_INFO_ATT_NAME, DataTypes.TEXT)
+        cqlSession.execute(createType(SPEAKER_FULL_INFO_UDT).ifNotExists()
+                .withField(SPEAKER_ATT_ID, DataTypes.UUID)
+                .withField(SPEAKER_ATT_AVATAR, DataTypes.TEXT)
+                .withField(SPEAKER_ATT_BIO, DataTypes.TEXT)
+                .withField(SPEAKER_ATT_CONTACT_INFO, udt(CONTACT_INFO_UDT, true))
+                .withField(SPEAKER_ATT_NAME, DataTypes.TEXT)
                 .build());
     }
 }

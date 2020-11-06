@@ -23,7 +23,7 @@ import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetEl
 @CqlName(SpeakerCompanyUDT.SPEAKER_COMPANY_UDT)
 public class SpeakerCompanyUDT implements Serializable {
 
-    private static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 1L;
 
     public static final String SPEAKER_COMPANY_UDT = "speaker_company";
     public static final String SPEAKER_COMPANY_ATT_ADDED_DATE = "added_date";

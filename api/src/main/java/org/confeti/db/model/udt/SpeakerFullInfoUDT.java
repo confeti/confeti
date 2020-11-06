@@ -5,40 +5,34 @@ import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.SchemaHint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 
 import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetElement.UDT;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_AVATAR;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_BIO;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@SuperBuilder
 @Entity
 @SchemaHint(targetElement = UDT)
 @CqlName(SpeakerFullInfoUDT.SPEAKER_FULL_INFO_UDT)
-public class SpeakerFullInfoUDT implements Serializable {
+public class SpeakerFullInfoUDT extends SpeakerShortInfoUDT {
 
-    private static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 1L;
 
-    public static final String SPEAKER_FULL_INFO_UDT = "conference_short_info";
-    public static final String SPEAKER_FULL_INFO_ATT_AVATAR = "avatar";
-    public static final String SPEAKER_FULL_INFO_ATT_BIO = "bio";
-    public static final String SPEAKER_FULL_INFO_ATT_CONTACT_INFO = "contact_info";
-    public static final String SPEAKER_FULL_INFO_ATT_NAME = "name";
+    public static final String SPEAKER_FULL_INFO_UDT = "speaker_short_info";
 
-    @CqlName(SPEAKER_FULL_INFO_ATT_AVATAR)
+    @CqlName(SPEAKER_ATT_AVATAR)
     private String avatar;
 
-    @CqlName(SPEAKER_FULL_INFO_ATT_BIO)
+    @CqlName(SPEAKER_ATT_BIO)
     private String bio;
-
-    @CqlName(SPEAKER_FULL_INFO_ATT_CONTACT_INFO)
-    private ContactInfoUDT contactInfo;
-
-    @CqlName(SPEAKER_FULL_INFO_ATT_NAME)
-    private String name;
 }
