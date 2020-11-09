@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -21,31 +20,22 @@ public class Report implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull
     private UUID id;
 
-    @NotNull
     private String title;
 
-    @Nullable
     private Complexity complexity;
 
-    @Nullable
     private Set<Conference> conferences;
 
-    @Nullable
     private String description;
 
-    @Nullable
     private String language;
 
-    @Nullable
     private ReportSource source;
 
-    @Nullable
     private Set<Speaker> speakers;
 
-    @Nullable
     private Set<String> tags;
 
     public static ReportBuilder builder(@NotNull final UUID id,
@@ -59,7 +49,7 @@ public class Report implements Serializable {
     @Builder
     public static final class ReportSource implements Serializable {
 
-        private static final long serialVersionUID = 0L;
+        private static final long serialVersionUID = 1L;
 
         String presentation;
 

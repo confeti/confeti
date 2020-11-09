@@ -28,6 +28,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
+    // Reactor
+    implementation("io.projectreactor.addons:reactor-extra")
+
     // Annotations for better code documentation
     implementation("org.jetbrains:annotations:19.0.0")
 

@@ -18,10 +18,8 @@ public class Speaker implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull
     private UUID id;
 
-    @NotNull
     private String name;
 
     private String avatar;
@@ -33,6 +31,10 @@ public class Speaker implements Serializable {
     public static SpeakerBuilder builder(@NotNull final UUID id,
                                          @NotNull final String name) {
         return hiddenBuilder().id(id).name(name);
+    }
+
+    public static SpeakerBuilder builder(@NotNull final String name) {
+        return hiddenBuilder().id(UUID.randomUUID()).name(name);
     }
 
     @Data
