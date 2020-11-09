@@ -40,7 +40,8 @@ public final class HelperConverter {
     public static String getLastSpeakerCompany(@NotNull final Set<SpeakerCompanyUDT> companies) {
         final var company = getLastSetValue(
                 companies,
-                Comparator.comparing(SpeakerCompanyUDT::getAddedDate));
+                Comparator.comparing(SpeakerCompanyUDT::getYear)
+                        .thenComparing(SpeakerCompanyUDT::getAddedDate));
         if (company != null) {
             return company.getName();
         }

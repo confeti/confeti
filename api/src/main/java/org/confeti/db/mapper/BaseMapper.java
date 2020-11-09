@@ -26,6 +26,7 @@ import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_VIDEO_U
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_UDT;
 import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_ATT_ADDED_DATE;
 import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_ATT_NAME;
+import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_ATT_YEAR;
 import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_UDT;
 import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_UDT;
 import static org.confeti.db.model.udt.SpeakerLocationUDT.SPEAKER_LOCATION_ATT_ADDED_DATE;
@@ -58,7 +59,8 @@ public interface BaseMapper {
      * <pre>
      * CREATE TYPE IF NOT EXISTS speaker_company (
      *     added_date timestamp,
-     *     name text
+     *     name text,
+     *     year int
      * );
      * </pre>
      */
@@ -66,6 +68,7 @@ public interface BaseMapper {
         cqlSession.execute(createType(SPEAKER_COMPANY_UDT).ifNotExists()
                 .withField(SPEAKER_COMPANY_ATT_ADDED_DATE, DataTypes.TIMESTAMP)
                 .withField(SPEAKER_COMPANY_ATT_NAME, DataTypes.TEXT)
+                .withField(SPEAKER_COMPANY_ATT_YEAR, DataTypes.INT)
                 .build());
     }
 

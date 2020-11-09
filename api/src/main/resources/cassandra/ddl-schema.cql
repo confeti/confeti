@@ -5,7 +5,8 @@ CREATE TYPE IF NOT EXISTS speaker_location (
 
 CREATE TYPE IF NOT EXISTS speaker_company (
     added_date timestamp,
-    name text
+    name text,
+    year int
 );
 
 CREATE TYPE IF NOT EXISTS report_source (
@@ -120,7 +121,7 @@ CREATE TABLE IF NOT EXISTS report_by_speaker (
     year int,
     title text,
     complexity int,
-    conference frozen<conference_short_info>,
+    conferences set<frozen<conference_short_info>>,
     description text,
     language text,
     id uuid,

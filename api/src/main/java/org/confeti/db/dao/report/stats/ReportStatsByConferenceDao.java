@@ -17,7 +17,5 @@ public interface ReportStatsByConferenceDao {
     MappedReactiveResultSet<ReportStatsByConferenceEntity> findByConferenceNameByYear(String conferenceName, Integer year);
 
     @Increment(entityClass = ReportStatsByConferenceEntity.class)
-    ReactiveResultSet incrementReportTotal(String conferenceName,
-                                           Integer year,
-                                           Long reportTotal);
+    ReactiveResultSet incrementReportTotal(String conferenceName, Integer year, Long reportTotal);
 }
