@@ -39,4 +39,8 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.springframework.security:spring-security-test")
+
+    testImplementation("org.testcontainers:testcontainers:1.15.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.15.0")
+    testImplementation("org.testcontainers:cassandra:1.15.0")
 }

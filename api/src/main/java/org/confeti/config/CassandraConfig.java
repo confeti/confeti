@@ -2,6 +2,7 @@ package org.confeti.config;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.datastax.oss.driver.internal.core.ContactPoints;
 import lombok.extern.slf4j.Slf4j;
 import org.confeti.db.dao.conference.ConferenceBySpeakerDao;
 import org.confeti.db.dao.conference.ConferenceDao;
@@ -29,6 +30,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashSet;
+import java.util.List;
+
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createKeyspace;
 
 @Configuration
@@ -49,12 +53,19 @@ public class CassandraConfig {
     @Value("${confeti.cassandra.session.rf}")
     private Integer cassandraRF;
 
+    @Value("${confeti.cassandra.session.contact-points:}")
+    private List<String> cassandraContactPoints;
+
     @Bean
     public CqlSession cqlSession() {
         CqlSession cqlSession;
         if (isCassandraLocal) {
             final var configReader = DriverConfigLoader.fromClasspath(DRIVER_LOCAL_CONFIG);
-            cqlSession = CqlSession.builder().withConfigLoader(configReader).build();
+            final var cqlSessionBuilder = CqlSession.builder().withConfigLoader(configReader);
+            if (cassandraContactPoints != null && !cassandraContactPoints.isEmpty()) {
+                cqlSessionBuilder.addContactEndPoints(ContactPoints.merge(new HashSet<>(), cassandraContactPoints, true));
+            }
+            cqlSession = cqlSessionBuilder.build();
             cqlSession.execute(createKeyspace(cassandraSessionKeyspace).ifNotExists()
                     .withSimpleStrategy(cassandraRF)
                     .withDurableWrites(isDurableWrites)

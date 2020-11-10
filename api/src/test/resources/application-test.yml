@@ -1,0 +1,10 @@
+confeti:
+  cluster:
+    webUrl: http://localhost:3000
+  cassandra:
+    local: true
+    session:
+      name: test_session
+      keyspace: test
+      rf: 1
+      durable: true
