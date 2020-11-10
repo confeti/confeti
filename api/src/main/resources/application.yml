@@ -8,7 +8,7 @@ confeti:
   cassandra:
     local: false
     session:
-      name: confeti_session
+      name: ${CASSANDRA_SESSION_NAME}
       keyspace: ${CASSANDRA_KEYSPACE_NAME}
       rf: 1
       durable: true

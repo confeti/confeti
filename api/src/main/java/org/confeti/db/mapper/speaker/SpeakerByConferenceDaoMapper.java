@@ -50,7 +50,7 @@ public interface SpeakerByConferenceDaoMapper extends BaseMapper {
                 .withClusteringColumn(SPEAKER_BY_CONFERENCE_ATT_YEAR, DataTypes.INT)
                 .withClusteringColumn(SPEAKER_ATT_NAME, DataTypes.TEXT)
                 .withColumn(SPEAKER_ATT_AVATAR, DataTypes.TEXT)
-                .withColumn(SPEAKER_BY_CONFERENCE_ATT_LOCATIONS, udt(SPEAKER_LOCATION_UDT, true))
+                .withColumn(SPEAKER_BY_CONFERENCE_ATT_LOCATIONS, DataTypes.setOf(udt(SPEAKER_LOCATION_UDT, true)))
                 .withColumn(SPEAKER_ATT_ID, DataTypes.UUID)
                 .withClusteringOrder(SPEAKER_BY_CONFERENCE_ATT_YEAR, ClusteringOrder.DESC)
                 .withClusteringOrder(SPEAKER_ATT_NAME, ClusteringOrder.ASC)

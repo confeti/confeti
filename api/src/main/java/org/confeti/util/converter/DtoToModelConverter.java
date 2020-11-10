@@ -1,7 +1,6 @@
 package org.confeti.util.converter;
 
 import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
-import org.confeti.db.model.BaseEntity;
 import org.confeti.db.model.conference.AbstractConferenceEntity;
 import org.confeti.db.model.conference.ConferenceBySpeakerEntity;
 import org.confeti.db.model.conference.ConferenceEntity;
@@ -20,7 +19,6 @@ import org.confeti.db.model.udt.SpeakerCompanyUDT;
 import org.confeti.db.model.udt.SpeakerFullInfoUDT;
 import org.confeti.db.model.udt.SpeakerLocationUDT;
 import org.confeti.db.model.udt.SpeakerShortInfoUDT;
-import org.confeti.handlers.dto.BaseDTO;
 import org.confeti.handlers.dto.Conference;
 import org.confeti.handlers.dto.Report;
 import org.confeti.handlers.dto.Speaker;
