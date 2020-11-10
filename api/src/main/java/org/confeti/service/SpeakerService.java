@@ -21,13 +21,15 @@ import static org.confeti.exception.NotFoundException.Entity;
 public final class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker, SpeakerDao> {
 
     private final SpeakerByConferenceDao speakerByConferenceDao;
-    private final ConferenceService conferenceService;
+    private ConferenceService conferenceService;
 
-    protected SpeakerService(@NotNull final SpeakerDao speakerDao,
-                             @NotNull final SpeakerByConferenceDao speakerByConferenceDao,
-                             @NotNull final ConferenceService conferenceService) {
+    protected SpeakerService(final SpeakerDao speakerDao,
+                             final SpeakerByConferenceDao speakerByConferenceDao) {
         super(speakerDao);
         this.speakerByConferenceDao = speakerByConferenceDao;
+    }
+
+    public void setConferenceService(final ConferenceService conferenceService) {
         this.conferenceService = conferenceService;
     }
 
