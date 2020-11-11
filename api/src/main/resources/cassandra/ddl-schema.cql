@@ -1,8 +1,3 @@
-CREATE TYPE IF NOT EXISTS speaker_location (
-    added_date timestamp,
-    name text
-);
-
 CREATE TYPE IF NOT EXISTS speaker_company (
     added_date timestamp,
     name text,
@@ -24,7 +19,7 @@ CREATE TYPE IF NOT EXISTS conference_short_info (
 CREATE TYPE IF NOT EXISTS contact_info (
     companies set<frozen<speaker_company>>,
     email text,
-    locations set<frozen<speaker_location>>,
+    location text,
     twitter_username text
 );
 
@@ -76,7 +71,7 @@ CREATE TABLE IF NOT EXISTS speaker_by_conference (
     year int,
     name text,
     avatar text,
-    location set<frozen<speaker_location>>,
+    location text,
     id uuid,
     PRIMARY KEY (conference_name, year, name)
 ) WITH CLUSTERING ORDER BY (year DESC, name ASC);
