@@ -3,91 +3,100 @@ package org.confeti.service;
 import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
 import org.confeti.db.dao.conference.ConferenceBySpeakerDao;
 import org.confeti.db.dao.conference.ConferenceDao;
+import org.confeti.db.model.conference.ConferenceBySpeakerEntity;
 import org.confeti.db.model.conference.ConferenceEntity;
-import org.confeti.exception.NotFoundException;
-import org.confeti.handlers.dto.Conference;
-import org.confeti.util.converter.DtoToModelConverter;
-import org.confeti.util.converter.ModelToDtoConverter;
+import org.confeti.service.dto.Conference;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.function.TupleUtils;
 
 import java.util.UUID;
-
-import static org.confeti.exception.NotFoundException.Entity;
 
 @Service
 public final class ConferenceService extends AbstractEntityService<ConferenceEntity, Conference, ConferenceDao> {
 
-    private final SpeakerService speakerService;
+    private SpeakerService speakerService;
     private final ConferenceBySpeakerDao conferenceBySpeakerDao;
 
     protected ConferenceService(final ConferenceDao conferenceDao,
-                                final ConferenceBySpeakerDao conferenceBySpeakerDao,
-                                final SpeakerService speakerService) {
+                                final ConferenceBySpeakerDao conferenceBySpeakerDao) {
         super(conferenceDao);
         this.conferenceBySpeakerDao = conferenceBySpeakerDao;
+    }
+
+    @Autowired
+    public void setSpeakerService(final SpeakerService speakerService) {
         this.speakerService = speakerService;
     }
 
     @NotNull
     @Override
     public Mono<Conference> upsert(@NotNull final Conference conference) {
-        final var savedConference = upsert(conference, DtoToModelConverter::convert, ModelToDtoConverter::convert);
-        return savedConference.flatMapMany(conf -> speakerService.findBy(conf.getName(), conf.getYear()))
-                .flatMap(speaker -> upsert(conference, speaker.getId()))
-                .then(savedConference);
+        final var conferenceEntity = ConferenceEntity.from(conference);
+        final var savedEntity = Mono.from(findByPrimaryKey(conference))
+                .doOnNext(ce -> ce.updateFrom(conferenceEntity))
+                .defaultIfEmpty(conferenceEntity)
+                .flatMap(this::upsert)
+                .cache();
+        return savedEntity
+                .flatMapMany(ce -> speakerService.findBy(ce.getName(), ce.getYear()).zipWith(Mono.just(ce)))
+                .flatMap(TupleUtils.function((speaker, ce) -> upsert(ce, speaker.getId())))
+                .then(savedEntity.map(Conference::from));
     }
 
     @NotNull
-    Mono<Conference> upsert(@NotNull final Conference conference,
-                            @NotNull final UUID speakerId) {
+    public Mono<Conference> upsert(@NotNull final Conference conference,
+                                   @NotNull final UUID speakerId) {
+        return upsert(ConferenceEntity.from(conference), speakerId)
+                .map(Conference::from);
+    }
+
+    @NotNull
+    private Mono<ConferenceEntity> upsert(@NotNull final ConferenceEntity conferenceEntity,
+                                          @NotNull final UUID speakerId) {
         return upsert(
-                upsert(conference, DtoToModelConverter::convert, ModelToDtoConverter::convert),
-                conf -> speakerService.findBy(speakerId)
-                        .then(Mono.just(DtoToModelConverter.convert(conf, speakerId))),
-                conferenceBySpeakerDao,
-                ModelToDtoConverter::convert);
-    }
-
-    @NotNull
-    @Override
-    protected MappedReactiveResultSet<ConferenceEntity> findByPrimaryKey(@NotNull final Conference conference) {
-        return dao.findByNameForYear(conference.getName(), conference.getYear());
+                upsert(conferenceEntity),
+                sp -> speakerService.findBy(speakerId)
+                        .map(speaker -> ConferenceBySpeakerEntity.from(conferenceEntity, speaker.getId())),
+                conferenceBySpeakerDao);
     }
 
     @NotNull
     public Mono<Conference> findBy(@NotNull final String conferenceName,
                                    @NotNull final Integer year) {
-        return findBy(
+        return findOneBy(
                 dao.findByNameForYear(conferenceName, year),
-                ModelToDtoConverter::convert,
-                new NotFoundException(Entity.CONFERENCE, String.format("%s:%d", conferenceName, year)));
+                Conference::from);
     }
 
     @NotNull
     public Flux<Conference> findBy(@NotNull final String conferenceName) {
-        return findBy(
+        return findAllBy(
                 dao.findByName(conferenceName),
-                ModelToDtoConverter::convert,
-                new NotFoundException(Entity.CONFERENCE, conferenceName)).flux();
+                Conference::from);
     }
 
     @NotNull
     public Flux<Conference> findBy(@NotNull final UUID speakerId) {
-        return findBy(
+        return findAllBy(
                 conferenceBySpeakerDao.findBySpeakerId(speakerId),
-                ModelToDtoConverter::convert,
-                new NotFoundException(Entity.CONFERENCE, speakerId.toString())).flux();
+                Conference::from);
     }
 
     @NotNull
     public Flux<Conference> findBy(@NotNull final UUID speakerId,
                                    @NotNull final Integer year) {
-        return findBy(
+        return findAllBy(
                 conferenceBySpeakerDao.findBySpeakerIdForYear(speakerId, year),
-                ModelToDtoConverter::convert,
-                new NotFoundException(Entity.CONFERENCE, String.format("%s:%d", speakerId.toString(), year))).flux();
+                Conference::from);
+    }
+
+    @NotNull
+    @Override
+    protected MappedReactiveResultSet<ConferenceEntity> findByPrimaryKey(@NotNull final Conference conference) {
+        return dao.findByName(conference.getName());
     }
 }

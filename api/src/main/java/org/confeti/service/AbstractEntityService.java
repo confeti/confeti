@@ -4,47 +4,51 @@ import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.confeti.db.dao.BaseDao;
-import org.confeti.exception.NotFoundException;
+import org.confeti.db.model.BaseEntity;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.function.TupleUtils;
 
 import java.util.function.Function;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractEntityService<E, D, R extends BaseDao<E>> implements BaseEntityService<D> {
+public abstract class AbstractEntityService<E extends BaseEntity, D, R extends BaseDao<E>>
+        implements BaseEntityService<D> {
 
     protected final R dao;
 
     @NotNull
-    protected Mono<D> upsert(@NotNull final D dto,
-                             @NotNull final Function<D, E> dtoToModelConverter,
-                             @NotNull final Function<E, D> modelToDtoConverter) {
-        return Mono.from(findByPrimaryKey(dto))
-                .defaultIfEmpty(dtoToModelConverter.apply(dto))
-                .flatMap(e -> Mono.from(dao.upsert(e)).map(rr -> e))
-                .map(modelToDtoConverter);
+    protected Mono<E> upsert(@NotNull final E entity) {
+        return Mono.from(dao.upsert(entity))
+                .then(Mono.just(entity));
     }
 
     @NotNull
-    protected <T> Mono<D> upsert(@NotNull final Mono<D> savedEntity,
-                                 @NotNull final Function<D, Mono<T>> getEntityBy,
-                                 @NotNull final BaseDao<T> entityByDao,
-                                 @NotNull final Function<T, D> modelToDtoConverter) {
+    protected <T> Mono<E> upsert(@NotNull final Mono<E> savedEntity,
+                                 @NotNull final Function<E, Mono<T>> getEntityBy,
+                                 @NotNull final BaseDao<T> entityByDao) {
         return Mono.from(savedEntity)
-                .flatMap(getEntityBy)
-                .flatMap(entityBy -> Mono.from(entityByDao.upsert(entityBy)).map(rr -> entityBy))
-                .map(modelToDtoConverter);
+                .flatMap(entity -> getEntityBy.apply(entity).zipWith(Mono.just(entity)))
+                .flatMap(TupleUtils.function((entityBy, dto) ->
+                        Mono.from(entityByDao.upsert(entityBy))
+                                .then(Mono.just(dto))));
     }
 
     @NotNull
-    protected <T> Mono<D> findBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
-                                 @NotNull final Function<T, D> modelToDtoConverter,
-                                 @NotNull final NotFoundException notFoundException) {
+    protected <T> Mono<D> findOneBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
+                                    @NotNull final Function<T, D> modelToDtoConverter) {
         return Mono.from(foundEntity)
-                .switchIfEmpty(Mono.error(notFoundException))
                 .map(modelToDtoConverter);
     }
 
     @NotNull
-    protected abstract MappedReactiveResultSet<E> findByPrimaryKey(@NotNull D dto);
+    protected <T> Flux<D> findAllBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
+                                    @NotNull final Function<T, D> modelToDtoConverter) {
+        return Flux.from(foundEntity)
+                .map(modelToDtoConverter);
+    }
+
+    @NotNull
+    protected abstract MappedReactiveResultSet<E> findByPrimaryKey(@NotNull final D dto);
 }
