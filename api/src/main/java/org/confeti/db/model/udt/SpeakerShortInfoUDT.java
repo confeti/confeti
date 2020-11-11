@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.service.dto.Speaker;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -38,4 +40,22 @@ public class SpeakerShortInfoUDT implements Serializable {
 
     @CqlName(SPEAKER_ATT_NAME)
     private String name;
+
+    @NotNull
+    public static SpeakerShortInfoUDT from(@NotNull final Speaker speaker) {
+        return SpeakerShortInfoUDT.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
+                .build();
+    }
+
+    @NotNull
+    public static SpeakerShortInfoUDT from(@NotNull final SpeakerFullInfoUDT speakerUDT) {
+        return SpeakerShortInfoUDT.builder()
+                .id(speakerUDT.getId())
+                .name(speakerUDT.getName())
+                .contactInfo(speakerUDT.getContactInfo())
+                .build();
+    }
 }

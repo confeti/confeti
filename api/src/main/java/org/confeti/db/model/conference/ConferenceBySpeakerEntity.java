@@ -4,12 +4,12 @@ import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.service.dto.Conference;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -34,5 +34,43 @@ public class ConferenceBySpeakerEntity extends AbstractConferenceEntity {
     @Override
     public String getName() {
         return name;
+    }
+
+    @NotNull
+    public static ConferenceBySpeakerEntity from(@NotNull final ConferenceBySpeakerEntity conference) {
+        return ConferenceBySpeakerEntity.builder()
+                .speakerId(conference.getSpeakerId())
+                .name(conference.getName())
+                .year(conference.getYear())
+                .location(conference.getLocation())
+                .logo(conference.getLogo())
+                .url(conference.getUrl())
+                .build();
+    }
+
+    @NotNull
+    public static ConferenceBySpeakerEntity from(@NotNull final Conference conference,
+                                                 @NotNull final UUID speakerId) {
+        return ConferenceBySpeakerEntity.builder()
+                .speakerId(speakerId)
+                .name(conference.getName())
+                .year(conference.getYear())
+                .location(conference.getLocation())
+                .logo(conference.getLogo())
+                .url(conference.getUrl())
+                .build();
+    }
+
+    @NotNull
+    public static ConferenceBySpeakerEntity from(@NotNull final ConferenceEntity conference,
+                                                 @NotNull final UUID speakerId) {
+        return ConferenceBySpeakerEntity.builder()
+                .speakerId(speakerId)
+                .name(conference.getName())
+                .year(conference.getYear())
+                .location(conference.getLocation())
+                .logo(conference.getLogo())
+                .url(conference.getUrl())
+                .build();
     }
 }

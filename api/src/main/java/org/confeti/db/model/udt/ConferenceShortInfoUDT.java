@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.service.dto.Conference;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -37,4 +39,13 @@ public class ConferenceShortInfoUDT implements Serializable {
 
     @CqlName(CONFERENCE_ATT_YEAR)
     private Integer year;
+
+    @NotNull
+    public static ConferenceShortInfoUDT from(@NotNull final Conference conference) {
+        return ConferenceShortInfoUDT.builder()
+                .logo(conference.getLogo())
+                .name(conference.getName())
+                .year(conference.getYear())
+                .build();
+    }
 }

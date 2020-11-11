@@ -7,14 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.io.Serializable;
+import org.confeti.db.model.BaseEntity;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
-public abstract class AbstractConferenceEntity implements Serializable {
+public abstract class AbstractConferenceEntity implements BaseEntity {
 
     private static final long serialVersionUID = 1L;
 

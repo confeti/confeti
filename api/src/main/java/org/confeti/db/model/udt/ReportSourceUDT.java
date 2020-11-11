@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.confeti.service.dto.Report.ReportSource;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -37,4 +39,13 @@ public class ReportSourceUDT implements Serializable {
 
     @CqlName(REPORT_SOURCE_ATT_VIDEO_URL)
     private String videoUrl;
+
+    @NotNull
+    public static ReportSourceUDT from(@NotNull final ReportSource source) {
+        return ReportSourceUDT.builder()
+                .presentationUrl(source.getPresentation())
+                .videoUrl(source.getVideo())
+                .repoUrl(source.getRepo())
+                .build();
+    }
 }

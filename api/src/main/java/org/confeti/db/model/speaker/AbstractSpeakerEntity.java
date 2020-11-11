@@ -6,15 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.db.model.BaseEntity;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
-public abstract class AbstractSpeakerEntity implements Serializable {
+public abstract class AbstractSpeakerEntity implements BaseEntity {
 
     private static final long serialVersionUID = 1L;
 

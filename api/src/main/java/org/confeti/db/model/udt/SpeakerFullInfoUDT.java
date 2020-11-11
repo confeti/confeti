@@ -9,8 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.io.Serializable;
+import org.confeti.service.dto.Speaker;
+import org.jetbrains.annotations.NotNull;
 
 import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetElement.UDT;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_AVATAR;
@@ -35,4 +35,24 @@ public class SpeakerFullInfoUDT extends SpeakerShortInfoUDT {
 
     @CqlName(SPEAKER_ATT_BIO)
     private String bio;
+
+    @NotNull
+    public static SpeakerFullInfoUDT from(@NotNull final Speaker speaker) {
+        return SpeakerFullInfoUDT.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar())
+                .bio(speaker.getBio())
+                .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
+                .build();
+    }
+
+    @NotNull
+    public static SpeakerFullInfoUDT from(@NotNull final SpeakerShortInfoUDT speakerUDT) {
+        return SpeakerFullInfoUDT.builder()
+                .id(speakerUDT.getId())
+                .name(speakerUDT.getName())
+                .contactInfo(speakerUDT.getContactInfo())
+                .build();
+    }
 }

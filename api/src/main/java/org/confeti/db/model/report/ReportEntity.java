@@ -8,10 +8,16 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.confeti.db.model.udt.ConferenceShortInfoUDT;
+import org.confeti.db.model.udt.ReportSourceUDT;
 import org.confeti.db.model.udt.SpeakerFullInfoUDT;
+import org.confeti.service.dto.Report;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static org.confeti.db.model.BaseEntity.updateValue;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -45,5 +51,50 @@ public class ReportEntity extends AbstractReportEntity {
     @Override
     public UUID getId() {
         return id;
+    }
+
+    public void updateFrom(@NotNull final ReportEntity report) {
+        setTitle(updateValue(title, report.getTitle()));
+        setComplexity(updateValue(complexity, report.getComplexity()));
+        setLanguage(updateValue(language, report.getLanguage()));
+        setSource(updateValue(source, report.getSource()));
+        setDescription(updateValue(description, report.getDescription()));
+        setTags(updateValue(tags, report.getTags()));
+        setConferences(updateValue(conferences, report.getConferences()));
+        setSpeakers(updateValue(speakers, report.getSpeakers()));
+    }
+
+    @NotNull
+    public static ReportEntity from(@NotNull final ReportEntity report) {
+        return ReportEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(report.getSource())
+                .description(report.getDescription())
+                .tags(report.getTags())
+                .conferences(report.getConferences())
+                .speakers(report.getSpeakers())
+                .build();
+    }
+
+    @NotNull
+    public static ReportEntity from(@NotNull final Report report) {
+        return ReportEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity().getValue())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
+                .description(report.getDescription())
+                .tags(report.getTags())
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .speakers(report.getSpeakers().stream()
+                        .map(SpeakerFullInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .build();
     }
 }

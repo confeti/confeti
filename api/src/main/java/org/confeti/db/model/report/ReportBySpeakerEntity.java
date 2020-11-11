@@ -4,16 +4,18 @@ import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.confeti.db.model.udt.ConferenceShortInfoUDT;
+import org.confeti.db.model.udt.ReportSourceUDT;
+import org.confeti.service.dto.Report;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_CONFERENCES;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_DESCRIPTION;
@@ -54,5 +56,59 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
     @Override
     public String getTitle() {
         return title;
+    }
+
+    @NotNull
+    public static ReportBySpeakerEntity from(@NotNull final ReportBySpeakerEntity report) {
+        return ReportBySpeakerEntity.builder()
+                .speakerId(report.getSpeakerId())
+                .year(report.getYear())
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(report.getSource())
+                .description(report.getDescription())
+                .tags(report.getTags())
+                .conferences(report.getConferences())
+                .build();
+    }
+
+    @NotNull
+    public static ReportBySpeakerEntity from(@NotNull final UUID speakerId,
+                                             @NotNull final Integer year,
+                                             @NotNull final Report report) {
+        return ReportBySpeakerEntity.builder()
+                .speakerId(speakerId)
+                .year(year)
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity().getValue())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
+                .description(report.getDescription())
+                .tags(report.getTags())
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    @NotNull
+    public static ReportBySpeakerEntity from(@NotNull final UUID speakerId,
+                                             @NotNull final Integer year,
+                                             @NotNull final ReportEntity report) {
+        return ReportBySpeakerEntity.builder()
+                .speakerId(speakerId)
+                .year(year)
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(report.getSource())
+                .description(report.getDescription())
+                .tags(report.getTags())
+                .conferences(report.getConferences())
+                .build();
     }
 }

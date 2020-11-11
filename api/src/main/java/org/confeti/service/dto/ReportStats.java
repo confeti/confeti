@@ -1,4 +1,4 @@
-package org.confeti.handlers.dto;
+package org.confeti.service.dto;
 
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
