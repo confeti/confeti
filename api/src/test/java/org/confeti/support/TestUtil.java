@@ -121,15 +121,6 @@ public final class TestUtil {
     }
 
     @NotNull
-    public static Conference cloneConference(@NotNull final Conference conference) {
-        return Conference.builder(conference.getName(), conference.getYear())
-                .url(conference.getUrl())
-                .logo(conference.getLogo())
-                .location(conference.getLocation())
-                .build();
-    }
-
-    @NotNull
     public static Conference updateConference(@NotNull final Conference conference) {
         final var randomString = RandomStringUtils.randomAlphabetic(5);
         return Conference.builder(conference.getName(), conference.getYear())
