@@ -38,13 +38,13 @@ public interface ReportByTagDaoMapper extends BaseMapper {
      * CREATE TABLE IF NOT EXISTS report_by_tag (
      *     tag_name text,
      *     title text,
+     *     id uuid,
      *     complexity int,
      *     conferences set&lt;frozen&lt;conference_short_info&gt;&gt;,
      *     language text,
-     *     id uuid,
      *     source frozen&lt;report_source&gt;,
      *     speakers set&lt;frozen&lt;speaker_short_info&gt;&gt,
-     *     PRIMARY KEY (tag_name, title)
+     *     PRIMARY KEY (tag_name, title, id)
      * );
      * </pre>
      */
@@ -55,10 +55,10 @@ public interface ReportByTagDaoMapper extends BaseMapper {
         cqlSession.execute(createTable(REPORT_BY_TAG_TABLE).ifNotExists()
                 .withPartitionKey(REPORT_BY_TAG_ATT_TAG_NAME, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
+                .withClusteringColumn(REPORT_ATT_ID, DataTypes.UUID)
                 .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
                 .withColumn(REPORT_ATT_CONFERENCES, DataTypes.setOf(udt(CONFERENCE_SHORT_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
-                .withColumn(REPORT_ATT_ID, DataTypes.UUID)
                 .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))
                 .withColumn(REPORT_ATT_SPEAKERS, DataTypes.setOf(udt(SPEAKER_SHORT_INFO_UDT, true)))
                 .build());

@@ -15,6 +15,7 @@ import org.confeti.service.dto.Report;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_CONFERENCES;
@@ -43,10 +44,16 @@ public class ReportByTagEntity extends AbstractReportEntity {
     @CqlName(REPORT_ATT_SPEAKERS)
     private Set<SpeakerShortInfoUDT> speakers;
 
-    @ClusteringColumn
+    @ClusteringColumn(1)
     @Override
     public String getTitle() {
         return super.getTitle();
+    }
+
+    @ClusteringColumn(2)
+    @Override
+    public UUID getId() {
+        return id;
     }
 
     @NotNull

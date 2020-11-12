@@ -49,8 +49,8 @@ public class ConferenceBySpeakerEntity extends AbstractConferenceEntity {
     }
 
     @NotNull
-    public static ConferenceBySpeakerEntity from(@NotNull final Conference conference,
-                                                 @NotNull final UUID speakerId) {
+    public static ConferenceBySpeakerEntity from(@NotNull final UUID speakerId,
+                                                 @NotNull final Conference conference) {
         return ConferenceBySpeakerEntity.builder()
                 .speakerId(speakerId)
                 .name(conference.getName())
@@ -62,8 +62,8 @@ public class ConferenceBySpeakerEntity extends AbstractConferenceEntity {
     }
 
     @NotNull
-    public static ConferenceBySpeakerEntity from(@NotNull final ConferenceEntity conference,
-                                                 @NotNull final UUID speakerId) {
+    public static ConferenceBySpeakerEntity from(@NotNull final UUID speakerId,
+                                                 @NotNull final ConferenceEntity conference) {
         return ConferenceBySpeakerEntity.builder()
                 .speakerId(speakerId)
                 .name(conference.getName())

@@ -11,6 +11,8 @@ import lombok.experimental.SuperBuilder;
 import org.confeti.service.dto.Speaker;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -43,6 +45,12 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
         return name;
     }
 
+    @ClusteringColumn(3)
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
     @NotNull
     public static SpeakerByConferenceEntity from(@NotNull final SpeakerByConferenceEntity speaker) {
         return SpeakerByConferenceEntity.builder()
@@ -51,6 +59,7 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
                 .id(speaker.getId())
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
+                .location(speaker.getLocation())
                 .build();
     }
 
@@ -64,6 +73,7 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
                 .id(speaker.getId())
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
+                .location(speaker.getContactInfo() != null ? speaker.getContactInfo().getLocation() : null)
                 .build();
     }
 
@@ -77,6 +87,7 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
                 .id(speaker.getId())
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
+                .location(speaker.getContactInfo() != null ? speaker.getContactInfo().getLocation() : null)
                 .build();
     }
 }

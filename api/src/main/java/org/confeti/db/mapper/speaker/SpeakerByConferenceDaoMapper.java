@@ -34,10 +34,10 @@ public interface SpeakerByConferenceDaoMapper extends BaseMapper {
      *     conference_name text,
      *     year int,
      *     name text,
+     *     id uuid,
      *     avatar text,
      *     location text,
-     *     id uuid,
-     *     PRIMARY KEY (conference_name, year, name)
+     *     PRIMARY KEY (conference_name, year, name, id)
      * ) WITH CLUSTERING ORDER BY (year DESC, name ASC);
      * </pre>
      */
@@ -46,9 +46,9 @@ public interface SpeakerByConferenceDaoMapper extends BaseMapper {
                 .withPartitionKey(SPEAKER_BY_CONFERENCE_ATT_CONFERENCE_NAME, DataTypes.TEXT)
                 .withClusteringColumn(SPEAKER_BY_CONFERENCE_ATT_YEAR, DataTypes.INT)
                 .withClusteringColumn(SPEAKER_ATT_NAME, DataTypes.TEXT)
+                .withClusteringColumn(SPEAKER_ATT_ID, DataTypes.UUID)
                 .withColumn(SPEAKER_ATT_AVATAR, DataTypes.TEXT)
                 .withColumn(SPEAKER_BY_CONFERENCE_ATT_LOCATION, DataTypes.TEXT)
-                .withColumn(SPEAKER_ATT_ID, DataTypes.UUID)
                 .withClusteringOrder(SPEAKER_BY_CONFERENCE_ATT_YEAR, ClusteringOrder.DESC)
                 .withClusteringOrder(SPEAKER_ATT_NAME, ClusteringOrder.ASC)
                 .build());

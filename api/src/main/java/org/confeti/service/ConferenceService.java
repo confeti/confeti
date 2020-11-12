@@ -60,7 +60,7 @@ public final class ConferenceService extends AbstractEntityService<ConferenceEnt
         return upsert(
                 upsert(conferenceEntity),
                 sp -> speakerService.findBy(speakerId)
-                        .map(speaker -> ConferenceBySpeakerEntity.from(conferenceEntity, speaker.getId())),
+                        .map(speaker -> ConferenceBySpeakerEntity.from(speaker.getId(), conferenceEntity)),
                 conferenceBySpeakerDao);
     }
 
@@ -97,6 +97,6 @@ public final class ConferenceService extends AbstractEntityService<ConferenceEnt
     @NotNull
     @Override
     protected MappedReactiveResultSet<ConferenceEntity> findByPrimaryKey(@NotNull final Conference conference) {
-        return dao.findByName(conference.getName());
+        return dao.findByNameForYear(conference.getName(), conference.getYear());
     }
 }

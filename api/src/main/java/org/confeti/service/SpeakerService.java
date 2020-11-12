@@ -91,7 +91,7 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
 
     @NotNull
     @Override
-    protected MappedReactiveResultSet<SpeakerEntity> findByPrimaryKey(@NotNull final Speaker dto) {
-        return dao.findById(dto.getId());
+    protected MappedReactiveResultSet<SpeakerEntity> findByPrimaryKey(@NotNull final Speaker speaker) {
+        return dao.findById(speaker.getId());
     }
 }

@@ -58,6 +58,12 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
         return title;
     }
 
+    @ClusteringColumn(3)
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
     @NotNull
     public static ReportBySpeakerEntity from(@NotNull final ReportBySpeakerEntity report) {
         return ReportBySpeakerEntity.builder()

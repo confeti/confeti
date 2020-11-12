@@ -41,14 +41,14 @@ public interface ReportBySpeakerDaoMapper extends BaseMapper {
      *     speaker_id uuid,
      *     year int,
      *     title text,
+     *     id uuid,
      *     complexity int,
      *     conferences set&lt;frozen&lt;conference_short_info&gt;&gt;,
      *     description text,
      *     language text,
-     *     id uuid,
      *     source frozen&lt;report_source&gt;,
      *     tags set&lt;text&gt;,
-     *     PRIMARY KEY (speaker_id, year, title)
+     *     PRIMARY KEY (speaker_id, year, title, id)
      * ) WITH CLUSTERING ORDER BY (year DESC, title ASC);
      * </pre>
      */
@@ -59,11 +59,11 @@ public interface ReportBySpeakerDaoMapper extends BaseMapper {
                 .withPartitionKey(REPORT_BY_SPEAKER_ATT_SPEAKER_ID, DataTypes.UUID)
                 .withClusteringColumn(REPORT_BY_SPEAKER_ATT_YEAR, DataTypes.INT)
                 .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
+                .withClusteringColumn(REPORT_ATT_ID, DataTypes.UUID)
                 .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
                 .withColumn(REPORT_ATT_CONFERENCES, DataTypes.setOf(udt(CONFERENCE_SHORT_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_DESCRIPTION, DataTypes.TEXT)
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
-                .withColumn(REPORT_ATT_ID, DataTypes.UUID)
                 .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))
                 .withColumn(REPORT_ATT_TAGS, DataTypes.setOf(DataTypes.TEXT))
                 .withClusteringOrder(REPORT_BY_SPEAKER_ATT_YEAR, ClusteringOrder.DESC)

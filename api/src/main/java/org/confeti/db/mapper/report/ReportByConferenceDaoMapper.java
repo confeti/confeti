@@ -40,13 +40,13 @@ public interface ReportByConferenceDaoMapper extends BaseMapper {
      *     conference_name text,
      *     year int,
      *     title text,
+     *     id uuid,
      *     complexity int,
      *     language text,
-     *     id uuid,
      *     source frozen&lt;report_source&gt;,
      *     speakers set&lt;frozen&lt;speaker_short_info&gt;&gt;,
      *     tags set&lt;text&gt;,
-     *     PRIMARY KEY (conference_name, year, title)
+     *     PRIMARY KEY (conference_name, year, title, id)
      * ) WITH CLUSTERING ORDER BY (year DESC, title ASC);
      * </pre>
      */
@@ -57,9 +57,9 @@ public interface ReportByConferenceDaoMapper extends BaseMapper {
                 .withPartitionKey(REPORT_BY_CONFERENCE_ATT_CONFERENCE_NAME, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_BY_CONFERENCE_ATT_YEAR, DataTypes.INT)
                 .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
+                .withClusteringColumn(REPORT_ATT_ID, DataTypes.UUID)
                 .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
-                .withColumn(REPORT_ATT_ID, DataTypes.UUID)
                 .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))
                 .withColumn(REPORT_ATT_SPEAKERS, DataTypes.setOf(udt(SPEAKER_SHORT_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_TAGS, DataTypes.setOf(DataTypes.TEXT))
