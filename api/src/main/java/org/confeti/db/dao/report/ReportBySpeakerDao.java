@@ -16,4 +16,10 @@ public interface ReportBySpeakerDao extends BaseDao<ReportBySpeakerEntity> {
 
     @Select
     MappedReactiveResultSet<ReportBySpeakerEntity> findBySpeakerIdForYear(UUID speakerId, Integer year);
+
+    @Select
+    MappedReactiveResultSet<ReportBySpeakerEntity> findByTitle(UUID speakerId, Integer year, String title);
+
+    @Select
+    MappedReactiveResultSet<ReportBySpeakerEntity> findById(UUID speakerId, Integer year, String title, UUID id);
 }

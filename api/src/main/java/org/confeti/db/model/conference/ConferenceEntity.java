@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.db.model.BaseEntity;
 import org.confeti.db.model.udt.ConferenceShortInfoUDT;
 import org.confeti.service.dto.Conference;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +20,7 @@ import static org.confeti.db.model.BaseEntity.updateValue;
 @SuperBuilder
 @Entity
 @CqlName(ConferenceEntity.CONFERENCE_TABLE)
-public class ConferenceEntity extends AbstractConferenceEntity {
+public class ConferenceEntity extends AbstractConferenceEntity implements BaseEntity<ConferenceEntity> {
 
     private static final long serialVersionUID = 1L;
 
@@ -62,6 +63,7 @@ public class ConferenceEntity extends AbstractConferenceEntity {
                 .build();
     }
 
+    @Override
     public void updateFrom(@NotNull final ConferenceEntity conference) {
         setName(updateValue(name, conference.getName()));
         setYear(updateValue(year, conference.getYear()));

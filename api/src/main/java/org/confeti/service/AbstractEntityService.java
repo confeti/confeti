@@ -13,7 +13,7 @@ import reactor.function.TupleUtils;
 import java.util.function.Function;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractEntityService<E extends BaseEntity, D, R extends BaseDao<E>>
+public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extends BaseDao<E>>
         implements BaseEntityService<D> {
 
     protected final R dao;
@@ -25,10 +25,20 @@ public abstract class AbstractEntityService<E extends BaseEntity, D, R extends B
     }
 
     @NotNull
-    protected <T> Mono<E> upsert(@NotNull final Mono<E> savedEntity,
-                                 @NotNull final Function<E, Mono<T>> getEntityBy,
+    protected Mono<E> upsert(@NotNull final D dto,
+                             @NotNull final Function<D, E> dtoToModelConverter) {
+        final var entity = dtoToModelConverter.apply(dto);
+        return Mono.from(findByPrimaryKey(dto))
+                .doOnNext(ce -> ce.updateFrom(entity))
+                .defaultIfEmpty(entity)
+                .flatMap(this::upsert);
+    }
+
+    @NotNull
+    protected <T> Mono<D> upsert(@NotNull final Mono<D> savedEntityDto,
+                                 @NotNull final Function<D, Mono<T>> getEntityBy,
                                  @NotNull final BaseDao<T> entityByDao) {
-        return Mono.from(savedEntity)
+        return Mono.from(savedEntityDto)
                 .flatMap(entity -> getEntityBy.apply(entity).zipWith(Mono.just(entity)))
                 .flatMap(TupleUtils.function((entityBy, dto) ->
                         Mono.from(entityByDao.upsert(entityBy))

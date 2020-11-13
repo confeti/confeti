@@ -6,6 +6,8 @@ import com.datastax.oss.driver.api.mapper.annotations.Select;
 import org.confeti.db.dao.BaseDao;
 import org.confeti.db.model.report.ReportByConferenceEntity;
 
+import java.util.UUID;
+
 @Dao
 public interface ReportByConferenceDao extends BaseDao<ReportByConferenceEntity> {
 
@@ -14,4 +16,10 @@ public interface ReportByConferenceDao extends BaseDao<ReportByConferenceEntity>
 
     @Select
     MappedReactiveResultSet<ReportByConferenceEntity> findByConferenceNameForYear(String conferenceName, Integer year);
+
+    @Select
+    MappedReactiveResultSet<ReportByConferenceEntity> findByTitle(String conferenceName, Integer year, String title);
+
+    @Select
+    MappedReactiveResultSet<ReportByConferenceEntity> findById(String conferenceName, Integer year, String title, UUID id);
 }

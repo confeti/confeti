@@ -6,16 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.confeti.db.model.BaseEntity;
 import org.confeti.db.model.udt.ReportSourceUDT;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
-public abstract class AbstractReportEntity implements BaseEntity {
+public abstract class AbstractReportEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,6 +34,9 @@ public abstract class AbstractReportEntity implements BaseEntity {
     @CqlName(REPORT_ATT_COMPLEXITY)
     protected Integer complexity;
 
+    /**
+     * An ISO 639 alpha-2 or alpha-3 language code.
+     */
     @CqlName(REPORT_ATT_LANGUAGE)
     protected String language;
 

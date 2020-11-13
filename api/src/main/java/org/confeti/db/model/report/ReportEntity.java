@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.db.model.BaseEntity;
 import org.confeti.db.model.udt.ConferenceShortInfoUDT;
 import org.confeti.db.model.udt.ReportSourceUDT;
 import org.confeti.db.model.udt.SpeakerFullInfoUDT;
@@ -25,7 +26,7 @@ import static org.confeti.db.model.BaseEntity.updateValue;
 @SuperBuilder
 @Entity
 @CqlName(ReportEntity.REPORT_TABLE)
-public class ReportEntity extends AbstractReportEntity {
+public class ReportEntity extends AbstractReportEntity implements BaseEntity<ReportEntity> {
 
     private static final long serialVersionUID = 1L;
 
@@ -53,6 +54,7 @@ public class ReportEntity extends AbstractReportEntity {
         return id;
     }
 
+    @Override
     public void updateFrom(@NotNull final ReportEntity report) {
         setTitle(updateValue(title, report.getTitle()));
         setComplexity(updateValue(complexity, report.getComplexity()));

@@ -38,12 +38,7 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
         if (speaker.getId() == null) {
             speaker.setId(UUID.randomUUID());
         }
-        final var speakerEntity = SpeakerEntity.from(speaker);
-        final var savedEntity = Mono.from(findByPrimaryKey(speaker))
-                .doOnNext(se -> se.updateFrom(speakerEntity))
-                .defaultIfEmpty(speakerEntity)
-                .flatMap(this::upsert)
-                .cache();
+        final var savedEntity = upsert(speaker, SpeakerEntity::from).cache();
         return savedEntity
                 .flatMapMany(se -> conferenceService.findBy(se.getId()).zipWith(Mono.just(se)))
                 .flatMap(TupleUtils.function((conf, se) -> upsert(se, conf.getName(), conf.getYear())))
@@ -54,16 +49,19 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
     public Mono<Speaker> upsert(@NotNull final Speaker speaker,
                                 @NotNull final String conferenceName,
                                 @NotNull final Integer year) {
-        return upsert(SpeakerEntity.from(speaker), conferenceName, year)
-                .map(Speaker::from);
+        return upsert(
+                upsert(speaker),
+                sp -> conferenceService.findBy(conferenceName, year)
+                        .map(conference -> SpeakerByConferenceEntity.from(conference.getName(), year, sp)),
+                speakerByConferenceDao);
     }
 
     @NotNull
-    private Mono<SpeakerEntity> upsert(@NotNull final SpeakerEntity speakerEntity,
-                                       @NotNull final String conferenceName,
-                                       @NotNull final Integer year) {
+    private Mono<Speaker> upsert(@NotNull final SpeakerEntity speaker,
+                                 @NotNull final String conferenceName,
+                                 @NotNull final Integer year) {
         return upsert(
-                upsert(speakerEntity),
+                upsert(speaker).map(Speaker::from),
                 sp -> conferenceService.findBy(conferenceName, year)
                         .map(conference -> SpeakerByConferenceEntity.from(conference.getName(), year, sp)),
                 speakerByConferenceDao);

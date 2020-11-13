@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.db.model.BaseEntity;
 import org.confeti.db.model.udt.ContactInfoUDT;
 import org.confeti.db.model.udt.SpeakerFullInfoUDT;
 import org.confeti.db.model.udt.SpeakerShortInfoUDT;
@@ -23,7 +24,7 @@ import static org.confeti.db.model.BaseEntity.updateValue;
 @SuperBuilder
 @Entity
 @CqlName(SpeakerEntity.SPEAKER_TABLE)
-public class SpeakerEntity extends AbstractSpeakerEntity {
+public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<SpeakerEntity> {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,6 +44,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity {
         return id;
     }
 
+    @Override
     public void updateFrom(@NotNull final SpeakerEntity speaker) {
         final var newContactInfo = speaker.getContactInfo();
         if (newContactInfo != null && contactInfo != null && contactInfo.getCompanies() != null) {
@@ -64,7 +66,6 @@ public class SpeakerEntity extends AbstractSpeakerEntity {
                 .contactInfo(speaker.getContactInfo())
                 .build();
     }
-
 
     @NotNull
     public static SpeakerEntity from(@NotNull final Speaker speaker) {
