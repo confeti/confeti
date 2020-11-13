@@ -64,6 +64,8 @@ CREATE TABLE IF NOT EXISTS conference (
     PRIMARY KEY (name, year)
 ) WITH CLUSTERING ORDER BY (year DESC);
 
+CREATE INDEX IF NOT EXISTS speaker_name_idx ON speaker(name);
+
 CREATE TABLE IF NOT EXISTS speaker (
     id uuid,
     avatar text,

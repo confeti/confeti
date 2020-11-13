@@ -187,6 +187,89 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testUpdateSpeakerWhenExist2SpeakersInDbWithSameName() {
+        final var speaker1 = generateSpeaker();
+        final var speaker2 = updateSpeaker(speaker1, true, true);
+        final var updatedSpeaker2 = updateSpeaker(speaker2);
+        speakerService.upsert(speaker1).block();
+        speakerService.upsert(speaker2).block();
+        speakerService.upsert(updatedSpeaker2).block();
+
+        StepVerifier.create(speakerService.findByName(speaker1.getName()))
+                .expectNextMatches(sp -> sp.equals(speaker1) || sp.equals(updatedSpeaker2))
+                .expectNextMatches(sp -> sp.equals(speaker1) || sp.equals(updatedSpeaker2))
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testNotUpdateSpeakerWhenSpeakersHaveSameNameButDiffTwitterUsernamesAndDiffEmails() {
+        final var speaker = generateSpeaker();
+        final var newSpeaker = updateSpeaker(speaker, true, true);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(newSpeaker).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(newSpeaker))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(newSpeaker))
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testUpdateSpeakerWhenSpeakersHaveSameNameAndSameEmailButDiffTwitterUsernames() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker1 = updateSpeaker(speaker, false, true);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker1).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNext(updatedSpeaker1)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testUpdateSpeakerWhenSpeakersHaveSameNameAndSameTwitterUsernameButDiffEmailsSpeaker() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker1 = updateSpeaker(speaker, true, false);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker1).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNext(updatedSpeaker1)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testUpdateSpeakerWhenSpeakersHaveSameNameAndSameTwitterUsernameAndSameEmailSpeaker() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNext(updatedSpeaker)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testFindSpeakersByName() {
+        final var speaker1 = generateSpeaker();
+        final var speaker2 = updateSpeaker(speaker1, true, true);
+        speakerService.upsert(speaker1).block();
+        speakerService.upsert(speaker2).block();
+
+        StepVerifier.create(speakerService.findByName(speaker1.getName()))
+                .expectNextMatches(sp -> sp.equals(speaker1) || sp.equals(speaker2))
+                .expectNextMatches(sp -> sp.equals(speaker1) || sp.equals(speaker2))
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
     public void testFindSpeakerById() {
         final var speaker = generateSpeaker();
         speakerService.upsert(speaker).block();

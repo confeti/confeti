@@ -8,9 +8,14 @@ import org.confeti.db.model.speaker.SpeakerEntity;
 
 import java.util.UUID;
 
+import static org.confeti.db.model.speaker.AbstractSpeakerEntity.SPEAKER_ATT_NAME;
+
 @Dao
 public interface SpeakerDao extends BaseDao<SpeakerEntity> {
 
     @Select
     MappedReactiveResultSet<SpeakerEntity> findById(UUID speakerId);
+
+    @Select(customWhereClause = SPEAKER_ATT_NAME + "= :name", allowFiltering = true)
+    MappedReactiveResultSet<SpeakerEntity> findByName(String name);
 }

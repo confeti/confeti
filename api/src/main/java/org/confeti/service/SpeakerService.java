@@ -1,6 +1,5 @@
 package org.confeti.service;
 
-import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
 import org.confeti.db.dao.speaker.SpeakerByConferenceDao;
 import org.confeti.db.dao.speaker.SpeakerDao;
 import org.confeti.db.model.speaker.SpeakerByConferenceEntity;
@@ -38,7 +37,13 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
         if (speaker.getId() == null) {
             speaker.setId(UUID.randomUUID());
         }
-        final var savedEntity = upsert(speaker, SpeakerEntity::from).cache();
+        final var savedEntity = findByName(speaker.getName())
+                .filter(foundSpeaker -> foundSpeaker.canBeUpdatedTo(speaker))
+                .collectList()
+                .map(foundSpeakers -> foundSpeakers.isEmpty()
+                        ? speaker
+                        : Speaker.updateOrNew(foundSpeakers.get(0), speaker))
+                .flatMap(sp -> upsert(sp, SpeakerEntity::from)).cache();
         return savedEntity
                 .flatMapMany(se -> conferenceService.findBy(se.getId()).zipWith(Mono.just(se)))
                 .flatMap(TupleUtils.function((conf, se) -> upsert(se, conf.getName(), conf.getYear())))
@@ -68,6 +73,11 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
     }
 
     @NotNull
+    public Flux<Speaker> findByName(@NotNull final String name) {
+        return findAllBy(dao.findByName(name), Speaker::from);
+    }
+
+    @NotNull
     public Mono<Speaker> findBy(@NotNull final UUID id) {
         return findOneBy(dao.findById(id), Speaker::from);
     }
@@ -89,7 +99,7 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
 
     @NotNull
     @Override
-    protected MappedReactiveResultSet<SpeakerEntity> findByPrimaryKey(@NotNull final Speaker speaker) {
-        return dao.findById(speaker.getId());
+    protected Mono<SpeakerEntity> findByPrimaryKey(@NotNull final Speaker speaker) {
+        return Mono.from(dao.findById(speaker.getId()));
     }
 }

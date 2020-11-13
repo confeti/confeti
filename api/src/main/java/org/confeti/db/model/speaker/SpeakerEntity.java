@@ -29,6 +29,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
     private static final long serialVersionUID = 1L;
 
     public static final String SPEAKER_TABLE = "speaker";
+    public static final String SPEAKER_NAME_INDEX = "speaker_name_idx";
     public static final String SPEAKER_ATT_BIO = "bio";
     public static final String SPEAKER_ATT_CONTACT_INFO = "contact_info";
 
@@ -47,8 +48,14 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
     @Override
     public void updateFrom(@NotNull final SpeakerEntity speaker) {
         final var newContactInfo = speaker.getContactInfo();
-        if (newContactInfo != null && contactInfo != null && contactInfo.getCompanies() != null) {
-            newContactInfo.addCompanies(contactInfo.getCompanies());
+        if (newContactInfo != null && contactInfo != null) {
+            newContactInfo.setLocation(updateValue(contactInfo.getLocation(), newContactInfo.getLocation()));
+            newContactInfo.setEmail(updateValue(contactInfo.getEmail(), newContactInfo.getEmail()));
+            newContactInfo.setTwitterUsername(
+                    updateValue(contactInfo.getTwitterUsername(), newContactInfo.getTwitterUsername()));
+            if (contactInfo.getCompanies() != null) {
+                newContactInfo.addCompanies(contactInfo.getCompanies());
+            }
         }
         setName(updateValue(name, speaker.getName()));
         setBio(updateValue(bio, speaker.getBio()));

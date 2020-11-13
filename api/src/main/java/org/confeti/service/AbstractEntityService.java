@@ -28,7 +28,7 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
     protected Mono<E> upsert(@NotNull final D dto,
                              @NotNull final Function<D, E> dtoToModelConverter) {
         final var entity = dtoToModelConverter.apply(dto);
-        return Mono.from(findByPrimaryKey(dto))
+        return findByPrimaryKey(dto)
                 .doOnNext(ce -> ce.updateFrom(entity))
                 .defaultIfEmpty(entity)
                 .flatMap(this::upsert);
@@ -46,19 +46,19 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
     }
 
     @NotNull
-    protected <T> Mono<D> findOneBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
-                                    @NotNull final Function<T, D> modelToDtoConverter) {
+    protected <T, K> Mono<K> findOneBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
+                                       @NotNull final Function<T, K> modelToDtoConverter) {
         return Mono.from(foundEntity)
                 .map(modelToDtoConverter);
     }
 
     @NotNull
-    protected <T> Flux<D> findAllBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
-                                    @NotNull final Function<T, D> modelToDtoConverter) {
+    protected <T, K> Flux<K> findAllBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
+                                       @NotNull final Function<T, K> modelToDtoConverter) {
         return Flux.from(foundEntity)
                 .map(modelToDtoConverter);
     }
 
     @NotNull
-    protected abstract MappedReactiveResultSet<E> findByPrimaryKey(@NotNull final D dto);
+    protected abstract Mono<E> findByPrimaryKey(@NotNull final D dto);
 }

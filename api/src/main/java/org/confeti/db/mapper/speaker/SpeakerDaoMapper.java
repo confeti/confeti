@@ -10,6 +10,7 @@ import org.confeti.db.dao.speaker.SpeakerDao;
 import org.confeti.db.mapper.BaseMapper;
 import org.jetbrains.annotations.NotNull;
 
+import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createIndex;
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createTable;
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.udt;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_AVATAR;
@@ -17,6 +18,7 @@ import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_BIO;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_CONTACT_INFO;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_ID;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_NAME;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_NAME_INDEX;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_TABLE;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_UDT;
 
@@ -27,9 +29,11 @@ public interface SpeakerDaoMapper extends BaseMapper {
     SpeakerDao speakerDao(@DaoKeyspace CqlIdentifier keyspace);
 
     /**
-     * Create the <i>speaker</i> table.
+     * Create the <i>speaker</i> table. And index on a <i>name</i> column.
      *
      * <pre>
+     * CREATE INDEX IF NOT EXISTS speaker_name_idx ON speaker(name);
+     *
      * CREATE TABLE IF NOT EXISTS speaker (
      *     id uuid,
      *     avatar text,
@@ -48,6 +52,11 @@ public interface SpeakerDaoMapper extends BaseMapper {
                 .withColumn(SPEAKER_ATT_BIO, DataTypes.TEXT)
                 .withColumn(SPEAKER_ATT_CONTACT_INFO, udt(CONTACT_INFO_UDT, true))
                 .withColumn(SPEAKER_ATT_NAME, DataTypes.TEXT)
+                .build());
+
+        cqlSession.execute(createIndex(SPEAKER_NAME_INDEX).ifNotExists()
+                .onTable(SPEAKER_TABLE)
+                .andColumn(SPEAKER_ATT_NAME)
                 .build());
     }
 }

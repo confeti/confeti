@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.confeti.db.model.speaker.SpeakerByConferenceEntity;
 import org.confeti.db.model.speaker.SpeakerEntity;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @Data
 @Builder(builderMethodName = "hiddenBuilder")
+@EqualsAndHashCode(exclude = {"id"})
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Speaker implements Serializable {
@@ -35,13 +37,41 @@ public class Speaker implements Serializable {
 
     private ContactInfo contactInfo;
 
+    public boolean canBeUpdatedTo(@NotNull final Speaker speaker) {
+        if (contactInfo != null && speaker.getContactInfo() != null) {
+            final boolean canUpdateEmail = canBeUpdatedEmail(
+                    speaker.getContactInfo().getEmail(), speaker.getContactInfo().getTwitterUsername());
+            final boolean canUpdateTwitter = canBeUpdatedTwitterUsername(
+                    speaker.getContactInfo().getEmail(), speaker.getContactInfo().getTwitterUsername());
+            final boolean emailAndTwitterEqualPastValues = !canUpdateEmail && !canUpdateTwitter;
+            return canUpdateEmail ^ canUpdateTwitter || emailAndTwitterEqualPastValues;
+        }
+        return false;
+    }
+
+    boolean canBeUpdatedEmail(@NotNull final String newEmail,
+                              @NotNull final String newTwitter) {
+            final var oldEmail = contactInfo.getEmail();
+            final var oldTwitter = contactInfo.getTwitterUsername();
+            return oldTwitter != null && (oldEmail == null && oldTwitter.equals(newTwitter)
+                    || oldEmail != null && !oldEmail.equals(newEmail));
+    }
+
+    boolean canBeUpdatedTwitterUsername(@NotNull final String newEmail,
+                                        @NotNull final String newTwitter) {
+        final var oldEmail = contactInfo.getEmail();
+        final var oldTwitter = contactInfo.getTwitterUsername();
+        return oldEmail != null && (oldTwitter == null && oldEmail.equals(newEmail)
+                || oldTwitter != null && !oldTwitter.equals(newTwitter));
+    }
+
     public static SpeakerBuilder builder(@NotNull final UUID id,
                                          @NotNull final String name) {
         return hiddenBuilder().id(id).name(name);
     }
 
     public static SpeakerBuilder builder(@NotNull final String name) {
-        return hiddenBuilder().id(UUID.randomUUID()).name(name);
+        return hiddenBuilder().name(name);
     }
 
     @NotNull
@@ -83,6 +113,29 @@ public class Speaker implements Serializable {
         return Speaker.builder(speakerUDT.getId(), speakerUDT.getName())
                 .contactInfo(ContactInfo.from(speakerUDT.getContactInfo()))
                 .build();
+    }
+
+    @NotNull
+    public static Speaker updateOrNew(@NotNull final Speaker oldSpeaker,
+                                      @NotNull final Speaker newSpeaker) {
+        if (oldSpeaker.canBeUpdatedTo(newSpeaker)) {
+            final var newEmail = newSpeaker.getContactInfo().getEmail();
+            final var newTwitter = newSpeaker.getContactInfo().getTwitterUsername();
+            final var canUpdateEmail = oldSpeaker.canBeUpdatedEmail(newEmail, newTwitter);
+            final var canUpdateTwitter = oldSpeaker.canBeUpdatedTwitterUsername(newEmail, newTwitter);
+            return Speaker.builder(oldSpeaker.getId(), oldSpeaker.getName())
+                    .avatar(newSpeaker.getAvatar())
+                    .bio(newSpeaker.getBio())
+                    .contactInfo(ContactInfo.builder()
+                            .company(newSpeaker.getContactInfo().getCompany())
+                            .location(newSpeaker.getContactInfo().getLocation())
+                            .email(canUpdateEmail ? newEmail : oldSpeaker.getContactInfo().getEmail())
+                            .twitterUsername(canUpdateTwitter ? newTwitter : oldSpeaker.getContactInfo().getTwitterUsername())
+                            .build())
+                    .build();
+        }
+        newSpeaker.setId(UUID.randomUUID());
+        return newSpeaker;
     }
 
     @Data

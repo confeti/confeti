@@ -1,6 +1,5 @@
 package org.confeti.service;
 
-import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
 import org.confeti.db.dao.conference.ConferenceBySpeakerDao;
 import org.confeti.db.dao.conference.ConferenceDao;
 import org.confeti.db.model.conference.ConferenceBySpeakerEntity;
@@ -94,7 +93,7 @@ public final class ConferenceService extends AbstractEntityService<ConferenceEnt
 
     @NotNull
     @Override
-    protected MappedReactiveResultSet<ConferenceEntity> findByPrimaryKey(@NotNull final Conference conference) {
-        return dao.findByNameForYear(conference.getName(), conference.getYear());
+    protected Mono<ConferenceEntity> findByPrimaryKey(@NotNull final Conference conference) {
+        return Mono.from(dao.findByNameForYear(conference.getName(), conference.getYear()));
     }
 }

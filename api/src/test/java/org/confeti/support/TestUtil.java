@@ -136,8 +136,8 @@ public final class TestUtil {
         final var randomString = RandomStringUtils.randomAlphabetic(5);
         return Speaker.ContactInfo.SpeakerCompany.builder()
                 .addedDate(Instant.ofEpochMilli(Instant.now().toEpochMilli()))
-                .name(speaker.getContactInfo().getCompany() + randomString)
-                .year(generateYear())
+                .name(speaker.getContactInfo().getCompany().getName() + randomString)
+                .year(speaker.getContactInfo().getCompany().getYear() + 1)
                 .build();
     }
 
@@ -153,13 +153,19 @@ public final class TestUtil {
     }
 
     @NotNull
-    public static Speaker.ContactInfo updateContactInfo(@NotNull final Speaker speaker) {
+    public static Speaker.ContactInfo updateContactInfo(@NotNull final Speaker speaker,
+                                                        final boolean needUpdateEmail,
+                                                        final boolean needUpdateTwitter) {
         final var randomString = RandomStringUtils.randomAlphabetic(5);
+        final var oldEmail = speaker.getContactInfo().getEmail();
+        final var oldTwitterUsername = speaker.getContactInfo().getTwitterUsername();
+        final var email = needUpdateEmail ? randomString + oldEmail : oldEmail;
+        final var twitterUsername = needUpdateTwitter ? oldTwitterUsername + randomString : oldTwitterUsername;
         return Speaker.ContactInfo.builder()
                 .company(updateSpeakerCompany(speaker))
-                .email(randomString + speaker.getContactInfo().getEmail())
+                .email(email)
                 .location(speaker.getContactInfo().getLocation() + randomString)
-                .twitterUsername(speaker.getContactInfo().getTwitterUsername() + randomString)
+                .twitterUsername(twitterUsername)
                 .build();
     }
 
@@ -167,7 +173,7 @@ public final class TestUtil {
     public static Speaker generateSpeaker() {
         final long num = nextSpeakerNum();
         final var name = SPEAKER_PREFIX + num;
-        return Speaker.builder(UUID.randomUUID(), name)
+        return Speaker.builder(name)
                 .bio(SPEAKER_BIO_PREFIX + num)
                 .avatar(SPEAKER_AVATAR_PREFIX + num)
                 .contactInfo(generateContactInfo(name, num))
@@ -180,7 +186,19 @@ public final class TestUtil {
         return Speaker.builder(speaker.getId(), speaker.getName())
                 .bio(speaker.getBio() + randomString)
                 .avatar(speaker.getAvatar() + randomString)
-                .contactInfo(updateContactInfo(speaker))
+                .contactInfo(updateContactInfo(speaker, false, false))
+                .build();
+    }
+
+    @NotNull
+    public static Speaker updateSpeaker(@NotNull final Speaker speaker,
+                                        final boolean needUpdateEmail,
+                                        final boolean needUpdateTwitter) {
+        final var randomString = RandomStringUtils.randomAlphabetic(5);
+        return Speaker.builder(speaker.getId(), speaker.getName())
+                .bio(speaker.getBio() + randomString)
+                .avatar(speaker.getAvatar() + randomString)
+                .contactInfo(updateContactInfo(speaker, needUpdateEmail, needUpdateTwitter))
                 .build();
     }
 
