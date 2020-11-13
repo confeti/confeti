@@ -21,7 +21,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     private ConferenceService conferenceService;
 
     @Test
-    public void insertSpeakerTest() {
+    public void testInsertSpeaker() {
         final var speaker = generateSpeaker();
 
         StepVerifier.create(speakerService.upsert(speaker))
@@ -31,7 +31,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void insertSpeakerWhenInsertSpeakerByConferenceTest() {
+    public void testInsertSpeakerWhenInsertSpeakerByConference() {
         final var speaker = generateSpeaker();
         final var conference = generateConference();
         conferenceService.upsert(conference).block();
@@ -44,7 +44,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void insertSpeakerByConferenceTest() {
+    public void testInsertSpeakerByConference() {
         final var speaker = generateSpeaker();
         final var conference = generateConference();
         conferenceService.upsert(conference).block();
@@ -56,7 +56,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void insertSpeakerByConferenceButConferenceNotExistTest() {
+    public void testInsertSpeakerByConferenceButConferenceNotExist() {
         final var speaker = generateSpeaker();
         final var conference = generateConference();
         speakerService.upsert(speaker, conference.getName(), conference.getYear()).block();
@@ -72,7 +72,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void updateSpeakerTest() {
+    public void testUpdateSpeaker() {
         final var speaker = generateSpeaker();
         final var updatedSpeaker = updateSpeaker(speaker);
         speakerService.upsert(speaker).block();
@@ -89,7 +89,29 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void updateSpeakerByConferenceTest() {
+    public void testUpdateSpeakerWithSavingInfoAboutFormerCompany() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        updatedSpeaker.getContactInfo().getCompany().setYear(
+                speaker.getContactInfo().getCompany().getYear() - 1);
+        speakerService.upsert(speaker).block();
+
+        final var expectedSpeaker = Speaker.from(updatedSpeaker);
+        expectedSpeaker.getContactInfo().setCompany(speaker.getContactInfo().getCompany());
+
+        StepVerifier.create(speakerService.upsert(updatedSpeaker))
+                .expectNext(expectedSpeaker)
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(speakerService.findBy(speaker.getId()))
+                .expectNext(expectedSpeaker)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testUpdateSpeakerByConference() {
         final var speaker = generateSpeaker();
         final var updatedSpeaker = updateSpeaker(speaker);
         final var conference = generateConference();
@@ -111,7 +133,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void updateSpeakerWhenUpdateSpeakerByConferenceTest() {
+    public void testUpdateSpeakerWhenUpdateSpeakerByConference() {
         final var speaker = generateSpeaker();
         final var updatedSpeaker = updateSpeaker(speaker);
         final var conference = generateConference();
@@ -126,7 +148,27 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void updateSpeakerByConferenceWhenUpdateSpeakerTest() {
+    public void testUpdateSpeakerWithSavingInfoAboutFormerCompanyWhenUpdateSpeakerByConference() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        updatedSpeaker.getContactInfo().getCompany().setYear(
+                speaker.getContactInfo().getCompany().getYear() - 1);
+        final var conference = generateConference();
+        conferenceService.upsert(conference).block();
+        speakerService.upsert(speaker, conference.getName(), conference.getYear()).block();
+        speakerService.upsert(updatedSpeaker, conference.getName(), conference.getYear()).block();
+
+        final var expectedSpeaker = Speaker.from(updatedSpeaker);
+        expectedSpeaker.getContactInfo().setCompany(speaker.getContactInfo().getCompany());
+
+        StepVerifier.create(speakerService.findBy(speaker.getId()))
+                .expectNext(expectedSpeaker)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testUpdateSpeakerByConferenceWhenUpdateSpeaker() {
         final var speaker = generateSpeaker();
         final var updatedSpeaker = updateSpeaker(speaker);
         final var conference = generateConference();
@@ -145,7 +187,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakerByIdTest() {
+    public void testFindSpeakerById() {
         final var speaker = generateSpeaker();
         speakerService.upsert(speaker).block();
 
@@ -156,7 +198,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersByIdTest() {
+    public void testFindSpeakersById() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         speakerService.upsert(speaker1).block();
@@ -174,7 +216,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakerByConferenceNameTest() {
+    public void testFindSpeakerByConferenceName() {
         final var speaker = generateSpeaker();
         final var conference = generateConference();
 
@@ -191,7 +233,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersWithSameNameAndSameConferenceYearByConferenceNameTest() {
+    public void testFindSpeakersWithSameNameAndSameConferenceYearByConferenceName() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         speaker2.setName(speaker1.getName());
@@ -214,7 +256,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersWithSameNameAndDiffConferenceYearsByConferenceNameTest() {
+    public void testFindSpeakersWithSameNameAndDiffConferenceYearsByConferenceName() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         speaker2.setName(speaker1.getName());
@@ -240,7 +282,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersWithDiffNamesAndSameConferenceYearByConferenceNameTest() {
+    public void testFindSpeakersWithDiffNamesAndSameConferenceYearByConferenceName() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         final var conference = generateConference();
@@ -264,7 +306,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersWithDiffNamesAndDiffConferenceYearsByConferenceNameTest() {
+    public void testFindSpeakersWithDiffNamesAndDiffConferenceYearsByConferenceName() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         final var conference1 = generateConference();
@@ -289,7 +331,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakerByConferenceNameAndYearTest() {
+    public void testFindSpeakerByConferenceNameAndYear() {
         final var speaker = generateSpeaker();
         final var conference = generateConference();
 
@@ -306,7 +348,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersWithSameNameAndSameYearByConferenceNameAndYearTest() {
+    public void testFindSpeakersWithSameNameAndSameYearByConferenceNameAndYear() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         speaker2.setName(speaker1.getName());
@@ -329,7 +371,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersWithSameNameAndDiffConferenceYearsByConferenceNameAndYearTest() {
+    public void testFindSpeakersWithSameNameAndDiffConferenceYearsByConferenceNameAndYear() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         speaker2.setName(speaker1.getName());
@@ -359,7 +401,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersWithDiffNamesAndSameConferenceYearByConferenceNameAndYearTest() {
+    public void testFindSpeakersWithDiffNamesAndSameConferenceYearByConferenceNameAndYear() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         final var conference = generateConference();
@@ -383,7 +425,7 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void findSpeakersWithDiffNamesAndDiffConferenceYearsByConferenceNameAndYearTest() {
+    public void testFindSpeakersWithDiffNamesAndDiffConferenceYearsByConferenceNameAndYear() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = generateSpeaker();
         final var conference1 = generateConference();
