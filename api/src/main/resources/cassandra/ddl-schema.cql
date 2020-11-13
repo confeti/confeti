@@ -1,3 +1,23 @@
+DROP INDEX IF EXISTS speaker_name_idx;
+DROP TABLE IF EXISTS conference;
+DROP TABLE IF EXISTS speaker;
+DROP TABLE IF EXISTS report;
+DROP TABLE IF EXISTS speaker_by_conference;
+DROP TABLE IF EXISTS conference_by_speaker;
+DROP TABLE IF EXISTS report_by_conference;
+DROP TABLE IF EXISTS report_by_speaker;
+DROP TABLE IF EXISTS report_by_tag;
+DROP TABLE IF EXISTS report_stats_by_conference;
+DROP TABLE IF EXISTS report_stats_by_speaker_for_year;
+DROP TABLE IF EXISTS report_stats_by_speaker_for_conference;
+DROP TABLE IF EXISTS report_stats_by_company;
+DROP TYPE IF EXISTS speaker_company;
+DROP TYPE IF EXISTS report_source;
+DROP TYPE IF EXISTS conference_short_info;
+DROP TYPE IF EXISTS contact_info;
+DROP TYPE IF EXISTS speaker_short_info;
+DROP TYPE IF EXISTS speaker_full_info;
+
 CREATE TYPE IF NOT EXISTS speaker_company (
     added_date timestamp,
     name text,
@@ -132,13 +152,19 @@ CREATE TABLE IF NOT EXISTS report_stats_by_conference (
     PRIMARY KEY (conference_name, year)
 ) WITH CLUSTERING ORDER BY (year DESC);
 
-CREATE TABLE IF NOT EXISTS report_stats_by_speaker (
+CREATE TABLE IF NOT EXISTS report_stats_by_speaker_for_year (
     speaker_id uuid,
     year int,
+    report_total counter,
+    PRIMARY KEY (speaker_id, year)
+) WITH CLUSTERING ORDER BY (year DESC);
+
+CREATE TABLE IF NOT EXISTS report_stats_by_speaker_for_conference (
+    speaker_id uuid,
     conference_name text,
     report_total counter,
-    PRIMARY KEY (speaker_id, year, conference_name)
-) WITH CLUSTERING ORDER BY (year DESC, conference_name ASC);
+    PRIMARY KEY (speaker_id, conference_name)
+);
 
 CREATE TABLE IF NOT EXISTS report_stats_by_company (
     company_name text,
