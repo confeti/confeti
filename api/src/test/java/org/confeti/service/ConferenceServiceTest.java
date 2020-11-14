@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.test.StepVerifier;
 
+import java.util.UUID;
+
 import static org.confeti.support.TestUtil.generateConference;
 import static org.confeti.support.TestUtil.generateSpeaker;
 import static org.confeti.support.TestUtil.updateConference;
@@ -58,6 +60,7 @@ public class ConferenceServiceTest extends AbstractIntegrationTest {
     public void testInsertConferenceBySpeakerButSpeakerNotExist() {
         final var conference = generateConference();
         final var speaker = generateSpeaker();
+        speaker.setId(UUID.randomUUID());
         conferenceService.upsert(conference, speaker.getId()).block();
 
         StepVerifier.create(conferenceService.findBy(conference.getName()))
