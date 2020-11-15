@@ -75,6 +75,8 @@ CREATE TABLE IF NOT EXISTS speaker (
     PRIMARY KEY (id)
 );
 
+CREATE INDEX IF NOT EXISTS report_title_idx ON report(title);
+
 CREATE TABLE IF NOT EXISTS report (
     id uuid,
     complexity int,

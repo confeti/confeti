@@ -10,18 +10,20 @@ import org.confeti.db.dao.report.ReportDao;
 import org.confeti.db.mapper.BaseMapper;
 import org.jetbrains.annotations.NotNull;
 
+import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createIndex;
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createTable;
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.udt;
-import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_COMPLEXITY;
+import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_COMPLEXITY;
+import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_ID;
+import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_LANGUAGE;
+import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_SOURCE;
+import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_TITLE;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_CONFERENCES;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_DESCRIPTION;
-import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_ID;
-import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_LANGUAGE;
-import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_SOURCE;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_SPEAKERS;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_TAGS;
-import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_TITLE;
 import static org.confeti.db.model.report.ReportEntity.REPORT_TABLE;
+import static org.confeti.db.model.report.ReportEntity.REPORT_TITLE_INDEX;
 import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONFERENCE_SHORT_INFO_UDT;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_UDT;
 import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_UDT;
@@ -33,7 +35,7 @@ public interface ReportDaoMapper extends BaseMapper {
     ReportDao reportDao(@DaoKeyspace CqlIdentifier keyspace);
 
     /**
-     * Create the <i>report</i> table.
+     * Create the <i>report</i> table. And index on a <i>title</i> column.
      *
      * <pre>
      * CREATE TABLE IF NOT EXISTS report (
@@ -64,6 +66,11 @@ public interface ReportDaoMapper extends BaseMapper {
                 .withColumn(REPORT_ATT_SPEAKERS, DataTypes.setOf(udt(SPEAKER_FULL_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_TAGS, DataTypes.setOf(DataTypes.TEXT))
                 .withColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
+                .build());
+
+        cqlSession.execute(createIndex(REPORT_TITLE_INDEX).ifNotExists()
+                .onTable(REPORT_TABLE)
+                .andColumn(REPORT_ATT_TITLE)
                 .build());
     }
 }
