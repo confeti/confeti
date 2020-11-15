@@ -1,10 +1,12 @@
 package org.confeti.service.dto;
 
+import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.confeti.db.model.report.ReportByConferenceEntity;
 import org.confeti.db.model.report.ReportBySpeakerEntity;
@@ -14,12 +16,14 @@ import org.confeti.db.model.udt.ReportSourceUDT;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
 @Builder(builderMethodName = "hiddenBuilder")
+@EqualsAndHashCode(exclude = {"id"})
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Report implements Serializable {
@@ -44,9 +48,19 @@ public class Report implements Serializable {
 
     private Set<String> tags;
 
+    public boolean compareBySpeakers(@NotNull final Report report) {
+        final var otherSpeakers = new HashSet<>(speakers);
+        otherSpeakers.removeAll(report.getSpeakers());
+        return otherSpeakers.isEmpty();
+    }
+
     public static ReportBuilder builder(@NotNull final UUID id,
                                         @NotNull final String title) {
         return hiddenBuilder().id(id).title(title);
+    }
+
+    public static ReportBuilder builder(@NotNull final String title) {
+        return hiddenBuilder().title(title);
     }
 
     @NotNull
@@ -54,11 +68,15 @@ public class Report implements Serializable {
         return Report.builder(report.getId(), report.getTitle())
                 .complexity(report.getComplexity())
                 .language(report.getLanguage())
-                .source(report.getSource())
+                .source(ReportSource.from(report.getSource()))
                 .description(report.getDescription())
-                .tags(report.getTags())
-                .conferences(report.getConferences())
-                .speakers(report.getSpeakers())
+                .tags(Sets.newHashSet(report.getTags()))
+                .conferences(report.getConferences().stream()
+                        .map(Conference::from)
+                        .collect(Collectors.toSet()))
+                .speakers(report.getSpeakers().stream()
+                        .map(Speaker::from)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 
@@ -69,7 +87,7 @@ public class Report implements Serializable {
                 .language(report.getLanguage())
                 .source(ReportSource.from(report.getSource()))
                 .description(report.getDescription())
-                .tags(report.getTags())
+                .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
                         .map(Conference::from)
                         .collect(Collectors.toSet()))
@@ -85,7 +103,7 @@ public class Report implements Serializable {
                 .complexity(Complexity.valueOf(reportEntity.getComplexity()))
                 .language(reportEntity.getLanguage())
                 .source(ReportSource.from(reportEntity.getSource()))
-                .tags(reportEntity.getTags())
+                .tags(Sets.newHashSet(reportEntity.getTags()))
                 .speakers(reportEntity.getSpeakers().stream()
                         .map(Speaker::from)
                         .collect(Collectors.toSet()))
@@ -99,7 +117,7 @@ public class Report implements Serializable {
                 .language(reportEntity.getLanguage())
                 .source(ReportSource.from(reportEntity.getSource()))
                 .description(reportEntity.getDescription())
-                .tags(reportEntity.getTags())
+                .tags(Sets.newHashSet(reportEntity.getTags()))
                 .conferences(reportEntity.getConferences().stream()
                         .map(Conference::from)
                         .collect(Collectors.toSet()))
@@ -141,6 +159,15 @@ public class Report implements Serializable {
                     .presentation(source.getPresentationUrl())
                     .video(source.getVideoUrl())
                     .repo(source.getRepoUrl())
+                    .build();
+        }
+
+        @NotNull
+        public static ReportSource from(@NotNull final ReportSource source) {
+            return ReportSource.builder()
+                    .presentation(source.getPresentation())
+                    .video(source.getVideo())
+                    .repo(source.getRepo())
                     .build();
         }
     }

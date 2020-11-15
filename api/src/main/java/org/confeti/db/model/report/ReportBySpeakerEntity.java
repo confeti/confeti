@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -73,10 +74,12 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .title(report.getTitle())
                 .complexity(report.getComplexity())
                 .language(report.getLanguage())
-                .source(report.getSource())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .description(report.getDescription())
-                .tags(report.getTags())
-                .conferences(report.getConferences())
+                .tags(Sets.newHashSet(report.getTags()))
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 
@@ -93,7 +96,7 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .language(report.getLanguage())
                 .source(ReportSourceUDT.from(report.getSource()))
                 .description(report.getDescription())
-                .tags(report.getTags())
+                .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
                         .collect(Collectors.toSet()))
@@ -111,10 +114,12 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .title(report.getTitle())
                 .complexity(report.getComplexity())
                 .language(report.getLanguage())
-                .source(report.getSource())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .description(report.getDescription())
-                .tags(report.getTags())
-                .conferences(report.getConferences())
+                .tags(Sets.newHashSet(report.getTags()))
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 }

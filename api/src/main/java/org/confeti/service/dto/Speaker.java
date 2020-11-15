@@ -38,7 +38,7 @@ public class Speaker implements Serializable {
     private ContactInfo contactInfo;
 
     public boolean canBeUpdatedTo(@NotNull final Speaker speaker) {
-        if (contactInfo != null && speaker.getContactInfo() != null) {
+        if (name != null && !name.equals(speaker.getName()) || contactInfo != null && speaker.getContactInfo() != null) {
             final boolean canUpdateEmail = canBeUpdatedEmail(
                     speaker.getContactInfo().getEmail(), speaker.getContactInfo().getTwitterUsername());
             final boolean canUpdateTwitter = canBeUpdatedTwitterUsername(
@@ -79,7 +79,7 @@ public class Speaker implements Serializable {
         return Speaker.builder(speaker.getId(), speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(speaker.getContactInfo())
+                .contactInfo(ContactInfo.from(speaker.getContactInfo()))
                 .build();
     }
 
@@ -165,6 +165,16 @@ public class Speaker implements Serializable {
                     .build();
         }
 
+        @NotNull
+        public static ContactInfo from(@NotNull final ContactInfo contactInfo) {
+            return ContactInfo.builder()
+                    .email(contactInfo.getEmail())
+                    .location(contactInfo.getLocation())
+                    .twitterUsername(contactInfo.getTwitterUsername())
+                    .company(SpeakerCompany.from(contactInfo.getCompany()))
+                    .build();
+        }
+
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
@@ -185,6 +195,15 @@ public class Speaker implements Serializable {
                         .addedDate(companyUDT.getAddedDate())
                         .year(companyUDT.getYear())
                         .name(companyUDT.getName())
+                        .build();
+            }
+
+            @NotNull
+            public static SpeakerCompany from(@NotNull final SpeakerCompany company) {
+                return SpeakerCompany.builder()
+                        .addedDate(company.getAddedDate())
+                        .year(company.getYear())
+                        .name(company.getName())
                         .build();
             }
         }

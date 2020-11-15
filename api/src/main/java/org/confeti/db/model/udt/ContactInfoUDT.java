@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetElement.UDT;
 
@@ -49,10 +50,13 @@ public class ContactInfoUDT implements Serializable {
     private String twitterUsername;
 
     public void addCompanies(@NotNull final Set<SpeakerCompanyUDT> companiesUDT) {
+        final var newCompanies = companiesUDT.stream()
+                .map(SpeakerCompanyUDT::from)
+                .collect(Collectors.toSet());
         if (companies != null) {
-            companies.addAll(companiesUDT);
+            companies.addAll(newCompanies);
         } else {
-            companies = Sets.newHashSet(companiesUDT);
+            companies = Sets.newHashSet(newCompanies);
         }
     }
 
@@ -64,6 +68,18 @@ public class ContactInfoUDT implements Serializable {
                 .location(contactInfo.getLocation())
                 .twitterUsername(contactInfo.getTwitterUsername())
                 .companies(Sets.newHashSet(company == null ? null : SpeakerCompanyUDT.from(company)))
+                .build();
+    }
+
+    @NotNull
+    public static ContactInfoUDT from(@NotNull final ContactInfoUDT contactInfo) {
+        return ContactInfoUDT.builder()
+                .email(contactInfo.getEmail())
+                .location(contactInfo.getLocation())
+                .twitterUsername(contactInfo.getTwitterUsername())
+                .companies(contactInfo.getCompanies().stream()
+                        .map(SpeakerCompanyUDT::from)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 

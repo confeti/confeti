@@ -18,6 +18,11 @@ public class ReportStats implements Serializable {
     private final Long reportTotal;
 
     @NotNull
+    public static ReportStats from(@NotNull final ReportStats stats) {
+        return new ReportStats(stats.getReportTotal());
+    }
+
+    @NotNull
     public static ReportStats from(@NotNull final ReportStatsByConferenceEntity stats) {
         return new ReportStats(stats.getReportTotal());
     }

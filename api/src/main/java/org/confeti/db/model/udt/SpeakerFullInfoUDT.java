@@ -28,7 +28,7 @@ public class SpeakerFullInfoUDT extends SpeakerShortInfoUDT {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String SPEAKER_FULL_INFO_UDT = "speaker_short_info";
+    public static final String SPEAKER_FULL_INFO_UDT = "speaker_full_info";
 
     @CqlName(SPEAKER_ATT_AVATAR)
     private String avatar;
@@ -52,7 +52,18 @@ public class SpeakerFullInfoUDT extends SpeakerShortInfoUDT {
         return SpeakerFullInfoUDT.builder()
                 .id(speakerUDT.getId())
                 .name(speakerUDT.getName())
-                .contactInfo(speakerUDT.getContactInfo())
+                .contactInfo(ContactInfoUDT.from(speakerUDT.getContactInfo()))
+                .build();
+    }
+
+    @NotNull
+    public static SpeakerFullInfoUDT from(@NotNull final SpeakerFullInfoUDT speaker) {
+        return SpeakerFullInfoUDT.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar())
+                .bio(speaker.getBio())
+                .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
                 .build();
     }
 }

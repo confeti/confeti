@@ -57,4 +57,13 @@ public class SpeakerCompanyUDT implements Serializable {
                 .name(company.getName())
                 .build();
     }
+
+    @NotNull
+    public static SpeakerCompanyUDT from(@NotNull final SpeakerCompanyUDT company) {
+        return SpeakerCompanyUDT.builder()
+                .addedDate(company.getAddedDate())
+                .year(company.getYear())
+                .name(company.getName())
+                .build();
+    }
 }

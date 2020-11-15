@@ -48,4 +48,13 @@ public class ReportSourceUDT implements Serializable {
                 .repoUrl(source.getRepo())
                 .build();
     }
+
+    @NotNull
+    public static ReportSourceUDT from(@NotNull final ReportSourceUDT source) {
+        return ReportSourceUDT.builder()
+                .presentationUrl(source.getPresentationUrl())
+                .videoUrl(source.getVideoUrl())
+                .repoUrl(source.getRepoUrl())
+                .build();
+    }
 }

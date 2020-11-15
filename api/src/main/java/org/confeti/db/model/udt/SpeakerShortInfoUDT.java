@@ -55,7 +55,16 @@ public class SpeakerShortInfoUDT implements Serializable {
         return SpeakerShortInfoUDT.builder()
                 .id(speakerUDT.getId())
                 .name(speakerUDT.getName())
-                .contactInfo(speakerUDT.getContactInfo())
+                .contactInfo(ContactInfoUDT.from(speakerUDT.getContactInfo()))
+                .build();
+    }
+
+    @NotNull
+    public static SpeakerShortInfoUDT from(@NotNull final SpeakerShortInfoUDT speakerUDT) {
+        return SpeakerShortInfoUDT.builder()
+                .id(speakerUDT.getId())
+                .name(speakerUDT.getName())
+                .contactInfo(ContactInfoUDT.from(speakerUDT.getContactInfo()))
                 .build();
     }
 }

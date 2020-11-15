@@ -48,4 +48,13 @@ public class ConferenceShortInfoUDT implements Serializable {
                 .year(conference.getYear())
                 .build();
     }
+
+    @NotNull
+    public static ConferenceShortInfoUDT from(@NotNull final ConferenceShortInfoUDT conference) {
+        return ConferenceShortInfoUDT.builder()
+                .logo(conference.getLogo())
+                .name(conference.getName())
+                .year(conference.getYear())
+                .build();
+    }
 }

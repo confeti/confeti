@@ -47,7 +47,9 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
 
     @Override
     public void updateFrom(@NotNull final SpeakerEntity speaker) {
-        final var newContactInfo = speaker.getContactInfo();
+        final var newContactInfo = speaker.getContactInfo() == null
+                ? null
+                : ContactInfoUDT.from(speaker.getContactInfo());
         if (newContactInfo != null && contactInfo != null) {
             newContactInfo.setLocation(updateValue(contactInfo.getLocation(), newContactInfo.getLocation()));
             newContactInfo.setEmail(updateValue(contactInfo.getEmail(), newContactInfo.getEmail()));
@@ -70,7 +72,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(speaker.getContactInfo())
+                .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
                 .build();
     }
 
@@ -92,7 +94,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
                 .name(speakerUDT.getName())
                 .avatar(speakerUDT.getAvatar())
                 .bio(speakerUDT.getBio())
-                .contactInfo(speakerUDT.getContactInfo())
+                .contactInfo(ContactInfoUDT.from(speakerUDT.getContactInfo()))
                 .build();
     }
 
@@ -101,7 +103,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
         return SpeakerEntity.builder()
                 .id(speakerUDT.getId())
                 .name(speakerUDT.getName())
-                .contactInfo(speakerUDT.getContactInfo())
+                .contactInfo(ContactInfoUDT.from(speakerUDT.getContactInfo()))
                 .build();
     }
 }
