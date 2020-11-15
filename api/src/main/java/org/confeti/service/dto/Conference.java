@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.confeti.db.model.conference.ConferenceBySpeakerEntity;
 import org.confeti.db.model.conference.ConferenceEntity;
 import org.confeti.db.model.udt.ConferenceShortInfoUDT;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
+@Accessors(chain = true)
 @Data
 @Builder(builderMethodName = "hiddenBuilder")
 @NoArgsConstructor

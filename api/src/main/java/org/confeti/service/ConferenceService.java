@@ -18,7 +18,7 @@ import static org.confeti.service.BaseEntityService.findAllBy;
 import static org.confeti.service.BaseEntityService.findOneBy;
 
 @Service
-public final class ConferenceService extends AbstractEntityService<ConferenceEntity, Conference, ConferenceDao> {
+public class ConferenceService extends AbstractEntityService<ConferenceEntity, Conference, ConferenceDao> {
 
     private SpeakerService speakerService;
     private final ConferenceBySpeakerDao conferenceBySpeakerDao;

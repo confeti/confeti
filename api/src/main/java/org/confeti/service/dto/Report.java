@@ -2,12 +2,14 @@ package org.confeti.service.dto;
 
 import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.confeti.db.model.report.AbstractReportEntity;
 import org.confeti.db.model.report.ReportByConferenceEntity;
 import org.confeti.db.model.report.ReportBySpeakerEntity;
@@ -21,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Accessors(chain = true)
 @Data
 @Builder(builderMethodName = "hiddenBuilder")
 @EqualsAndHashCode(exclude = {"id"})
@@ -30,6 +33,7 @@ public class Report implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UUID id;
 
     private String title;
@@ -135,6 +139,7 @@ public class Report implements Serializable {
                 .source(ReportSource.from(report.getSource()));
     }
 
+    @Accessors(chain = true)
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

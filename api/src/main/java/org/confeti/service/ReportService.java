@@ -28,7 +28,7 @@ import static org.confeti.service.BaseEntityService.findOneBy;
 import static org.confeti.service.ReportStatsService.updateReportStatsIf;
 
 @Service
-public final class ReportService extends AbstractEntityService<ReportEntity, Report, ReportDao> {
+public class ReportService extends AbstractEntityService<ReportEntity, Report, ReportDao> {
 
     private final ReportByConferenceDao reportByConferenceDao;
     private final ReportBySpeakerDao reportBySpeakerDao;
