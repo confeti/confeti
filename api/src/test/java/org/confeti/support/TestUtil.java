@@ -1,5 +1,6 @@
 package org.confeti.support;
 
+import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import org.apache.commons.lang.RandomStringUtils;
 import org.confeti.service.dto.Conference;
 import org.confeti.service.dto.Report;
@@ -8,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -229,7 +229,7 @@ public final class TestUtil {
                                         final int tagNum) {
         final long num = nextReportNum();
         final var title = REPORT_PREFIX + num;
-        return Report.builder(UUID.randomUUID(), title)
+        return Report.builder(title)
                 .complexity(generateComplexity())
                 .language(generateLanguage())
                 .source(generateReportSource(title))
@@ -247,7 +247,9 @@ public final class TestUtil {
     }
 
     @NotNull
-    public static Report updateReport(@NotNull final Report report) {
+    public static Report updateReport(@NotNull final Report report,
+                                      final boolean needUpdateConferences,
+                                      final boolean needUpdateSpeakers) {
         final var randomString = RandomStringUtils.randomAlphabetic(5);
         return Report.builder(report.getId(), report.getTitle())
                 .complexity(updateComplexity(report.getComplexity()))
@@ -257,12 +259,16 @@ public final class TestUtil {
                 .tags(report.getTags().stream()
                         .map(TestUtil::updateTag)
                         .collect(Collectors.toSet()))
-                .conferences(report.getConferences().stream()
+                .conferences(needUpdateConferences
+                        ? report.getConferences().stream()
                         .map(TestUtil::updateConference)
-                        .collect(Collectors.toSet()))
-                .speakers(report.getSpeakers().stream()
+                        .collect(Collectors.toSet())
+                        : Sets.newHashSet(report.getConferences()))
+                .speakers(needUpdateSpeakers
+                        ? report.getSpeakers().stream()
                         .map(TestUtil::updateSpeaker)
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toSet())
+                        : Sets.newHashSet(report.getSpeakers()))
                 .build();
     }
 }

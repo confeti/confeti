@@ -8,16 +8,22 @@ import org.confeti.db.model.report.ReportEntity;
 import org.confeti.db.model.speaker.SpeakerByConferenceEntity;
 import org.confeti.service.dto.Conference;
 import org.confeti.service.dto.Report;
+import org.confeti.service.dto.ReportStats;
 import org.confeti.service.dto.Speaker;
 import org.confeti.support.AbstractIntegrationTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
-import java.util.function.Consumer;
+import java.util.UUID;
+import java.util.function.Function;
 
 import static org.confeti.support.TestUtil.generateReport;
+import static org.confeti.support.TestUtil.generateSpeaker;
+import static org.confeti.support.TestUtil.updateReport;
 
 public class ReportServiceTest extends AbstractIntegrationTest {
 
@@ -32,262 +38,474 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
     @Test
     public void testInsertReport() {
-        final var report = generateReport(1, 1, 1);
-
-        final var expectedReport = Report.from(ReportEntity.from(report));
-        StepVerifier.create(reportService.upsert(report))
-                .expectNext(expectedReport)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    public void testInsertReportByConference() {
-        final var report = generateReport(1, 1, 1);
-        final var conference = report.getConferences().iterator().next();
-        conferenceService.upsert(conference).block();
-
-        final var expectedReport = Report.from(ReportEntity.from(report));
-        StepVerifier.create(reportService.upsert(report, conference.getName(), conference.getYear()))
-                .expectNext(expectedReport)
-                .expectComplete()
-                .verify();
+        testInsertReportWhen(this::insertReport);
     }
 
     @Test
     public void testInsertReportWhenInsertReportByConference() {
-        final var report = generateReport(1, 1, 1);
-        final var conference = report.getConferences().iterator().next();
-        conferenceService.upsert(conference).block();
-        reportService.upsert(report, conference.getName(), conference.getYear()).block();
-
-        final var expectedReport = Report.from(ReportEntity.from(report));
-        StepVerifier.create(reportService.findBy(report.getId()))
-                .expectNext(expectedReport)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    public void testInsertReportBySpeakerTest() {
-        final var report = generateReport(1, 1, 1);
-        final var conference = report.getConferences().iterator().next();
-        final var speaker = report.getSpeakers().iterator().next();
-        speakerService.upsert(speaker).block();
-
-        final var expectedReport = Report.from(ReportEntity.from(report));
-        StepVerifier.create(reportService.upsert(report, speaker.getId(), conference.getYear()))
-                .expectNext(expectedReport)
-                .expectComplete()
-                .verify();
+        testInsertReportWhen(this::insertReportByConference);
     }
 
     @Test
     public void testInsertReportWhenInsertReportBySpeaker() {
-        final var report = generateReport(1, 1, 1);
-        final var conference = report.getConferences().iterator().next();
-        final var speaker = report.getSpeakers().iterator().next();
-        speakerService.upsert(speaker).block();
-        reportService.upsert(report, speaker.getId(), conference.getYear()).block();
-
-        final var expectedReport = Report.from(ReportEntity.from(report));
-        StepVerifier.create(reportService.findBy(report.getId()))
-                .expectNext(expectedReport)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    public void testInsertReportByTagTest() {
-        final var report = generateReport(1, 1, 1);
-        final var tag = report.getTags().iterator().next();
-
-        final var expectedReport = Report.from(ReportEntity.from(report));
-        StepVerifier.create(reportService.upsert(report, tag))
-                .expectNext(expectedReport)
-                .expectComplete()
-                .verify();
+        testInsertReportWhen(this::insertReportBySpeaker);
     }
 
     @Test
     public void testInsertReportWhenInsertReportByTagTest() {
-        final var report = generateReport(1, 1, 1);
-        final var tag = report.getTags().iterator().next();
-        reportService.upsert(report, tag).block();
+        testInsertReportWhen(this::insertReportByTag);
+    }
 
-        final var expectedReport = Report.from(ReportEntity.from(report));
-        StepVerifier.create(reportService.findBy(report.getId()))
+    @Test
+    public void testInsertConferencesWhenInsertReport() {
+        testInsertConferencesWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertConferencesWhenInsertReportByConference() {
+        testInsertConferencesWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testInsertConferencesWhenInsertReportBySpeaker() {
+        testInsertConferencesWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testInsertConferencesWhenInsertReportByTag() {
+        testInsertConferencesWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testInsertReportByConferenceWhenInsertReport() {
+        testInsertReportByConferenceWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertReportByConferenceWhenInsertReportByConference() {
+        testInsertReportByConferenceWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testInsertReportByConferenceWhenInsertReportBySpeaker() {
+        testInsertReportByConferenceWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testInsertReportByConferenceWhenInsertReportByTag() {
+        testInsertReportByConferenceWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testInsertSpeakersWhenInsertReport() {
+        testInsertSpeakersWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertSpeakersWhenInsertReportByConference() {
+        testInsertSpeakersWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testInsertSpeakersWhenInsertReportBySpeaker() {
+        testInsertSpeakersWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testInsertSpeakersWhenInsertReportByTag() {
+        testInsertSpeakersWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testInsertReportBySpeakerWhenInsertReport() {
+        testInsertReportBySpeakerWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertReportBySpeakerWhenInsertReportByConference() {
+        testInsertReportBySpeakerWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testInsertReportBySpeakerWhenInsertReportBySpeaker() {
+        testInsertReportBySpeakerWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testInsertReportBySpeakerWhenInsertReportByTag() {
+        testInsertReportBySpeakerWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testInsertSpeakerByConferenceWhenInsertReport() {
+        testInsertSpeakerByConferenceWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertSpeakerByConferenceWhenInsertReportByConference() {
+        testInsertSpeakerByConferenceWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testInsertSpeakerByConferenceWhenInsertReportBySpeaker() {
+        testInsertSpeakerByConferenceWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testInsertSpeakerByConferenceWhenInsertReportByTag() {
+        testInsertSpeakerByConferenceWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testInsertConferenceBySpeakerWhenInsertReport() {
+        testInsertConferenceBySpeakerWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertConferenceBySpeakerWhenInsertReportByConference() {
+        testInsertConferenceBySpeakerWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testInsertConferenceBySpeakerWhenInsertReportBySpeaker() {
+        testInsertConferenceBySpeakerWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testInsertConferenceBySpeakerWhenInsertReportByTag() {
+        testInsertConferenceBySpeakerWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testInsertReportByTagWhenInsertReport() {
+        testInsertReportByTagWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertReportByTagWhenInsertReportByConference() {
+        testInsertReportByTagWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testInsertReportByTagWhenInsertReportBySpeaker() {
+        testInsertReportByTagWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testInsertReportByTagWhenInsertReportByTag() {
+        testInsertReportByTagWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhenInsertReport() {
+        testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhenInsertReportByConference() {
+        testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhenInsertReportBySpeaker() {
+        testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhenInsertReportByTag() {
+        testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhenInsertReport() {
+        testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhen(this::insertReport);
+    }
+
+    @Test
+    public void testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhenInsertReportByConference() {
+        testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhenInsertReportBySpeaker() {
+        testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhenInsertReportByTag() {
+        testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhenInsertReport() {
+        testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhen(this::insertReport);
+    }
+
+    @Test
+    public void testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhenInsertReportByConference() {
+        testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhenInsertReportBySpeaker() {
+        testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhenInsertReportByTag() {
+        testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhenInsertReport() {
+        testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhenInsertReportByConference() {
+        testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhenInsertReportBySpeaker() {
+        testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhenInsertReportByTag() {
+        testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhenInsertReport() {
+        testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhenInsertReportByConference() {
+        testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhenInsertReportBySpeaker() {
+        testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhenInsertReportByTag() {
+        testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhenInsertReport() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhenInsertReportByConference() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhenInsertReportBySpeaker() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhenInsertReportByTag() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhenInsertReport() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhenInsertReportByConference() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhenInsertReportBySpeaker() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhenInsertReportByTag() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhenInsertReport() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhenInsertReportByConference() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhenInsertReportBySpeaker() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhenInsertReportByTag() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhenInsertReport() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhenInsertReportByConference() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhenInsertReportBySpeaker() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhenInsertReportByTag() {
+        testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhenInsertReport() {
+        testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhenInsertReportByConference() {
+        testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhenInsertReportBySpeaker() {
+        testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhenInsertReportByTag() {
+        testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhen(this::insertReportByTag);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhenInsertReport() {
+        testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhen(this::insertReport);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhenInsertReportByConference() {
+        testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhen(this::insertReportByConference);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhenInsertReportBySpeaker() {
+        testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhen(this::insertReportBySpeaker);
+    }
+
+    @Test
+    public void testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhenInsertReportByTag() {
+        testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhen(this::insertReportByTag);
+    }
+
+    private Report insertReport(@NotNull final Report report) {
+        return reportService.upsert(report).block();
+    }
+
+    private Report insertReportByConference(@NotNull final Report report) {
+        final var conference = report.getConferences().iterator().next();
+        return reportService.upsert(report, conference.getName(), conference.getYear()).block();
+    }
+
+    private Report insertReportBySpeaker(@NotNull final Report report) {
+        final var speaker = report.getSpeakers().iterator().next();
+        speaker.setId(UUID.randomUUID());
+        final var conference = report.getConferences().iterator().next();
+        return reportService.upsert(report, speaker.getId(), conference.getYear()).block();
+    }
+
+    private Report insertReportByTag(@NotNull final Report report) {
+        final var tag = report.getTags().iterator().next();
+        return reportService.upsert(report, tag).block();
+    }
+
+    private void testInsertReportWhen(@NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(1, 1, 1);
+        final var savedReport = upsertReport.apply(report);
+
+        final var expectedReport = Report.from(ReportEntity.from(savedReport));
+
+        StepVerifier.create(reportService.findBy(savedReport.getId()))
                 .expectNext(expectedReport)
                 .expectComplete()
                 .verify();
     }
 
-    @Test
-    public void testInsertConferencesWhenInsertReportTest() {
-        testInsertConferencesWhen(this::insertReport);
+    private void testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(1, 2, 1);
+        final var updatedReport = updateReport(report, false, false);
+        upsertReport.apply(report);
+        upsertReport.apply(updatedReport);
+
+        final var expectedReport = Report.from(ReportEntity.from(updatedReport));
+
+        StepVerifier.create(reportService.findByTitle(report.getTitle()))
+                .expectNext(expectedReport)
+                .expectComplete()
+                .verify();
     }
 
-    @Test
-    public void testInsertConferencesWhenInsertReportByConferenceTest() {
-        testInsertConferencesWhen(this::insertReportByConference);
+    private void testNotUpdateReportIfExistReportWithSameTitleAndSomeSpeakersCoincidedWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(1, 2, 1);
+        final var newReport = updateReport(report, false, false);
+        newReport.getSpeakers().add(generateSpeaker());
+        upsertReport.apply(report);
+        upsertReport.apply(newReport);
+
+        final var expectedReport1 = Report.from(ReportEntity.from(report));
+        final var expectedReport2 = Report.from(ReportEntity.from(newReport));
+
+        StepVerifier.create(reportService.findByTitle(report.getTitle()))
+                .expectNextMatches(rep -> rep.equals(expectedReport1) || rep.equals(expectedReport2))
+                .expectNextMatches(rep -> rep.equals(expectedReport1) || rep.equals(expectedReport2))
+                .expectComplete()
+                .verify();
     }
 
-    @Test
-    public void testInsertConferencesWhenInsertReportBySpeakerTest() {
-        testInsertConferencesWhen(this::insertReportBySpeaker);
+    private void testNotUpdateReportIfExistReportWithSameTitleAndSpeakersNotCoincidedWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(1, 2, 1);
+        final var newReport = updateReport(report, true, false);
+        newReport.setSpeakers(Sets.newSet(generateSpeaker()));
+        upsertReport.apply(report);
+        upsertReport.apply(newReport);
+
+        final var expectedReport1 = Report.from(ReportEntity.from(report));
+        final var expectedReport2 = Report.from(ReportEntity.from(newReport));
+
+        StepVerifier.create(reportService.findByTitle(report.getTitle()))
+                .expectNextMatches(rep -> rep.equals(expectedReport1) || rep.equals(expectedReport2))
+                .expectNextMatches(rep -> rep.equals(expectedReport1) || rep.equals(expectedReport2))
+                .expectComplete()
+                .verify();
     }
 
-    @Test
-    public void testInsertConferencesWhenInsertReportByTagTest() {
-        testInsertConferencesWhen(this::insertReportByTag);
-    }
-
-    @Test
-    public void testInsertReportByConferenceWhenInsertReportTest() {
-        testInsertReportByConferenceWhen(this::insertReport);
-    }
-
-    @Test
-    public void testInsertReportByConferenceWhenInsertReportByConferenceTest() {
-        testInsertReportByConferenceWhen(this::insertReportByConference);
-    }
-
-    @Test
-    public void testInsertReportByConferenceWhenInsertReportBySpeakerTest() {
-        testInsertReportByConferenceWhen(this::insertReportBySpeaker);
-    }
-
-    @Test
-    public void testInsertReportByConferenceWhenInsertReportByTagTest() {
-        testInsertReportByConferenceWhen(this::insertReportByTag);
-    }
-
-    @Test
-    public void testInsertSpeakersWhenInsertReportTest() {
-        testInsertSpeakersWhen(this::insertReport);
-    }
-
-    @Test
-    public void testInsertSpeakersWhenInsertReportByConferenceTest() {
-        testInsertSpeakersWhen(this::insertReportByConference);
-    }
-
-    @Test
-    public void testInsertSpeakersWhenInsertReportBySpeakerTest() {
-        testInsertSpeakersWhen(this::insertReportBySpeaker);
-    }
-
-    @Test
-    public void testInsertSpeakersWhenInsertReportByTagTest() {
-        testInsertSpeakersWhen(this::insertReportByTag);
-    }
-
-    @Test
-    public void testInsertReportBySpeakerWhenInsertReportTest() {
-        testInsertReportBySpeakerWhen(this::insertReport);
-    }
-
-    @Test
-    public void testInsertReportBySpeakerWhenInsertReportByConferenceTest() {
-        testInsertReportBySpeakerWhen(this::insertReportByConference);
-    }
-
-    @Test
-    public void testInsertReportBySpeakerWhenInsertReportBySpeakerTest() {
-        testInsertReportBySpeakerWhen(this::insertReportBySpeaker);
-    }
-
-    @Test
-    public void testInsertReportBySpeakerWhenInsertReportByTagTest() {
-        testInsertReportBySpeakerWhen(this::insertReportByTag);
-    }
-
-    @Test
-    public void testInsertSpeakerByConferenceWhenInsertReportTest() {
-        testInsertSpeakerByConferenceWhen(this::insertReport);
-    }
-
-    @Test
-    public void testInsertSpeakerByConferenceWhenInsertReportByConferenceTest() {
-        testInsertSpeakerByConferenceWhen(this::insertReportByConference);
-    }
-
-    @Test
-    public void testInsertSpeakerByConferenceWhenInsertReportBySpeakerTest() {
-        testInsertSpeakerByConferenceWhen(this::insertReportBySpeaker);
-    }
-
-    @Test
-    public void testInsertSpeakerByConferenceWhenInsertReportByTagTest() {
-        testInsertSpeakerByConferenceWhen(this::insertReportByTag);
-    }
-
-    @Test
-    public void testInsertConferenceBySpeakerWhenInsertReportTest() {
-        testInsertConferenceBySpeakerWhen(this::insertReport);
-    }
-
-    @Test
-    public void testInsertConferenceBySpeakerWhenInsertReportByConferenceTest() {
-        testInsertConferenceBySpeakerWhen(this::insertReportByConference);
-    }
-
-    @Test
-    public void testInsertConferenceBySpeakerWhenInsertReportBySpeakerTest() {
-        testInsertConferenceBySpeakerWhen(this::insertReportBySpeaker);
-    }
-
-    @Test
-    public void testInsertConferenceBySpeakerWhenInsertReportByTagTest() {
-        testInsertConferenceBySpeakerWhen(this::insertReportByTag);
-    }
-
-    @Test
-    public void testInsertReportByTagWhenInsertReportTest() {
-        testInsertReportByTagWhen(this::insertReport);
-    }
-
-    @Test
-    public void testInsertReportByTagWhenInsertReportByConferenceTest() {
-        testInsertReportByTagWhen(this::insertReportByConference);
-    }
-
-    @Test
-    public void testInsertReportByTagWhenInsertReportBySpeakerTest() {
-        testInsertReportByTagWhen(this::insertReportBySpeaker);
-    }
-
-    @Test
-    public void testInsertReportByTagWhenInsertReportByTagTest() {
-        testInsertReportByTagWhen(this::insertReportByTag);
-    }
-
-    private void insertReport(@NotNull final Report report) {
-        reportService.upsert(report).block();
-    }
-
-    private void insertReportByConference(@NotNull final Report report) {
-        final var conference = report.getConferences().iterator().next();
-        reportService.upsert(report, conference.getName(), conference.getYear()).block();
-    }
-
-    private void insertReportBySpeaker(@NotNull final Report report) {
-        final var speaker = report.getSpeakers().iterator().next();
-        final var conference = report.getConferences().iterator().next();
-        reportService.upsert(report, speaker.getId(), conference.getYear()).block();
-    }
-
-    private void insertReportByTag(@NotNull final Report report) {
-        final var tag = report.getTags().iterator().next();
-        reportService.upsert(report, tag).block();
-    }
-
-    private void testInsertConferencesWhen(@NotNull final Consumer<Report> upsertReport) {
+    private void testInsertConferencesWhen(@NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(2, 1, 1);
         final var conferenceIterator = report.getConferences().iterator();
         final var conference1 = conferenceIterator.next();
         final var conference2 = conferenceIterator.next();
-        upsertReport.accept(report);
+        upsertReport.apply(report);
 
         StepVerifier.create(conferenceService.findBy(conference1.getName(), conference1.getYear()))
                 .expectNext(conference1)
@@ -300,12 +518,12 @@ public class ReportServiceTest extends AbstractIntegrationTest {
                 .verify();
     }
 
-    private void testInsertReportByConferenceWhen(@NotNull final Consumer<Report> upsertReport) {
+    private void testInsertReportByConferenceWhen(@NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(2, 1, 1);
-        final var conferenceIterator = report.getConferences().iterator();
+        final var savedReport = upsertReport.apply(report);
+        final var conferenceIterator = savedReport.getConferences().iterator();
         final var conference1 = conferenceIterator.next();
         final var conference2 = conferenceIterator.next();
-        upsertReport.accept(report);
 
         final var expectedReport1 = Report.from(
                 ReportByConferenceEntity.from(conference1.getName(), conference1.getYear(), report));
@@ -322,12 +540,12 @@ public class ReportServiceTest extends AbstractIntegrationTest {
                 .verify();
     }
 
-    private void testInsertReportByTagWhen(@NotNull final Consumer<Report> upsertReport) {
+    private void testInsertReportByTagWhen(@NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(1, 1, 2);
-        final var tagIterator = report.getTags().iterator();
+        final var savedReport = upsertReport.apply(report);
+        final var tagIterator = savedReport.getTags().iterator();
         final var tag1 = tagIterator.next();
         final var tag2 = tagIterator.next();
-        upsertReport.accept(report);
 
         final var expectedReport1 = Report.from(ReportByTagEntity.from(tag1, report));
         StepVerifier.create(reportService.findBy(tag1, report.getTitle()))
@@ -342,12 +560,12 @@ public class ReportServiceTest extends AbstractIntegrationTest {
                 .verify();
     }
 
-    private void testInsertSpeakersWhen(@NotNull final Consumer<Report> upsertReport) {
+    private void testInsertSpeakersWhen(@NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(1, 2, 1);
-        final var speakerIterator = report.getSpeakers().iterator();
+        final var savedReport = upsertReport.apply(report);
+        final var speakerIterator = savedReport.getSpeakers().iterator();
         final var speaker1 = speakerIterator.next();
         final var speaker2 = speakerIterator.next();
-        upsertReport.accept(report);
 
         StepVerifier.create(speakerService.findBy(speaker1.getId()))
                 .expectNext(speaker1)
@@ -360,13 +578,13 @@ public class ReportServiceTest extends AbstractIntegrationTest {
                 .verify();
     }
 
-    private void testInsertReportBySpeakerWhen(@NotNull final Consumer<Report> upsertReport) {
+    private void testInsertReportBySpeakerWhen(@NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(1, 2, 1);
-        final var conference = report.getConferences().iterator().next();
-        final var speakerIterator = report.getSpeakers().iterator();
+        final var savedReport = upsertReport.apply(report);
+        final var conference = savedReport.getConferences().iterator().next();
+        final var speakerIterator = savedReport.getSpeakers().iterator();
         final var speaker1 = speakerIterator.next();
         final var speaker2 = speakerIterator.next();
-        upsertReport.accept(report);
 
         final var expectedReport1 = Report.from(
                 ReportBySpeakerEntity.from(speaker1.getId(), conference.getYear(), report));
@@ -383,13 +601,13 @@ public class ReportServiceTest extends AbstractIntegrationTest {
                 .verify();
     }
 
-    private void testInsertSpeakerByConferenceWhen(@NotNull final Consumer<Report> upsertReport) {
+    private void testInsertSpeakerByConferenceWhen(@NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(1, 2, 1);
         final var conference = report.getConferences().iterator().next();
-        final var speakerIterator = report.getSpeakers().iterator();
+        final var savedReport = upsertReport.apply(report);
+        final var speakerIterator = savedReport.getSpeakers().iterator();
         final var speaker1 = speakerIterator.next();
         final var speaker2 = speakerIterator.next();
-        upsertReport.accept(report);
 
         final var expectedSpeaker1 = Speaker.from(
                 SpeakerByConferenceEntity.from(conference.getName(), conference.getYear(), speaker1));
@@ -406,13 +624,13 @@ public class ReportServiceTest extends AbstractIntegrationTest {
                 .verify();
     }
 
-    private void testInsertConferenceBySpeakerWhen(@NotNull final Consumer<Report> upsertReport) {
+    private void testInsertConferenceBySpeakerWhen(@NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(2, 1, 1);
-        final var speaker = report.getSpeakers().iterator().next();
         final var conferenceIterator = report.getConferences().iterator();
         final var conference1 = conferenceIterator.next();
         final var conference2 = conferenceIterator.next();
-        upsertReport.accept(report);
+        final var savedReport = upsertReport.apply(report);
+        final var speaker = savedReport.getSpeakers().iterator().next();
 
         final var expectedConference1 = Conference.from(
                 ConferenceBySpeakerEntity.from(speaker.getId(), conference1));
@@ -435,4 +653,260 @@ public class ReportServiceTest extends AbstractIntegrationTest {
                 .expectComplete()
                 .verify();
     }
+
+    private void testUpdateReportConferenceStatsWith2ReportsAnd3ConfsWhere2ConfsHaveSameNameButDiffYearsWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report1 = generateReport(2, 1, 1);
+        final var report2 = generateReport(2, 1, 1);
+        final var conferenceIterator = report1.getConferences().iterator();
+        final var conference1 = conferenceIterator.next();
+        final var conference2 = conferenceIterator.next();
+        final var newConference1 = Conference.from(conference1);
+        newConference1.setYear(conference1.getYear() + 1);
+        report2.setConferences(Sets.newSet(newConference1, Conference.from(conference2)));
+        upsertReport.apply(report1);
+        upsertReport.apply(report2);
+
+        StepVerifier.create(reportService.countConferenceStats(conference1.getName()))
+                .expectNext(new ReportStats(1L))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countConferenceStatsForYear(conference2.getName(), conference2.getYear()))
+                .expectNext(new ReportStats(2L))
+                .expectComplete()
+                .verify();
+    }
+
+    private void testUpdateReportSpeakerStatsWith2SpeakersWhereFirstWas2DiffConfsInOneYearAndSecondWasSameConfInDiffYearsWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report1 = generateReport(2, 1, 1);
+        final var report2 = generateReport(2, 1, 1);
+        final var conferenceIterator = report1.getConferences().iterator();
+        final var conference1 = conferenceIterator.next();
+        final var conference2 = conferenceIterator.next();
+        conference2.setYear(conference1.getYear());
+        final var newConference1 = Conference.from(conference1);
+        newConference1.setYear(conference1.getYear() + 1);
+        report2.setConferences(Sets.newSet(Conference.from(conference1), newConference1));
+
+        final var savedReport1 = upsertReport.apply(report1);
+        final var savedReport2 = upsertReport.apply(report2);
+        final var speaker1 = savedReport1.getSpeakers().iterator().next();
+        final var speaker2 = savedReport2.getSpeakers().iterator().next();
+
+        StepVerifier.create(reportService.countSpeakerStatsForYear(speaker1.getId(), conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countSpeakerStatsForConference(speaker1.getId(), conference1.getName()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countSpeakerStatsForConference(speaker1.getId(), conference2.getName()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countSpeakerStatsForConference(speaker2.getId(), conference1.getName()))
+                .expectNext(new ReportStats(2L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countSpeakerStatsForYear(speaker2.getId(), conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countSpeakerStatsForYear(speaker2.getId(), newConference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+    }
+
+    private void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromSameCompanyWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(2, 2, 1);
+        final var conferenceIterator = report.getConferences().iterator();
+        final var conference1 = conferenceIterator.next();
+        final var conference2 = conferenceIterator.next();
+        conference2.setYear(conference1.getYear() + 1);
+        final var speakerIterator = report.getSpeakers().iterator();
+        final var speaker1 = speakerIterator.next();
+        final var speaker2 = speakerIterator.next();
+        final var companyName = RandomStringUtils.randomAlphabetic(5);
+        speaker1.getContactInfo().getCompany().setName(companyName);
+        speaker2.getContactInfo().getCompany().setName(companyName);
+
+        upsertReport.apply(report);
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(companyName, conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(companyName, conference2.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+    }
+
+    private void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromSameCompanyWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(2, 2, 1);
+        final var conferenceIterator = report.getConferences().iterator();
+        final var conference1 = conferenceIterator.next();
+        final var conference2 = conferenceIterator.next();
+        conference2.setYear(conference1.getYear());
+        final var speakerIterator = report.getSpeakers().iterator();
+        final var speaker1 = speakerIterator.next();
+        final var speaker2 = speakerIterator.next();
+        final var companyName = RandomStringUtils.randomAlphabetic(5);
+        speaker1.getContactInfo().getCompany().setName(companyName);
+        speaker2.getContactInfo().getCompany().setName(companyName);
+
+        upsertReport.apply(report);
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(companyName, conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+    }
+
+    private void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesSameYearAnd2SpeakersFromDiffCompaniesWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(2, 2, 1);
+        final var conferenceIterator = report.getConferences().iterator();
+        final var conference1 = conferenceIterator.next();
+        final var conference2 = conferenceIterator.next();
+        conference2.setYear(conference1.getYear());
+        final var speakerIterator = report.getSpeakers().iterator();
+        final var speaker1 = speakerIterator.next();
+        final var speaker2 = speakerIterator.next();
+        final var company1 = speaker1.getContactInfo().getCompany().getName();
+        final var company2 = speaker2.getContactInfo().getCompany().getName();
+
+        upsertReport.apply(report);
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(company1, conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(company2, conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+    }
+
+    private void testUpdateReportCompanyStatsWith1ReportAnd2ConferencesDiffYearsAnd2SpeakersFromDiffCompaniesWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(2, 2, 1);
+        final var conferenceIterator = report.getConferences().iterator();
+        final var conference1 = conferenceIterator.next();
+        final var conference2 = conferenceIterator.next();
+        conference2.setYear(conference1.getYear() + 1);
+        final var speakerIterator = report.getSpeakers().iterator();
+        final var speaker1 = speakerIterator.next();
+        final var speaker2 = speakerIterator.next();
+        final var company1 = speaker1.getContactInfo().getCompany().getName();
+        final var company2 = speaker2.getContactInfo().getCompany().getName();
+
+        upsertReport.apply(report);
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(company1, conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(company2, conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+    }
+
+    private void testUpdateReportCompanyStatsWith2ReportFromSameConferenceDiffYearsAnd1CompanyWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report1 = generateReport(1, 1, 1);
+        final var report2 = generateReport(1, 1, 1);
+        final var conference1 = report1.getConferences().iterator().next();
+        final var conference2 = report2.getConferences().iterator().next();
+        conference2.setYear(conference1.getYear() + 1);
+        final var speaker1 = report1.getSpeakers().iterator().next();
+        final var speaker2 = report2.getSpeakers().iterator().next();
+        final var company = speaker1.getContactInfo().getCompany().getName();
+        speaker2.getContactInfo().getCompany().setName(company);
+
+        upsertReport.apply(report1);
+        upsertReport.apply(report2);
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(company, conference1.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(company, conference2.getYear()))
+                .expectNext(new ReportStats(1L))
+                .expectComplete()
+                .verify();
+    }
+
+    private void testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report1 = generateReport(1, 1, 1);
+        final var report2 = generateReport(1, 1, 1);
+        final var conference1 = report1.getConferences().iterator().next();
+        final var conference2 = report2.getConferences().iterator().next();
+        conference2.setYear(conference1.getYear());
+        final var speaker1 = report1.getSpeakers().iterator().next();
+        final var speaker2 = report2.getSpeakers().iterator().next();
+        final var company = speaker1.getContactInfo().getCompany().getName();
+        speaker2.getContactInfo().getCompany().setName(company);
+
+        upsertReport.apply(report1);
+        upsertReport.apply(report2);
+
+        StepVerifier.create(reportService.countCompanyStatsForYear(company, conference1.getYear()))
+                .expectNext(new ReportStats(2L))
+                .expectComplete()
+                .verify();
+    }
+
+    /**
+     * A speaker present a report at diff conferences in the same year but he changes a company.
+     *
+     * This rare case doesn't work now.
+     */
+//    @Test
+//    public void testUpdateReportCompanyStatsWith1ReportFromDiffConferenceSameYearAnd2CompanyAnd1SpeakerWhen(
+//            ) {
+//        final var report1 = generateReport(1, 1, 1);
+//        final var report2 = updateReport(report1, true, false);
+//        final var conference1 = report1.getConferences().iterator().next();
+//        final var conference2 = report2.getConferences().iterator().next();
+//        conference2.setName(RandomStringUtils.randomAlphabetic(5));
+//        conference2.setYear(conference1.getYear());
+//        final var speaker = report1.getSpeakers().iterator().next();
+//        final var speakerWithNewCompany = Speaker.from(speaker);
+//        final var company1 = speaker.getContactInfo().getCompany().getName();
+//        final var company2 = company1 + RandomStringUtils.randomAlphabetic(5);
+//        speakerWithNewCompany.getContactInfo().getCompany().setName(company2);
+//        report2.setSpeakers(Sets.newSet(speakerWithNewCompany));
+//
+//        reportService.upsert(report1).block();
+//        reportService.upsert(report2).block();
+//
+//        StepVerifier.create(reportService.countCompanyStatsForYear(company1, conference1.getYear()))
+//                .expectNext(new ReportStats(1L))
+//                .expectComplete()
+//                .verify();
+//
+//        StepVerifier.create(reportService.countCompanyStatsForYear(company2, conference1.getYear()))
+//                .expectNext(new ReportStats(1L))
+//                .expectComplete()
+//                .verify();
+//    }
 }
