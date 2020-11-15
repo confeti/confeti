@@ -39,7 +39,7 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
                                  @NotNull final Function<D, Mono<T>> getEntityBy,
                                  @NotNull final BaseDao<T> entityByDao) {
         return Mono.from(savedEntityDto)
-                .flatMap(entity -> getEntityBy.apply(entity).zipWith(Mono.just(entity)))
+                .flatMap(dto -> getEntityBy.apply(dto).zipWith(Mono.just(dto)))
                 .flatMap(TupleUtils.function((entityBy, dto) ->
                         Mono.from(entityByDao.upsert(entityBy))
                                 .then(Mono.just(dto))));
