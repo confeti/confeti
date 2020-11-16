@@ -199,6 +199,7 @@ public class Report implements Serializable {
             return description;
         }
 
+        //CHECKSTYLE:OFF
         public static Complexity valueOf(final int value) {
             return switch (value) {
                 case 0 -> INTRODUCTION_TO_TECHNOLOGY;
@@ -208,5 +209,6 @@ public class Report implements Serializable {
                 default -> throw new IllegalArgumentException("Unexpected value: " + value);
             };
         }
+        //CHECKSTYLE:ON
     }
 }
