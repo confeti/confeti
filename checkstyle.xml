@@ -240,6 +240,5 @@
             <property name="ignoreInlineTags" value="false"/>
         </module>
         <module name="CommentsIndentation"/>
-        <module name="SuppressionCommentFilter"/>
     </module>
 </module>
