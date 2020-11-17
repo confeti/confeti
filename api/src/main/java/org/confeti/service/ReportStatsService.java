@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
 import java.util.UUID;
 
 import static org.confeti.service.BaseEntityService.findAllBy;
@@ -57,14 +56,6 @@ public class ReportStatsService implements BaseEntityService {
     public Mono<ReactiveRow> updateReportStatsByCompany(@NotNull final Integer year,
                                                         @NotNull final String company) {
         return Mono.from(statsByCompanyDao.incrementReportTotal(company, year, 1L));
-    }
-
-    @NotNull
-    private Flux<ReactiveRow> updateReportStatsByCompanies(@NotNull final Integer year,
-                                                           @NotNull final Set<String> companies) {
-        return Mono.just(companies)
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(company -> updateReportStatsByCompany(year, company));
     }
 
     @NotNull

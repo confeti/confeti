@@ -1,5 +1,6 @@
 package org.confeti.service;
 
+import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import org.confeti.db.dao.report.ReportByConferenceDao;
 import org.confeti.db.dao.report.ReportBySpeakerDao;
 import org.confeti.db.dao.report.ReportByTagDao;
@@ -17,8 +18,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.function.TupleUtils;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import static org.confeti.service.BaseEntityService.findAllBy;
 import static org.confeti.service.BaseEntityService.findOneBy;
@@ -58,6 +61,12 @@ public final class ReportService extends AbstractEntityService<ReportEntity, Rep
             newReport.setId(UUID.randomUUID());
         }
 
+        final var companies = newReport.getSpeakers().stream()
+                .map(Speaker::getContactInfo)
+                .map(Speaker.ContactInfo::getCompany)
+                .map(Speaker.ContactInfo.SpeakerCompany::getName)
+                .collect(Collectors.toSet());
+
         final var savedReport = upsertMany(newReport.getConferences(), conferenceService::upsert)
                 .doOnNext(newReport::setConferences)
                 .then(upsertMany(newReport.getSpeakers(), speakerService::upsert))
@@ -70,7 +79,8 @@ public final class ReportService extends AbstractEntityService<ReportEntity, Rep
                 .map(Report::getConferences)
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(conference -> savedReport.zipWith(Mono.just(conference)))
-                .concatMap(TupleUtils.function(this::spreadReport))
+                .concatMap(TupleUtils.function((reportEntity, conference) ->
+                        spreadReport(reportEntity, conference, Sets.newConcurrentHashSet(companies))))
                 .then(savedReport.map(ReportEntity::getTags))
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(tag -> savedReport.zipWith(Mono.just(tag)))
@@ -155,10 +165,11 @@ public final class ReportService extends AbstractEntityService<ReportEntity, Rep
 
     @NotNull
     private Mono<?> spreadReport(@NotNull final ReportEntity report,
-                                 @NotNull final Conference conference) {
+                                 @NotNull final Conference conference,
+                                 @NotNull final Set<String> companies) {
         return Flux.fromIterable(report.getSpeakers())
                 .map(Speaker::from)
-                .flatMap(speaker -> updateReportStatsBySpeaker(conference, speaker, report)
+                .flatMap(speaker -> updateReportStatsBySpeaker(conference, speaker, report, companies)
                         .then(Mono.just(speaker)))
                 .flatMap(speaker -> upsert(report, speaker.getId(), conference.getYear())
                         .then(Mono.just(speaker)))
@@ -183,7 +194,8 @@ public final class ReportService extends AbstractEntityService<ReportEntity, Rep
     @NotNull
     private Mono<Speaker> updateReportStatsBySpeaker(@NotNull final Conference conference,
                                                      @NotNull final Speaker speaker,
-                                                     @NotNull final ReportEntity report) {
+                                                     @NotNull final ReportEntity report,
+                                                     @NotNull final Set<String> companies) {
         return findBy(conference.getName(), conference.getYear(), report.getTitle(), report.getId())
                 .hasElement()
                 .flatMap(isReportByConferenceExist -> updateReportStatsIf(
@@ -195,7 +207,19 @@ public final class ReportService extends AbstractEntityService<ReportEntity, Rep
                 .flatMap(isReportBySpeakerExist -> updateReportStatsIf(
                             !isReportBySpeakerExist,
                             speaker,
-                            reportStatsService.updateReportStatsBySpeakerForYear(conference.getYear(), speaker.getId())));
+                            reportStatsService.updateReportStatsBySpeakerForYear(conference.getYear(), speaker.getId())
+                                    .then(updateReportStatsByCompanies(conference, companies))));
+    }
+
+    @NotNull
+    private Mono<Conference> updateReportStatsByCompanies(@NotNull final Conference conference,
+                                                          @NotNull final Set<String> companies) {
+        return Flux.fromIterable(companies)
+                .flatMap(company -> {
+                    companies.remove(company);
+                    return reportStatsService.updateReportStatsByCompany(conference.getYear(), company);
+                })
+                .then(Mono.just(conference));
     }
 
     @NotNull

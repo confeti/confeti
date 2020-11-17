@@ -17,7 +17,5 @@ public interface ReportStatsByCompanyDao {
     MappedReactiveResultSet<ReportStatsByCompanyEntity> findByCompanyNameForYear(String companyName, Integer year);
 
     @Increment(entityClass = ReportStatsByCompanyEntity.class)
-    ReactiveResultSet incrementReportTotal(String companyName,
-                                           Integer year,
-                                           Long reportTotal);
+    ReactiveResultSet incrementReportTotal(String companyName, Integer year, Long reportTotal);
 }

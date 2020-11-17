@@ -31,6 +31,9 @@ public class ReportServiceTest extends AbstractIntegrationTest {
     private ReportService reportService;
 
     @Autowired
+    private ReportStatsService reportStatsService;
+
+    @Autowired
     private ConferenceService conferenceService;
 
     @Autowired
@@ -667,13 +670,13 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         upsertReport.apply(report1);
         upsertReport.apply(report2);
 
-        StepVerifier.create(reportService.countConferenceStats(conference1.getName()))
+        StepVerifier.create(reportStatsService.countConferenceStats(conference1.getName()))
                 .expectNext(new ReportStats(1L))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countConferenceStatsForYear(conference2.getName(), conference2.getYear()))
+        StepVerifier.create(reportStatsService.countConferenceStatsForYear(conference2.getName(), conference2.getYear()))
                 .expectNext(new ReportStats(2L))
                 .expectComplete()
                 .verify();
@@ -696,32 +699,32 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         final var speaker1 = savedReport1.getSpeakers().iterator().next();
         final var speaker2 = savedReport2.getSpeakers().iterator().next();
 
-        StepVerifier.create(reportService.countSpeakerStatsForYear(speaker1.getId(), conference1.getYear()))
+        StepVerifier.create(reportStatsService.countSpeakerStatsForYear(speaker1.getId(), conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countSpeakerStatsForConference(speaker1.getId(), conference1.getName()))
+        StepVerifier.create(reportStatsService.countSpeakerStatsForConference(speaker1.getId(), conference1.getName()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countSpeakerStatsForConference(speaker1.getId(), conference2.getName()))
+        StepVerifier.create(reportStatsService.countSpeakerStatsForConference(speaker1.getId(), conference2.getName()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countSpeakerStatsForConference(speaker2.getId(), conference1.getName()))
+        StepVerifier.create(reportStatsService.countSpeakerStatsForConference(speaker2.getId(), conference1.getName()))
                 .expectNext(new ReportStats(2L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countSpeakerStatsForYear(speaker2.getId(), conference1.getYear()))
+        StepVerifier.create(reportStatsService.countSpeakerStatsForYear(speaker2.getId(), conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countSpeakerStatsForYear(speaker2.getId(), newConference1.getYear()))
+        StepVerifier.create(reportStatsService.countSpeakerStatsForYear(speaker2.getId(), newConference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
@@ -743,12 +746,12 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
         upsertReport.apply(report);
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(companyName, conference1.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(companyName, conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(companyName, conference2.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(companyName, conference2.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
@@ -770,7 +773,7 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
         upsertReport.apply(report);
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(companyName, conference1.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(companyName, conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
@@ -791,12 +794,12 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
         upsertReport.apply(report);
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(company1, conference1.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(company1, conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(company2, conference1.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(company2, conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
@@ -817,12 +820,12 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
         upsertReport.apply(report);
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(company1, conference1.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(company1, conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(company2, conference1.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(company2, conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
@@ -843,12 +846,12 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         upsertReport.apply(report1);
         upsertReport.apply(report2);
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(company, conference1.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(company, conference1.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(company, conference2.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(company, conference2.getYear()))
                 .expectNext(new ReportStats(1L))
                 .expectComplete()
                 .verify();
@@ -869,7 +872,7 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         upsertReport.apply(report1);
         upsertReport.apply(report2);
 
-        StepVerifier.create(reportService.countCompanyStatsForYear(company, conference1.getYear()))
+        StepVerifier.create(reportStatsService.countCompanyStatsForYear(company, conference1.getYear()))
                 .expectNext(new ReportStats(2L))
                 .expectComplete()
                 .verify();
