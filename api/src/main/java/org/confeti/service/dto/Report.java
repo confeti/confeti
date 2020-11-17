@@ -196,13 +196,18 @@ public class Report implements Serializable {
         }
 
         public static Complexity valueOf(final int value) {
-            return switch (value) {
-                case 0 -> INTRODUCTION_TO_TECHNOLOGY;
-                case 1 -> FOR_PRACTICING_ENGINEERS;
-                case 2 -> HARDCORE;
-                case 3 -> ACADEMIC_TALK;
-                default -> throw new IllegalArgumentException("Unexpected value: " + value);
-            };
+            switch (value) {
+                case 0:
+                    return INTRODUCTION_TO_TECHNOLOGY;
+                case 1:
+                    return FOR_PRACTICING_ENGINEERS;
+                case 2:
+                    return HARDCORE;
+                case 3:
+                    return ACADEMIC_TALK;
+                default:
+                    throw new IllegalArgumentException("Unexpected value: " + value);
+            }
         }
     }
 }
