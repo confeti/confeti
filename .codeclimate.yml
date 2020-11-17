@@ -80,10 +80,10 @@ checks:
       threshold: 5
   similar-code:
     config:
-      threshold: 60
+      threshold: 65
   identical-code:
     config:
-      threshold: 60
+      threshold: 65
 
 exclude_patterns:
   - "/web/**"
