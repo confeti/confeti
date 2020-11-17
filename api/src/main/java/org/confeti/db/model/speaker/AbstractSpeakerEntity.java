@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -30,4 +31,15 @@ public abstract class AbstractSpeakerEntity implements Serializable {
 
     @CqlName(SPEAKER_ATT_AVATAR)
     protected String avatar;
+
+    public abstract UUID getId();
+
+    @NotNull
+    protected static AbstractSpeakerEntityBuilder<?, ?> fillCommonFields(@NotNull final AbstractSpeakerEntity speaker,
+                                                                         @NotNull final AbstractSpeakerEntityBuilder<?, ?> builder) {
+        return builder
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar());
+    }
 }

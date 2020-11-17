@@ -27,11 +27,11 @@ public class ReportSourceUDT implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String REPORT_SOURCE_UDT = "report_source";
-    public static final String REPORT_SOURCE_ATT_PRESENTATION_URL = "presentation_url";
+    public static final String REPORT_SOURCE_ATT_PRES_URL = "presentation_url";
     public static final String REPORT_SOURCE_ATT_REPO_URL = "repo_url";
     public static final String REPORT_SOURCE_ATT_VIDEO_URL = "video_url";
 
-    @CqlName(REPORT_SOURCE_ATT_PRESENTATION_URL)
+    @CqlName(REPORT_SOURCE_ATT_PRES_URL)
     private String presentationUrl;
 
     @CqlName(REPORT_SOURCE_ATT_REPO_URL)

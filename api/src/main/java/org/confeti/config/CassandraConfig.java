@@ -16,17 +16,13 @@ import org.confeti.db.dao.report.stats.ReportStatsBySpeakerForConferenceDao;
 import org.confeti.db.dao.report.stats.ReportStatsBySpeakerForYearDao;
 import org.confeti.db.dao.speaker.SpeakerByConferenceDao;
 import org.confeti.db.dao.speaker.SpeakerDao;
-import org.confeti.db.mapper.conference.ConferenceBySpeakerDaoMapperBuilder;
+import org.confeti.db.mapper.conference.ConferenceDaoMapper;
 import org.confeti.db.mapper.conference.ConferenceDaoMapperBuilder;
-import org.confeti.db.mapper.report.ReportByConferenceDaoMapperBuilder;
-import org.confeti.db.mapper.report.ReportBySpeakerDaoMapperBuilder;
-import org.confeti.db.mapper.report.ReportByTagDaoMapperBuilder;
+import org.confeti.db.mapper.report.ReportDaoMapper;
 import org.confeti.db.mapper.report.ReportDaoMapperBuilder;
-import org.confeti.db.mapper.report.stats.ReportStatsByCompanyDaoMapperBuilder;
-import org.confeti.db.mapper.report.stats.ReportStatsByConferenceDaoMapperBuilder;
-import org.confeti.db.mapper.report.stats.ReportStatsBySpeakerForConferenceDaoMapperBuilder;
-import org.confeti.db.mapper.report.stats.ReportStatsBySpeakerForYearDaoMapperBuilder;
-import org.confeti.db.mapper.speaker.SpeakerByConferenceDaoMapperBuilder;
+import org.confeti.db.mapper.report.ReportStatsDaoMapper;
+import org.confeti.db.mapper.report.ReportStatsDaoMapperBuilder;
+import org.confeti.db.mapper.speaker.SpeakerDaoMapper;
 import org.confeti.db.mapper.speaker.SpeakerDaoMapperBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -83,86 +79,106 @@ public class CassandraConfig {
     }
 
     @Bean
-    public ConferenceDao conferenceDao(final CqlSession cqlSession) {
-        final var conferenceMapper = new ConferenceDaoMapperBuilder(cqlSession).build();
-        conferenceMapper.createSchema(cqlSession);
-        return conferenceMapper.conferenceDao(cqlSession.getKeyspace().get());
+    public ConferenceDaoMapper conferenceDaoMapper(final CqlSession cqlSession) {
+        return new ConferenceDaoMapperBuilder(cqlSession).build();
     }
 
     @Bean
-    public SpeakerDao speakerDao(final CqlSession cqlSession) {
-        final var speakerMapper = new SpeakerDaoMapperBuilder(cqlSession).build();
-        speakerMapper.createSchema(cqlSession);
-        return speakerMapper.speakerDao(cqlSession.getKeyspace().get());
+    public SpeakerDaoMapper speakerDaoMapper(final CqlSession cqlSession) {
+        return new SpeakerDaoMapperBuilder(cqlSession).build();
     }
 
     @Bean
-    public ReportDao reportDao(final CqlSession cqlSession) {
-        final var reportMapper = new ReportDaoMapperBuilder(cqlSession).build();
-        reportMapper.createSchema(cqlSession);
-        return reportMapper.reportDao(cqlSession.getKeyspace().get());
+    public ReportDaoMapper reportDaoMapper(final CqlSession cqlSession) {
+        return new ReportDaoMapperBuilder(cqlSession).build();
     }
 
     @Bean
-    public SpeakerByConferenceDao speakerByConferenceDao(final CqlSession cqlSession) {
-        final var speakerByConferenceMapper = new SpeakerByConferenceDaoMapperBuilder(cqlSession).build();
-        speakerByConferenceMapper.createSchema(cqlSession);
-        return speakerByConferenceMapper.speakerByConferenceDao(cqlSession.getKeyspace().get());
+    public ReportStatsDaoMapper reportStatsDaoMapper(final CqlSession cqlSession) {
+        return new ReportStatsDaoMapperBuilder(cqlSession).build();
     }
 
     @Bean
-    public ConferenceBySpeakerDao conferenceBySpeakerDao(final CqlSession cqlSession) {
-        final var conferenceBySpeakerMapper = new ConferenceBySpeakerDaoMapperBuilder(cqlSession).build();
-        conferenceBySpeakerMapper.createSchema(cqlSession);
-        return conferenceBySpeakerMapper.conferenceBySpeakerDao(cqlSession.getKeyspace().get());
+    public ConferenceDao conferenceDao(final CqlSession cqlSession,
+                                       final ConferenceDaoMapper conferenceDaoMapper) {
+        conferenceDaoMapper.createConferenceTable(cqlSession);
+        return conferenceDaoMapper.conferenceDao(cqlSession.getKeyspace().get());
     }
 
     @Bean
-    public ReportByTagDao reportByTagDao(final CqlSession cqlSession) {
-        final var reportByTagMapper = new ReportByTagDaoMapperBuilder(cqlSession).build();
-        reportByTagMapper.createSchema(cqlSession);
-        return reportByTagMapper.reportByTagDao(cqlSession.getKeyspace().get());
+    public ConferenceBySpeakerDao conferenceBySpeakerDao(final CqlSession cqlSession,
+                                                         final ConferenceDaoMapper conferenceDaoMapper) {
+        conferenceDaoMapper.createConferenceBySpeakerTable(cqlSession);
+        return conferenceDaoMapper.conferenceBySpeakerDao(cqlSession.getKeyspace().get());
     }
 
     @Bean
-    public ReportByConferenceDao reportByConferenceDao(final CqlSession cqlSession) {
-        final var reportByConferenceMapper = new ReportByConferenceDaoMapperBuilder(cqlSession).build();
-        reportByConferenceMapper.createSchema(cqlSession);
-        return reportByConferenceMapper.reportByConferenceDao(cqlSession.getKeyspace().get());
+    public SpeakerDao speakerDao(final CqlSession cqlSession,
+                                 final SpeakerDaoMapper speakerDaoMapper) {
+        speakerDaoMapper.createSpeakerTable(cqlSession);
+        return speakerDaoMapper.speakerDao(cqlSession.getKeyspace().get());
     }
 
     @Bean
-    public ReportBySpeakerDao reportBySpeakerDao(final CqlSession cqlSession) {
-        final var reportBySpeakerMapper = new ReportBySpeakerDaoMapperBuilder(cqlSession).build();
-        reportBySpeakerMapper.createSchema(cqlSession);
-        return reportBySpeakerMapper.reportBySpeakerDao(cqlSession.getKeyspace().get());
+    public SpeakerByConferenceDao speakerByConferenceDao(final CqlSession cqlSession,
+                                                         final SpeakerDaoMapper speakerDaoMapper) {
+        speakerDaoMapper.createSpeakerByConferenceTable(cqlSession);
+        return speakerDaoMapper.speakerByConferenceDao(cqlSession.getKeyspace().get());
     }
 
     @Bean
-    public ReportStatsByConferenceDao reportStatsByConferenceDaoMapperBuilder(final CqlSession cqlSession) {
-        final var reportStatsByConferenceMapper = new ReportStatsByConferenceDaoMapperBuilder(cqlSession).build();
-        reportStatsByConferenceMapper.createSchema(cqlSession);
-        return reportStatsByConferenceMapper.reportStatsByConferenceDao(cqlSession.getKeyspace().get());
+    public ReportDao reportDao(final CqlSession cqlSession,
+                               final ReportDaoMapper reportDaoMapper) {
+        reportDaoMapper.createReportTable(cqlSession);
+        return reportDaoMapper.reportDao(cqlSession.getKeyspace().get());
     }
 
     @Bean
-    public ReportStatsBySpeakerForYearDao reportStatsBySpeakerForYearDao(final CqlSession cqlSession) {
-        final var reportStatsBySpeakerForYearMapper = new ReportStatsBySpeakerForYearDaoMapperBuilder(cqlSession).build();
-        reportStatsBySpeakerForYearMapper.createSchema(cqlSession);
-        return reportStatsBySpeakerForYearMapper.reportStatsBySpeakerForYearDao(cqlSession.getKeyspace().get());
+    public ReportByConferenceDao reportByConferenceDao(final CqlSession cqlSession,
+                                                       final ReportDaoMapper reportDaoMapper) {
+        reportDaoMapper.createReportByConferenceTable(cqlSession);
+        return reportDaoMapper.reportByConferenceDao(cqlSession.getKeyspace().get());
     }
 
     @Bean
-    public ReportStatsBySpeakerForConferenceDao reportStatsBySpeakerForConferenceDao(final CqlSession cqlSession) {
-        final var reportStatsBySpeakerForConferenceMapper = new ReportStatsBySpeakerForConferenceDaoMapperBuilder(cqlSession).build();
-        reportStatsBySpeakerForConferenceMapper.createSchema(cqlSession);
-        return reportStatsBySpeakerForConferenceMapper.reportStatsBySpeakerForConferenceDao(cqlSession.getKeyspace().get());
+    public ReportBySpeakerDao reportBySpeakerDao(final CqlSession cqlSession,
+                                                 final ReportDaoMapper reportDaoMapper) {
+        reportDaoMapper.createReportBySpeakerTable(cqlSession);
+        return reportDaoMapper.reportBySpeakerDao(cqlSession.getKeyspace().get());
     }
 
     @Bean
-    public ReportStatsByCompanyDao reportStatsByCompanyDao(final CqlSession cqlSession) {
-        final var reportStatsByCompanyMapper = new ReportStatsByCompanyDaoMapperBuilder(cqlSession).build();
-        reportStatsByCompanyMapper.createSchema(cqlSession);
-        return reportStatsByCompanyMapper.reportStatsByCompanyDao(cqlSession.getKeyspace().get());
+    public ReportByTagDao reportByTagDao(final CqlSession cqlSession,
+                                         final ReportDaoMapper reportDaoMapper) {
+        reportDaoMapper.createReportByTagTable(cqlSession);
+        return reportDaoMapper.reportByTagDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportStatsByConferenceDao reportStatsByConferenceDaoMapperBuilder(final CqlSession cqlSession,
+                                                                              final ReportStatsDaoMapper reportStatsDaoMapper) {
+        reportStatsDaoMapper.createReportStatsByConferenceTable(cqlSession);
+        return reportStatsDaoMapper.reportStatsByConferenceDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportStatsBySpeakerForYearDao reportStatsBySpeakerForYearDao(final CqlSession cqlSession,
+                                                                         final ReportStatsDaoMapper reportStatsDaoMapper) {
+        reportStatsDaoMapper.createReportStatsBySpeakerForYearTable(cqlSession);
+        return reportStatsDaoMapper.reportStatsBySpeakerForYearDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportStatsBySpeakerForConferenceDao reportStatsBySpeakerForConferenceDao(final CqlSession cqlSession,
+                                                                                     final ReportStatsDaoMapper reportStatsDaoMapper) {
+        reportStatsDaoMapper.createReportStatsBySpeakerForConfTable(cqlSession);
+        return reportStatsDaoMapper.reportStatsBySpeakerForConferenceDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportStatsByCompanyDao reportStatsByCompanyDao(final CqlSession cqlSession,
+                                                           final ReportStatsDaoMapper reportStatsDaoMapper) {
+        reportStatsDaoMapper.createReportStatsByCompanyTable(cqlSession);
+        return reportStatsDaoMapper.reportStatsByCompanyDao(cqlSession.getKeyspace().get());
     }
 }

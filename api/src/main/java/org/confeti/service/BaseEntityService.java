@@ -1,9 +1,25 @@
 package org.confeti.service;
 
+import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface BaseEntityService<D> {
+import java.util.function.Function;
 
-    Mono<D> upsert(@NotNull D dto);
+public interface BaseEntityService {
+
+    @NotNull
+    static <T, K> Mono<K> findOneBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
+                                    @NotNull final Function<T, K> modelToDtoConverter) {
+        return Mono.from(foundEntity)
+                .map(modelToDtoConverter);
+    }
+
+    @NotNull
+    static <T, K> Flux<K> findAllBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
+                                    @NotNull final Function<T, K> modelToDtoConverter) {
+        return Flux.from(foundEntity)
+                .map(modelToDtoConverter);
+    }
 }

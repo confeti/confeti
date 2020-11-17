@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.confeti.db.model.report.AbstractReportEntity;
 import org.confeti.db.model.report.ReportByConferenceEntity;
 import org.confeti.db.model.report.ReportBySpeakerEntity;
 import org.confeti.db.model.report.ReportByTagEntity;
@@ -16,7 +17,6 @@ import org.confeti.db.model.udt.ReportSourceUDT;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,7 +49,7 @@ public class Report implements Serializable {
     private Set<String> tags;
 
     public boolean compareBySpeakers(@NotNull final Report report) {
-        final var otherSpeakers = new HashSet<>(speakers);
+        final var otherSpeakers = Sets.newHashSet(speakers);
         otherSpeakers.removeAll(report.getSpeakers());
         return otherSpeakers.isEmpty();
     }
@@ -82,10 +82,7 @@ public class Report implements Serializable {
 
     @NotNull
     public static Report from(@NotNull final ReportEntity report) {
-        return Report.builder(report.getId(), report.getTitle())
-                .complexity(Complexity.valueOf(report.getComplexity()))
-                .language(report.getLanguage())
-                .source(ReportSource.from(report.getSource()))
+        return fillCommonFields(report)
                 .description(report.getDescription())
                 .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
@@ -98,45 +95,44 @@ public class Report implements Serializable {
     }
 
     @NotNull
-    public static Report from(@NotNull final ReportByConferenceEntity reportEntity) {
-        return Report.builder(reportEntity.getId(), reportEntity.getTitle())
-                .complexity(Complexity.valueOf(reportEntity.getComplexity()))
-                .language(reportEntity.getLanguage())
-                .source(ReportSource.from(reportEntity.getSource()))
-                .tags(Sets.newHashSet(reportEntity.getTags()))
-                .speakers(reportEntity.getSpeakers().stream()
+    public static Report from(@NotNull final ReportByConferenceEntity report) {
+        return fillCommonFields(report)
+                .tags(Sets.newHashSet(report.getTags()))
+                .speakers(report.getSpeakers().stream()
                         .map(Speaker::from)
                         .collect(Collectors.toSet()))
                 .build();
     }
 
     @NotNull
-    public static Report from(@NotNull final ReportBySpeakerEntity reportEntity) {
-        return Report.builder(reportEntity.getId(), reportEntity.getTitle())
-                .complexity(Complexity.valueOf(reportEntity.getComplexity()))
-                .language(reportEntity.getLanguage())
-                .source(ReportSource.from(reportEntity.getSource()))
-                .description(reportEntity.getDescription())
-                .tags(Sets.newHashSet(reportEntity.getTags()))
-                .conferences(reportEntity.getConferences().stream()
+    public static Report from(@NotNull final ReportBySpeakerEntity report) {
+        return fillCommonFields(report)
+                .description(report.getDescription())
+                .tags(Sets.newHashSet(report.getTags()))
+                .conferences(report.getConferences().stream()
                         .map(Conference::from)
                         .collect(Collectors.toSet()))
                 .build();
     }
 
     @NotNull
-    public static Report from(@NotNull final ReportByTagEntity reportEntity) {
-        return Report.builder(reportEntity.getId(), reportEntity.getTitle())
-                .complexity(Complexity.valueOf(reportEntity.getComplexity()))
-                .language(reportEntity.getLanguage())
-                .source(ReportSource.from(reportEntity.getSource()))
-                .conferences(reportEntity.getConferences().stream()
+    public static Report from(@NotNull final ReportByTagEntity report) {
+        return fillCommonFields(report)
+                .conferences(report.getConferences().stream()
                         .map(Conference::from)
                         .collect(Collectors.toSet()))
-                .speakers(reportEntity.getSpeakers().stream()
+                .speakers(report.getSpeakers().stream()
                         .map(Speaker::from)
                         .collect(Collectors.toSet()))
                 .build();
+    }
+
+    @NotNull
+    private static ReportBuilder fillCommonFields(@NotNull final AbstractReportEntity report) {
+        return Report.builder(report.getId(), report.getTitle())
+                .complexity(Complexity.valueOf(report.getComplexity()))
+                .language(report.getLanguage())
+                .source(ReportSource.from(report.getSource()));
     }
 
     @Data

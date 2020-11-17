@@ -14,6 +14,9 @@ import reactor.function.TupleUtils;
 
 import java.util.UUID;
 
+import static org.confeti.service.BaseEntityService.findAllBy;
+import static org.confeti.service.BaseEntityService.findOneBy;
+
 @Service
 public final class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker, SpeakerDao> {
 

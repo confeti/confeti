@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.confeti.db.model.speaker.AbstractSpeakerEntity;
 import org.confeti.db.model.speaker.SpeakerByConferenceEntity;
 import org.confeti.db.model.speaker.SpeakerEntity;
 import org.confeti.db.model.udt.ContactInfoUDT;
@@ -13,6 +14,7 @@ import org.confeti.db.model.udt.SpeakerCompanyUDT;
 import org.confeti.db.model.udt.SpeakerFullInfoUDT;
 import org.confeti.db.model.udt.SpeakerShortInfoUDT;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -51,18 +53,24 @@ public class Speaker implements Serializable {
 
     boolean canBeUpdatedEmail(@NotNull final String newEmail,
                               @NotNull final String newTwitter) {
-            final var oldEmail = contactInfo.getEmail();
-            final var oldTwitter = contactInfo.getTwitterUsername();
-            return oldTwitter != null && (oldEmail == null && oldTwitter.equals(newTwitter)
-                    || oldEmail != null && !oldEmail.equals(newEmail));
+        return canBeUpdated(
+                contactInfo.getEmail(), newEmail,
+                contactInfo.getTwitterUsername(), newTwitter);
     }
 
     boolean canBeUpdatedTwitterUsername(@NotNull final String newEmail,
                                         @NotNull final String newTwitter) {
-        final var oldEmail = contactInfo.getEmail();
-        final var oldTwitter = contactInfo.getTwitterUsername();
-        return oldEmail != null && (oldTwitter == null && oldEmail.equals(newEmail)
-                || oldTwitter != null && !oldTwitter.equals(newTwitter));
+        return canBeUpdated(
+                contactInfo.getTwitterUsername(), newTwitter,
+                contactInfo.getEmail(), newEmail);
+    }
+
+    private boolean canBeUpdated(@Nullable final String oldValue,
+                                 @NotNull final String newValue,
+                                 @Nullable final String oldDependentValue,
+                                 @NotNull final String newDependentValue) {
+        return oldDependentValue != null && (oldValue == null && oldDependentValue.equals(newDependentValue)
+                || oldValue != null && !oldValue.equals(newValue));
     }
 
     public static SpeakerBuilder builder(@NotNull final UUID id,
@@ -85,8 +93,7 @@ public class Speaker implements Serializable {
 
     @NotNull
     public static Speaker from(@NotNull final SpeakerEntity speaker) {
-        return Speaker.builder(speaker.getId(), speaker.getName())
-                .avatar(speaker.getAvatar())
+        return fillCommonFields(speaker)
                 .bio(speaker.getBio())
                 .contactInfo(ContactInfo.from(speaker.getContactInfo()))
                 .build();
@@ -94,9 +101,7 @@ public class Speaker implements Serializable {
 
     @NotNull
     public static Speaker from(@NotNull final SpeakerByConferenceEntity speaker) {
-        return Speaker.builder(speaker.getId(), speaker.getName())
-                .avatar(speaker.getAvatar())
-                .build();
+        return fillCommonFields(speaker).build();
     }
 
     @NotNull
@@ -113,6 +118,12 @@ public class Speaker implements Serializable {
         return Speaker.builder(speakerUDT.getId(), speakerUDT.getName())
                 .contactInfo(ContactInfo.from(speakerUDT.getContactInfo()))
                 .build();
+    }
+
+    @NotNull
+    private static SpeakerBuilder fillCommonFields(@NotNull final AbstractSpeakerEntity speaker) {
+        return Speaker.builder(speaker.getId(), speaker.getName())
+                .avatar(speaker.getAvatar());
     }
 
     @NotNull
@@ -161,7 +172,7 @@ public class Speaker implements Serializable {
                     .email(contactInfoUDT.getEmail())
                     .location(contactInfoUDT.getLocation())
                     .twitterUsername(contactInfoUDT.getTwitterUsername())
-                    .company(company != null ? SpeakerCompany.from(company) : null)
+                    .company(company == null ? null : SpeakerCompany.from(company))
                     .build();
         }
 

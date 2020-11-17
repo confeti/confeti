@@ -18,34 +18,22 @@ import java.util.UUID;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
-@CqlName(ConferenceBySpeakerEntity.CONFERENCE_BY_SPEAKER_TABLE)
+@CqlName(ConferenceBySpeakerEntity.CONF_BY_SPEAKER_TABLE)
 public class ConferenceBySpeakerEntity extends AbstractConferenceEntity {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String CONFERENCE_BY_SPEAKER_TABLE = "conference_by_speaker";
-    public static final String CONFERENCE_BY_SPEAKER_ATT_SPEAKER_ID = "speaker_id";
+    public static final String CONF_BY_SPEAKER_TABLE = "conference_by_speaker";
+    public static final String CONF_BY_SPEAKER_ATT_SPEAKER_ID = "speaker_id";
 
     @PartitionKey
-    @CqlName(CONFERENCE_BY_SPEAKER_ATT_SPEAKER_ID)
+    @CqlName(CONF_BY_SPEAKER_ATT_SPEAKER_ID)
     private UUID speakerId;
 
     @ClusteringColumn(2)
     @Override
     public String getName() {
         return name;
-    }
-
-    @NotNull
-    public static ConferenceBySpeakerEntity from(@NotNull final ConferenceBySpeakerEntity conference) {
-        return ConferenceBySpeakerEntity.builder()
-                .speakerId(conference.getSpeakerId())
-                .name(conference.getName())
-                .year(conference.getYear())
-                .location(conference.getLocation())
-                .logo(conference.getLogo())
-                .url(conference.getUrl())
-                .build();
     }
 
     @NotNull
@@ -62,15 +50,17 @@ public class ConferenceBySpeakerEntity extends AbstractConferenceEntity {
     }
 
     @NotNull
+    public static ConferenceBySpeakerEntity from(@NotNull final ConferenceBySpeakerEntity conference) {
+        return ((ConferenceBySpeakerEntityBuilder<?, ?>) fillCommonFields(conference, builder()))
+                .speakerId(conference.getSpeakerId())
+                .build();
+    }
+
+    @NotNull
     public static ConferenceBySpeakerEntity from(@NotNull final UUID speakerId,
                                                  @NotNull final ConferenceEntity conference) {
-        return ConferenceBySpeakerEntity.builder()
+        return ((ConferenceBySpeakerEntityBuilder<?, ?>) fillCommonFields(conference, builder()))
                 .speakerId(speakerId)
-                .name(conference.getName())
-                .year(conference.getYear())
-                .location(conference.getLocation())
-                .logo(conference.getLogo())
-                .url(conference.getUrl())
                 .build();
     }
 }

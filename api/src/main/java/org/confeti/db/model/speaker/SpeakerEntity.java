@@ -14,6 +14,7 @@ import org.confeti.db.model.udt.SpeakerShortInfoUDT;
 import org.confeti.service.dto.Speaker;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import static org.confeti.db.model.BaseEntity.updateValue;
@@ -24,7 +25,7 @@ import static org.confeti.db.model.BaseEntity.updateValue;
 @SuperBuilder
 @Entity
 @CqlName(SpeakerEntity.SPEAKER_TABLE)
-public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<SpeakerEntity> {
+public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<SpeakerEntity>, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,7 +67,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
     }
 
     @NotNull
-    public static SpeakerEntity from(@NotNull final SpeakerEntity speaker) {
+    public static SpeakerEntity from(@NotNull final Speaker speaker) {
         return SpeakerEntity.builder()
                 .id(speaker.getId())
                 .name(speaker.getName())
@@ -77,14 +78,16 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
     }
 
     @NotNull
-    public static SpeakerEntity from(@NotNull final Speaker speaker) {
-        return SpeakerEntity.builder()
-                .id(speaker.getId())
-                .name(speaker.getName())
-                .avatar(speaker.getAvatar())
+    public static SpeakerEntity from(@NotNull final SpeakerEntity speaker) {
+        return ((SpeakerEntityBuilder<?, ?>) fillCommonFields(speaker, builder()))
                 .bio(speaker.getBio())
                 .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
                 .build();
+    }
+
+    @NotNull
+    public static SpeakerEntity from(@NotNull final SpeakerByConferenceEntity speaker) {
+        return ((SpeakerEntityBuilder<?, ?>) fillCommonFields(speaker, builder())).build();
     }
 
     @NotNull

@@ -14,6 +14,8 @@ plugins:
         enabled: false
       squid:S00112:
         enabled: false
+      squid:S00107:
+          enabled: false
 
   pmd:
     enabled: true

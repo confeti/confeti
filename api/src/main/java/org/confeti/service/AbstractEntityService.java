@@ -1,6 +1,6 @@
 package org.confeti.service;
 
-import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
+import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.confeti.db.dao.BaseDao;
@@ -10,11 +10,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.function.TupleUtils;
 
+import java.util.Set;
 import java.util.function.Function;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extends BaseDao<E>>
-        implements BaseEntityService<D> {
+        implements BaseEntityService {
 
     protected final R dao;
 
@@ -27,10 +28,10 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
     @NotNull
     protected Mono<E> upsert(@NotNull final D dto,
                              @NotNull final Function<D, E> dtoToModelConverter) {
-        final var entity = dtoToModelConverter.apply(dto);
+        final var newEntity = dtoToModelConverter.apply(dto);
         return findByPrimaryKey(dto)
-                .doOnNext(ce -> ce.updateFrom(entity))
-                .defaultIfEmpty(entity)
+                .doOnNext(foundEntity -> foundEntity.updateFrom(newEntity))
+                .defaultIfEmpty(newEntity)
                 .flatMap(this::upsert);
     }
 
@@ -46,19 +47,18 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
     }
 
     @NotNull
-    protected <T, K> Mono<K> findOneBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
-                                       @NotNull final Function<T, K> modelToDtoConverter) {
-        return Mono.from(foundEntity)
-                .map(modelToDtoConverter);
-    }
-
-    @NotNull
-    protected <T, K> Flux<K> findAllBy(@NotNull final MappedReactiveResultSet<T> foundEntity,
-                                       @NotNull final Function<T, K> modelToDtoConverter) {
-        return Flux.from(foundEntity)
-                .map(modelToDtoConverter);
-    }
+    public abstract Mono<D> upsert(@NotNull final D dto);
 
     @NotNull
     protected abstract Mono<E> findByPrimaryKey(@NotNull final D dto);
+
+    @NotNull
+    protected static <T> Mono<Set<T>> upsertMany(@NotNull final Set<T> entities,
+                                                 @NotNull final Function<T, Mono<T>> upsert) {
+        return Mono.just(entities)
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(upsert)
+                .collectList()
+                .map(Sets::newHashSet);
+    }
 }

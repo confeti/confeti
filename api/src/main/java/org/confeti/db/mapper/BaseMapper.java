@@ -6,21 +6,21 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createType;
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.udt;
-import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_LOGO;
-import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_NAME;
-import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_YEAR;
+import static org.confeti.db.model.conference.ConferenceEntity.CONF_ATT_LOGO;
+import static org.confeti.db.model.conference.ConferenceEntity.CONF_ATT_NAME;
+import static org.confeti.db.model.conference.ConferenceEntity.CONF_ATT_YEAR;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_AVATAR;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_BIO;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_CONTACT_INFO;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_ID;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_NAME;
-import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONFERENCE_SHORT_INFO_UDT;
+import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONF_SHORT_INFO_UDT;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_COMPANIES;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_EMAIL;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_LOCATION;
-import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_TWITTER_USERNAME;
+import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_TWITTER;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_UDT;
-import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_PRESENTATION_URL;
+import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_PRES_URL;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_REPO_URL;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_VIDEO_URL;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_UDT;
@@ -65,7 +65,7 @@ public interface BaseMapper {
      */
     default void createReportSourceUDT(@NotNull final CqlSession cqlSession) {
         cqlSession.execute(createType(REPORT_SOURCE_UDT).ifNotExists()
-                .withField(REPORT_SOURCE_ATT_PRESENTATION_URL, DataTypes.TEXT)
+                .withField(REPORT_SOURCE_ATT_PRES_URL, DataTypes.TEXT)
                 .withField(REPORT_SOURCE_ATT_REPO_URL, DataTypes.TEXT)
                 .withField(REPORT_SOURCE_ATT_VIDEO_URL, DataTypes.TEXT)
                 .build());
@@ -83,10 +83,10 @@ public interface BaseMapper {
      * </pre>
      */
     default void createConferenceShortInfoUDT(@NotNull final CqlSession cqlSession) {
-        cqlSession.execute(createType(CONFERENCE_SHORT_INFO_UDT).ifNotExists()
-                .withField(CONFERENCE_ATT_LOGO, DataTypes.TEXT)
-                .withField(CONFERENCE_ATT_NAME, DataTypes.TEXT)
-                .withField(CONFERENCE_ATT_YEAR, DataTypes.INT)
+        cqlSession.execute(createType(CONF_SHORT_INFO_UDT).ifNotExists()
+                .withField(CONF_ATT_LOGO, DataTypes.TEXT)
+                .withField(CONF_ATT_NAME, DataTypes.TEXT)
+                .withField(CONF_ATT_YEAR, DataTypes.INT)
                 .build());
     }
 
@@ -108,7 +108,7 @@ public interface BaseMapper {
                 .withField(CONTACT_INFO_ATT_COMPANIES, DataTypes.setOf(udt(SPEAKER_COMPANY_UDT, true)))
                 .withField(CONTACT_INFO_ATT_EMAIL, DataTypes.TEXT)
                 .withField(CONTACT_INFO_ATT_LOCATION, DataTypes.TEXT)
-                .withField(CONTACT_INFO_ATT_TWITTER_USERNAME, DataTypes.TEXT)
+                .withField(CONTACT_INFO_ATT_TWITTER, DataTypes.TEXT)
                 .build());
     }
 

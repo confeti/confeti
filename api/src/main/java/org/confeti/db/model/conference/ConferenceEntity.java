@@ -8,9 +8,10 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.confeti.db.model.BaseEntity;
-import org.confeti.db.model.udt.ConferenceShortInfoUDT;
 import org.confeti.service.dto.Conference;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.Serializable;
 
 import static org.confeti.db.model.BaseEntity.updateValue;
 
@@ -19,12 +20,12 @@ import static org.confeti.db.model.BaseEntity.updateValue;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
-@CqlName(ConferenceEntity.CONFERENCE_TABLE)
-public class ConferenceEntity extends AbstractConferenceEntity implements BaseEntity<ConferenceEntity> {
+@CqlName(ConferenceEntity.CONF_TABLE)
+public class ConferenceEntity extends AbstractConferenceEntity implements BaseEntity<ConferenceEntity>, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String CONFERENCE_TABLE = "conference";
+    public static final String CONF_TABLE = "conference";
 
     @PartitionKey
     @Override
@@ -32,15 +33,13 @@ public class ConferenceEntity extends AbstractConferenceEntity implements BaseEn
         return name;
     }
 
-    @NotNull
-    public static ConferenceEntity from(@NotNull final ConferenceEntity conference) {
-        return ConferenceEntity.builder()
-                .name(conference.getName())
-                .year(conference.getYear())
-                .location(conference.getLocation())
-                .logo(conference.getLogo())
-                .url(conference.getUrl())
-                .build();
+    @Override
+    public void updateFrom(@NotNull final ConferenceEntity conference) {
+        setName(updateValue(name, conference.getName()));
+        setYear(updateValue(year, conference.getYear()));
+        setLocation(updateValue(location, conference.getLocation()));
+        setLogo(updateValue(logo, conference.getLogo()));
+        setUrl(updateValue(url, conference.getUrl()));
     }
 
     @NotNull
@@ -55,20 +54,12 @@ public class ConferenceEntity extends AbstractConferenceEntity implements BaseEn
     }
 
     @NotNull
-    public static ConferenceEntity from(@NotNull final ConferenceShortInfoUDT conference) {
-        return ConferenceEntity.builder()
-                .name(conference.getName())
-                .year(conference.getYear())
-                .logo(conference.getLogo())
-                .build();
+    public static ConferenceEntity from(@NotNull final ConferenceEntity conference) {
+        return ((ConferenceEntityBuilder<?, ?>) fillCommonFields(conference, builder())).build();
     }
 
-    @Override
-    public void updateFrom(@NotNull final ConferenceEntity conference) {
-        setName(updateValue(name, conference.getName()));
-        setYear(updateValue(year, conference.getYear()));
-        setLocation(updateValue(location, conference.getLocation()));
-        setLogo(updateValue(logo, conference.getLogo()));
-        setUrl(updateValue(url, conference.getUrl()));
+    @NotNull
+    public static ConferenceEntity from(@NotNull final ConferenceBySpeakerEntity conference) {
+        return ((ConferenceEntityBuilder<?, ?>) fillCommonFields(conference, builder())).build();
     }
 }

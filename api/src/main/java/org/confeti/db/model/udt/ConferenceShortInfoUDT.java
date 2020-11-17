@@ -14,9 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
 import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetElement.UDT;
-import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_LOGO;
-import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_NAME;
-import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_YEAR;
+import static org.confeti.db.model.conference.ConferenceEntity.CONF_ATT_LOGO;
+import static org.confeti.db.model.conference.ConferenceEntity.CONF_ATT_NAME;
+import static org.confeti.db.model.conference.ConferenceEntity.CONF_ATT_YEAR;
 
 @Data
 @NoArgsConstructor
@@ -24,20 +24,20 @@ import static org.confeti.db.model.conference.ConferenceEntity.CONFERENCE_ATT_YE
 @SuperBuilder
 @Entity
 @SchemaHint(targetElement = UDT)
-@CqlName(ConferenceShortInfoUDT.CONFERENCE_SHORT_INFO_UDT)
+@CqlName(ConferenceShortInfoUDT.CONF_SHORT_INFO_UDT)
 public class ConferenceShortInfoUDT implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String CONFERENCE_SHORT_INFO_UDT = "conference_short_info";
+    public static final String CONF_SHORT_INFO_UDT = "conference_short_info";
 
-    @CqlName(CONFERENCE_ATT_LOGO)
+    @CqlName(CONF_ATT_LOGO)
     private String logo;
 
-    @CqlName(CONFERENCE_ATT_NAME)
+    @CqlName(CONF_ATT_NAME)
     private String name;
 
-    @CqlName(CONFERENCE_ATT_YEAR)
+    @CqlName(CONF_ATT_YEAR)
     private Integer year;
 
     @NotNull

@@ -44,11 +44,13 @@ CREATE TYPE IF NOT EXISTS contact_info (
 );
 
 CREATE TYPE IF NOT EXISTS speaker_short_info (
+    id uuid,
     contact_info frozen<contact_info>,
     name text
 );
 
 CREATE TYPE IF NOT EXISTS speaker_full_info (
+    id uuid,
     avatar text,
     bio text,
     contact_info frozen<contact_info>,

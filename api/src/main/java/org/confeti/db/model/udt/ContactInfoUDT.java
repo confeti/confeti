@@ -35,7 +35,7 @@ public class ContactInfoUDT implements Serializable {
     public static final String CONTACT_INFO_ATT_COMPANIES = "companies";
     public static final String CONTACT_INFO_ATT_EMAIL = "email";
     public static final String CONTACT_INFO_ATT_LOCATION = "location";
-    public static final String CONTACT_INFO_ATT_TWITTER_USERNAME = "twitter_username";
+    public static final String CONTACT_INFO_ATT_TWITTER = "twitter_username";
 
     @CqlName(CONTACT_INFO_ATT_COMPANIES)
     private Set<SpeakerCompanyUDT> companies;
@@ -46,17 +46,17 @@ public class ContactInfoUDT implements Serializable {
     @CqlName(CONTACT_INFO_ATT_LOCATION)
     private String location;
 
-    @CqlName(CONTACT_INFO_ATT_TWITTER_USERNAME)
+    @CqlName(CONTACT_INFO_ATT_TWITTER)
     private String twitterUsername;
 
     public void addCompanies(@NotNull final Set<SpeakerCompanyUDT> companiesUDT) {
         final var newCompanies = companiesUDT.stream()
                 .map(SpeakerCompanyUDT::from)
                 .collect(Collectors.toSet());
-        if (companies != null) {
-            companies.addAll(newCompanies);
-        } else {
+        if (companies == null) {
             companies = Sets.newHashSet(newCompanies);
+        } else {
+            companies.addAll(newCompanies);
         }
     }
 

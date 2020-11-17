@@ -47,31 +47,13 @@ public class ReportByTagEntity extends AbstractReportEntity {
     @ClusteringColumn(1)
     @Override
     public String getTitle() {
-        return super.getTitle();
+        return title;
     }
 
     @ClusteringColumn(2)
     @Override
     public UUID getId() {
         return id;
-    }
-
-    @NotNull
-    public static ReportByTagEntity from(@NotNull final ReportByTagEntity report) {
-        return ReportByTagEntity.builder()
-                .tagName(report.getTagName())
-                .id(report.getId())
-                .title(report.getTitle())
-                .complexity(report.getComplexity())
-                .language(report.getLanguage())
-                .source(ReportSourceUDT.from(report.getSource()))
-                .conferences(report.getConferences().stream()
-                        .map(ConferenceShortInfoUDT::from)
-                        .collect(Collectors.toSet()))
-                .speakers(report.getSpeakers().stream()
-                        .map(SpeakerShortInfoUDT::from)
-                        .collect(Collectors.toSet()))
-                .build();
     }
 
     @NotNull
@@ -94,15 +76,45 @@ public class ReportByTagEntity extends AbstractReportEntity {
     }
 
     @NotNull
+    public static ReportByTagEntity from(@NotNull final ReportByTagEntity report) {
+        return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+                .tagName(report.getTagName())
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .speakers(report.getSpeakers().stream()
+                        .map(SpeakerShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    @NotNull
+    public static ReportByTagEntity from(@NotNull final String tagName,
+                                         @NotNull final ReportByConferenceEntity report) {
+        return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+                .tagName(tagName)
+                .speakers(report.getSpeakers().stream()
+                        .map(SpeakerShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    @NotNull
+    public static ReportByTagEntity from(@NotNull final String tagName,
+                                         @NotNull final ReportBySpeakerEntity report) {
+        return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+                .tagName(tagName)
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    @NotNull
     public static ReportByTagEntity from(@NotNull final String tagName,
                                          @NotNull final ReportEntity report) {
-        return ReportByTagEntity.builder()
+        return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
                 .tagName(tagName)
-                .id(report.getId())
-                .title(report.getTitle())
-                .complexity(report.getComplexity())
-                .language(report.getLanguage())
-                .source(ReportSourceUDT.from(report.getSource()))
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
                         .collect(Collectors.toSet()))

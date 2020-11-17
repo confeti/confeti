@@ -21,4 +21,6 @@ public abstract class AbstractReportStatsEntity implements Serializable {
 
     @CqlName(REPORT_STATS_ATT_REPORT_TOTAL)
     protected Long reportTotal;
+
+    public abstract Long getReportTotal();
 }

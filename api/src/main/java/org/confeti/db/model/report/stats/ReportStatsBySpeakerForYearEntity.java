@@ -16,20 +16,25 @@ import java.util.UUID;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
-@CqlName(ReportStatsBySpeakerForYearEntity.REPORT_STATS_BY_SPEAKER_FOR_YEAR_TABLE)
+@CqlName(ReportStatsBySpeakerForYearEntity.STATS_BY_SPEAKER_FOR_YEAR_TABLE)
 public class ReportStatsBySpeakerForYearEntity extends AbstractReportStatsEntity {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String REPORT_STATS_BY_SPEAKER_FOR_YEAR_TABLE = "report_stats_by_speaker_for_year";
-    public static final String REPORT_STATS_BY_SPEAKER_FOR_YEAR_ATT_SPEAKER_ID = "speaker_id";
-    public static final String REPORT_STATS_BY_SPEAKER_FOR_YEAR_ATT_YEAR = "year";
+    public static final String STATS_BY_SPEAKER_FOR_YEAR_TABLE = "report_stats_by_speaker_for_year";
+    public static final String STATS_BY_SPEAKER_FOR_YEAR_ATT_SPEAKER_ID = "speaker_id";
+    public static final String STATS_BY_SPEAKER_FOR_YEAR_ATT_YEAR = "year";
 
     @PartitionKey
-    @CqlName(REPORT_STATS_BY_SPEAKER_FOR_YEAR_ATT_SPEAKER_ID)
+    @CqlName(STATS_BY_SPEAKER_FOR_YEAR_ATT_SPEAKER_ID)
     private UUID speakerId;
 
     @ClusteringColumn
-    @CqlName(REPORT_STATS_BY_SPEAKER_FOR_YEAR_ATT_YEAR)
+    @CqlName(STATS_BY_SPEAKER_FOR_YEAR_ATT_YEAR)
     private Integer year;
+
+    @Override
+    public Long getReportTotal() {
+        return reportTotal;
+    }
 }

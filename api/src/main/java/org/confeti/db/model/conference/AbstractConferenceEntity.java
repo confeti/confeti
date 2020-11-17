@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -18,25 +19,38 @@ public abstract class AbstractConferenceEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String CONFERENCE_ATT_NAME = "name";
-    public static final String CONFERENCE_ATT_YEAR = "year";
-    public static final String CONFERENCE_ATT_LOCATION = "location";
-    public static final String CONFERENCE_ATT_LOGO = "logo";
-    public static final String CONFERENCE_ATT_URL = "url";
+    public static final String CONF_ATT_NAME = "name";
+    public static final String CONF_ATT_YEAR = "year";
+    public static final String CONF_ATT_LOCATION = "location";
+    public static final String CONF_ATT_LOGO = "logo";
+    public static final String CONF_ATT_URL = "url";
 
-    @CqlName(CONFERENCE_ATT_NAME)
+    @CqlName(CONF_ATT_NAME)
     protected String name;
 
     @ClusteringColumn(1)
-    @CqlName(CONFERENCE_ATT_YEAR)
+    @CqlName(CONF_ATT_YEAR)
     protected Integer year;
 
-    @CqlName(CONFERENCE_ATT_LOCATION)
+    @CqlName(CONF_ATT_LOCATION)
     protected String location;
 
-    @CqlName(CONFERENCE_ATT_LOGO)
+    @CqlName(CONF_ATT_LOGO)
     protected String logo;
 
-    @CqlName(CONFERENCE_ATT_URL)
+    @CqlName(CONF_ATT_URL)
     protected String url;
+
+    public abstract String getName();
+
+    @NotNull
+    protected static AbstractConferenceEntityBuilder<?, ?> fillCommonFields(@NotNull final AbstractConferenceEntity conference,
+                                                                            @NotNull final AbstractConferenceEntityBuilder<?, ?> builder) {
+        return builder
+                .name(conference.getName())
+                .year(conference.getYear())
+                .location(conference.getLocation())
+                .logo(conference.getLogo())
+                .url(conference.getUrl());
+    }
 }

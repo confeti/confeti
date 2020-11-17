@@ -26,21 +26,21 @@ import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_TAGS;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
-@CqlName(ReportByConferenceEntity.REPORT_BY_CONFERENCE_TABLE)
+@CqlName(ReportByConferenceEntity.REPORT_BY_CONF_TABLE)
 public class ReportByConferenceEntity extends AbstractReportEntity {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String REPORT_BY_CONFERENCE_TABLE = "report_by_conference";
-    public static final String REPORT_BY_CONFERENCE_ATT_CONFERENCE_NAME = "conference_name";
-    public static final String REPORT_BY_CONFERENCE_ATT_YEAR = "year";
+    public static final String REPORT_BY_CONF_TABLE = "report_by_conference";
+    public static final String REPORT_BY_CONF_ATT_CONF_NAME = "conference_name";
+    public static final String REPORT_BY_CONF_ATT_YEAR = "year";
 
     @PartitionKey
-    @CqlName(REPORT_BY_CONFERENCE_ATT_CONFERENCE_NAME)
+    @CqlName(REPORT_BY_CONF_ATT_CONF_NAME)
     private String conferenceName;
 
     @ClusteringColumn(1)
-    @CqlName(REPORT_BY_CONFERENCE_ATT_YEAR)
+    @CqlName(REPORT_BY_CONF_ATT_YEAR)
     private Integer year;
 
     @CqlName(REPORT_ATT_SPEAKERS)
@@ -59,23 +59,6 @@ public class ReportByConferenceEntity extends AbstractReportEntity {
     @Override
     public UUID getId() {
         return id;
-    }
-
-    @NotNull
-    public static ReportByConferenceEntity from(@NotNull final ReportByConferenceEntity report) {
-        return ReportByConferenceEntity.builder()
-                .conferenceName(report.getConferenceName())
-                .year(report.getYear())
-                .id(report.getId())
-                .title(report.getTitle())
-                .complexity(report.getComplexity())
-                .language(report.getLanguage())
-                .source(ReportSourceUDT.from(report.getSource()))
-                .tags(Sets.newHashSet(report.getTags()))
-                .speakers(report.getSpeakers().stream()
-                        .map(SpeakerShortInfoUDT::from)
-                        .collect(Collectors.toSet()))
-                .build();
     }
 
     @NotNull
@@ -101,15 +84,45 @@ public class ReportByConferenceEntity extends AbstractReportEntity {
     public static ReportByConferenceEntity from(@NotNull final String conferenceName,
                                                 @NotNull final Integer year,
                                                 @NotNull final ReportEntity report) {
-        return ReportByConferenceEntity.builder()
+        return ((ReportByConferenceEntityBuilder<?, ?>) fillCommonFields(report, builder()))
                 .conferenceName(conferenceName)
                 .year(year)
-                .id(report.getId())
-                .title(report.getTitle())
-                .complexity(report.getComplexity())
-                .language(report.getLanguage())
-                .source(ReportSourceUDT.from(report.getSource()))
                 .tags(Sets.newHashSet(report.getTags()))
+                .speakers(report.getSpeakers().stream()
+                        .map(SpeakerShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    @NotNull
+    public static ReportByConferenceEntity from(@NotNull final ReportByConferenceEntity report) {
+        return ((ReportByConferenceEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+                .conferenceName(report.getConferenceName())
+                .year(report.getYear())
+                .tags(Sets.newHashSet(report.getTags()))
+                .speakers(report.getSpeakers().stream()
+                        .map(SpeakerShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    @NotNull
+    public static ReportByConferenceEntity from(@NotNull final String conferenceName,
+                                                @NotNull final ReportBySpeakerEntity report) {
+        return ((ReportByConferenceEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+                .conferenceName(conferenceName)
+                .year(report.getYear())
+                .tags(Sets.newHashSet(report.getTags()))
+                .build();
+    }
+
+    @NotNull
+    public static ReportByConferenceEntity from(@NotNull final String conferenceName,
+                                                @NotNull final Integer year,
+                                                @NotNull final ReportByTagEntity report) {
+        return ((ReportByConferenceEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+                .conferenceName(conferenceName)
+                .year(year)
                 .speakers(report.getSpeakers().stream()
                         .map(SpeakerShortInfoUDT::from)
                         .collect(Collectors.toSet()))

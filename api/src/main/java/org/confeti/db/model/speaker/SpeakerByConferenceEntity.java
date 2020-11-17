@@ -18,25 +18,25 @@ import java.util.UUID;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
-@CqlName(SpeakerByConferenceEntity.SPEAKER_BY_CONFERENCE_TABLE)
+@CqlName(SpeakerByConferenceEntity.SPEAKER_BY_CONF_TABLE)
 public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String SPEAKER_BY_CONFERENCE_TABLE = "speaker_by_conference";
-    public static final String SPEAKER_BY_CONFERENCE_ATT_CONFERENCE_NAME = "conference_name";
-    public static final String SPEAKER_BY_CONFERENCE_ATT_YEAR = "year";
-    public static final String SPEAKER_BY_CONFERENCE_ATT_LOCATION = "location";
+    public static final String SPEAKER_BY_CONF_TABLE = "speaker_by_conference";
+    public static final String SPEAKER_BY_CONF_ATT_CONF_NAME = "conference_name";
+    public static final String SPEAKER_BY_CONF_ATT_YEAR = "year";
+    public static final String SPEAKER_BY_CONF_ATT_LOCATION = "location";
 
     @PartitionKey
-    @CqlName(SPEAKER_BY_CONFERENCE_ATT_CONFERENCE_NAME)
+    @CqlName(SPEAKER_BY_CONF_ATT_CONF_NAME)
     private String conferenceName;
 
     @ClusteringColumn(1)
-    @CqlName(SPEAKER_BY_CONFERENCE_ATT_YEAR)
+    @CqlName(SPEAKER_BY_CONF_ATT_YEAR)
     private Integer year;
 
-    @CqlName(SPEAKER_BY_CONFERENCE_ATT_LOCATION)
+    @CqlName(SPEAKER_BY_CONF_ATT_LOCATION)
     private String location;
 
     @ClusteringColumn(2)
@@ -52,18 +52,6 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
     }
 
     @NotNull
-    public static SpeakerByConferenceEntity from(@NotNull final SpeakerByConferenceEntity speaker) {
-        return SpeakerByConferenceEntity.builder()
-                .conferenceName(speaker.getConferenceName())
-                .year(speaker.getYear())
-                .id(speaker.getId())
-                .name(speaker.getName())
-                .avatar(speaker.getAvatar())
-                .location(speaker.getLocation())
-                .build();
-    }
-
-    @NotNull
     public static SpeakerByConferenceEntity from(@NotNull final String conferenceName,
                                                  @NotNull final Integer year,
                                                  @NotNull final Speaker speaker) {
@@ -73,7 +61,16 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
                 .id(speaker.getId())
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
-                .location(speaker.getContactInfo() != null ? speaker.getContactInfo().getLocation() : null)
+                .location(speaker.getContactInfo() == null ? null : speaker.getContactInfo().getLocation())
+                .build();
+    }
+
+    @NotNull
+    public static SpeakerByConferenceEntity from(@NotNull final SpeakerByConferenceEntity speaker) {
+        return ((SpeakerByConferenceEntityBuilder<?, ?>) fillCommonFields(speaker, builder()))
+                .conferenceName(speaker.getConferenceName())
+                .year(speaker.getYear())
+                .location(speaker.getLocation())
                 .build();
     }
 
@@ -81,13 +78,10 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
     public static SpeakerByConferenceEntity from(@NotNull final String conferenceName,
                                                  @NotNull final Integer year,
                                                  @NotNull final SpeakerEntity speaker) {
-        return SpeakerByConferenceEntity.builder()
+        return ((SpeakerByConferenceEntityBuilder<?, ?>) fillCommonFields(speaker, builder()))
                 .conferenceName(conferenceName)
                 .year(year)
-                .id(speaker.getId())
-                .name(speaker.getName())
-                .avatar(speaker.getAvatar())
-                .location(speaker.getContactInfo() != null ? speaker.getContactInfo().getLocation() : null)
+                .location(speaker.getContactInfo() == null ? null : speaker.getContactInfo().getLocation())
                 .build();
     }
 }
