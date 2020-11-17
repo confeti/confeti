@@ -3,7 +3,7 @@ plugins:
   checkstyle:
     enabled: true
     config:
-      file: "checkstyle.xml"
+      file: checkstyle.xml
 
   sonar-java:
     enabled: true
@@ -20,7 +20,7 @@ plugins:
   pmd:
     enabled: true
     config:
-      file: "pmd.xml"
+      file: pmd.xml
     checks:
       DataClass:
         enabled: false

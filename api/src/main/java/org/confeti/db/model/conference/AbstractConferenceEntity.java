@@ -44,8 +44,9 @@ public abstract class AbstractConferenceEntity implements Serializable {
     public abstract String getName();
 
     @NotNull
-    protected static AbstractConferenceEntityBuilder<?, ?> fillCommonFields(@NotNull final AbstractConferenceEntity conference,
-                                                                            @NotNull final AbstractConferenceEntityBuilder<?, ?> builder) {
+    protected static AbstractConferenceEntityBuilder<? extends AbstractConferenceEntity, ?> fillCommonFields(
+            @NotNull final AbstractConferenceEntity conference,
+            @NotNull final AbstractConferenceEntityBuilder<?, ?> builder) {
         return builder
                 .name(conference.getName())
                 .year(conference.getYear())

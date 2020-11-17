@@ -65,6 +65,7 @@ public class Speaker implements Serializable {
                 contactInfo.getEmail(), newEmail);
     }
 
+    @SuppressWarnings({"PMD.UseObjectForClearerAPI"})
     private boolean canBeUpdated(@Nullable final String oldValue,
                                  @NotNull final String newValue,
                                  @Nullable final String oldDependentValue,

@@ -35,8 +35,9 @@ public abstract class AbstractSpeakerEntity implements Serializable {
     public abstract UUID getId();
 
     @NotNull
-    protected static AbstractSpeakerEntityBuilder<?, ?> fillCommonFields(@NotNull final AbstractSpeakerEntity speaker,
-                                                                         @NotNull final AbstractSpeakerEntityBuilder<?, ?> builder) {
+    protected static AbstractSpeakerEntityBuilder<? extends AbstractSpeakerEntity, ?> fillCommonFields(
+            @NotNull final AbstractSpeakerEntity speaker,
+            @NotNull final AbstractSpeakerEntityBuilder<?, ?> builder) {
         return builder
                 .id(speaker.getId())
                 .name(speaker.getName())

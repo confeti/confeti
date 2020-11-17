@@ -49,8 +49,9 @@ public abstract class AbstractReportEntity implements Serializable {
     public abstract String getTitle();
 
     @NotNull
-    protected static AbstractReportEntityBuilder<?, ?> fillCommonFields(@NotNull final AbstractReportEntity report,
-                                                                        @NotNull final AbstractReportEntityBuilder<?, ?> builder) {
+    protected static AbstractReportEntityBuilder<? extends AbstractReportEntity, ?> fillCommonFields(
+            @NotNull final AbstractReportEntity report,
+            @NotNull final AbstractReportEntityBuilder<?, ?> builder) {
         return builder
                 .id(report.getId())
                 .title(report.getTitle())
