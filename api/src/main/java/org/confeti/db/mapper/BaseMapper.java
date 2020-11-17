@@ -2,6 +2,7 @@ package org.confeti.db.mapper;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.type.DataTypes;
+import com.datastax.oss.driver.api.querybuilder.schema.CreateTable;
 import org.jetbrains.annotations.NotNull;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createType;

@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 
+@SuppressWarnings({"PMF.UseUtilityClass"})
 @SpringBootApplication(exclude = CassandraAutoConfiguration.class)
 public class ConfetiApiApplication {
     public static void main(final String[] args) {
