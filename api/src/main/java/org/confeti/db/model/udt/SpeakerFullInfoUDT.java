@@ -1,0 +1,69 @@
+package org.confeti.db.model.udt;
+
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.SchemaHint;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.confeti.service.dto.Speaker;
+import org.jetbrains.annotations.NotNull;
+
+import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetElement.UDT;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_AVATAR;
+import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_BIO;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@SuperBuilder
+@Entity
+@SchemaHint(targetElement = UDT)
+@CqlName(SpeakerFullInfoUDT.SPEAKER_FULL_INFO_UDT)
+public class SpeakerFullInfoUDT extends SpeakerShortInfoUDT {
+
+    private static final long serialVersionUID = 1L;
+
+    public static final String SPEAKER_FULL_INFO_UDT = "speaker_full_info";
+
+    @CqlName(SPEAKER_ATT_AVATAR)
+    private String avatar;
+
+    @CqlName(SPEAKER_ATT_BIO)
+    private String bio;
+
+    @NotNull
+    public static SpeakerFullInfoUDT from(@NotNull final Speaker speaker) {
+        return SpeakerFullInfoUDT.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar())
+                .bio(speaker.getBio())
+                .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
+                .build();
+    }
+
+    @NotNull
+    public static SpeakerFullInfoUDT from(@NotNull final SpeakerShortInfoUDT speakerUDT) {
+        return SpeakerFullInfoUDT.builder()
+                .id(speakerUDT.getId())
+                .name(speakerUDT.getName())
+                .contactInfo(ContactInfoUDT.from(speakerUDT.getContactInfo()))
+                .build();
+    }
+
+    @NotNull
+    public static SpeakerFullInfoUDT from(@NotNull final SpeakerFullInfoUDT speaker) {
+        return SpeakerFullInfoUDT.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar())
+                .bio(speaker.getBio())
+                .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
+                .build();
+    }
+}

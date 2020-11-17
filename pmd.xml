@@ -10,7 +10,7 @@
 
     <rule ref="category/java/codestyle.xml/LongVariable">
         <properties>
-            <property name="minimum" value="32"/>
+            <property name="minimum" value="45"/>
         </properties>
     </rule>
 
@@ -41,13 +41,13 @@
 
     <rule ref="category/java/codestyle.xml/TooManyStaticImports">
         <properties>
-            <property name="maximumStaticImports" value="15"/>
+            <property name="maximumStaticImports" value="30"/>
         </properties>
     </rule>
 
     <rule ref="category/java/design.xml/TooManyMethods">
         <properties>
-            <property name="maxmethods" value="15"/>
+            <property name="maxmethods" value="40"/>
         </properties>
     </rule>
 

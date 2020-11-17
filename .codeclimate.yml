@@ -3,7 +3,7 @@ plugins:
   checkstyle:
     enabled: true
     config:
-      file: "checkstyle.xml"
+      file: checkstyle.xml
 
   sonar-java:
     enabled: true
@@ -14,11 +14,13 @@ plugins:
         enabled: false
       squid:S00112:
         enabled: false
+      squid:S00107:
+          enabled: false
 
   pmd:
     enabled: true
     config:
-      file: "pmd.xml"
+      file: pmd.xml
     checks:
       DataClass:
         enabled: false
@@ -66,7 +68,7 @@ checks:
       threshold: 10
   method-count:
     config:
-      threshold: 25
+      threshold: 40
   method-lines:
     config:
       threshold: 55
@@ -77,11 +79,9 @@ checks:
     config:
       threshold: 5
   similar-code:
-    config:
-      threshold: 50
+    enabled: false
   identical-code:
-    config:
-      threshold: 50
+    enabled: false
 
 exclude_patterns:
   - "/web/**"
