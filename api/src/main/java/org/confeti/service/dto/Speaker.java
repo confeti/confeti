@@ -1,11 +1,13 @@
 package org.confeti.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.confeti.db.model.speaker.AbstractSpeakerEntity;
 import org.confeti.db.model.speaker.SpeakerByConferenceEntity;
 import org.confeti.db.model.speaker.SpeakerEntity;
@@ -20,6 +22,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+@Accessors(chain = true)
 @Data
 @Builder(builderMethodName = "hiddenBuilder")
 @EqualsAndHashCode(exclude = {"id"})
@@ -29,6 +32,7 @@ public class Speaker implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UUID id;
 
     private String name;
@@ -150,6 +154,7 @@ public class Speaker implements Serializable {
         return newSpeaker;
     }
 
+    @Accessors(chain = true)
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -187,6 +192,7 @@ public class Speaker implements Serializable {
                     .build();
         }
 
+        @Accessors(chain = true)
         @Data
         @NoArgsConstructor
         @AllArgsConstructor

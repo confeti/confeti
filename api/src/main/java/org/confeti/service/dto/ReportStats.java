@@ -1,6 +1,7 @@
 package org.confeti.service.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.confeti.db.model.report.stats.ReportStatsByCompanyEntity;
 import org.confeti.db.model.report.stats.ReportStatsByConferenceEntity;
 import org.confeti.db.model.report.stats.ReportStatsBySpeakerForConferenceEntity;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
+@Accessors(chain = true)
 @Data
 public class ReportStats implements Serializable {
 

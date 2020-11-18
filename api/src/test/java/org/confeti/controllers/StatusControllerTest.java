@@ -1,28 +1,27 @@
-package org.confeti.routers;
+package org.confeti.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerResponse;
+
+import static org.confeti.controllers.ControllersTestsUtils.STATUS;
+
 
 @WebFluxTest
-@ContextConfiguration(classes = {StatusRouter.class})
-class StatusRouterTest {
-
-    private static final String STATUS = "{\"status\":\"OK\"}";
+@ContextConfiguration(classes = {StatusController.class})
+class StatusControllerTest {
 
     @Autowired
-    private RouterFunction<ServerResponse> statusRoute;
+    private StatusController statusController;
 
     @Test
     public void testStatusRoute() {
         WebTestClient
-                .bindToRouterFunction(statusRoute)
+                .bindToController(statusController)
                 .build()
-                .get().uri("/api/status")
+                .get().uri("/api/rest/status")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class).isEqualTo(STATUS);
