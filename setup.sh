@@ -12,6 +12,7 @@ esac
 done
 
 export SERVICE_ACCOUNT="${SERVICE_ACCOUNT}"
+gp env SERVICE_ACCOUNT=${SERVICE_ACCOUNT} &>/dev/null
 
 echo "Getting your Astra DevOps API token..."
 DEVOPS_TOKEN=$(curl -s --request POST \
@@ -56,8 +57,9 @@ gp env ASTRA_DB_REGION=$(echo ${DB_REGION} | sed "s/\"//g") &>/dev/null
 if [[ -z "$ASTRA_DB_PASSWORD" ]]; then
   echo "What is your Astra DB password?"
   read -s ASTRA_DB_PASSWORD
-  export ASTRA_DB_PASSWORD=${ASTRA_DB_PASSWORD}
-  gp env ASTRA_DB_PASSWORD=${ASTRA_DB_PASSWORD} &>/dev/null
 fi
+
+export ASTRA_DB_PASSWORD=${ASTRA_DB_PASSWORD}
+gp env ASTRA_DB_PASSWORD=${ASTRA_DB_PASSWORD} &>/dev/null
 
 echo "You're all set"

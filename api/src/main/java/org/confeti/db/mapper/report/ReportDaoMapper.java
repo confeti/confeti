@@ -111,7 +111,7 @@ public interface ReportDaoMapper extends BaseMapper {
      *     speakers set&lt;frozen&lt;speaker_short_info&gt;&gt;,
      *     tags set&lt;text&gt;,
      *     PRIMARY KEY (conference_name, year, title, id)
-     * ) WITH CLUSTERING ORDER BY (year DESC, title ASC);
+     * ) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
      * </pre>
      */
     default void createReportByConferenceTable(@NotNull final CqlSession cqlSession) {
@@ -129,6 +129,7 @@ public interface ReportDaoMapper extends BaseMapper {
                 .withColumn(REPORT_ATT_TAGS, DataTypes.setOf(DataTypes.TEXT))
                 .withClusteringOrder(REPORT_BY_CONF_ATT_YEAR, ClusteringOrder.DESC)
                 .withClusteringOrder(REPORT_ATT_TITLE, ClusteringOrder.ASC)
+                .withClusteringOrder(REPORT_ATT_ID, ClusteringOrder.ASC)
                 .build());
     }
 
@@ -148,7 +149,7 @@ public interface ReportDaoMapper extends BaseMapper {
      *     source frozen&lt;report_source&gt;,
      *     tags set&lt;text&gt;,
      *     PRIMARY KEY (speaker_id, year, title, id)
-     * ) WITH CLUSTERING ORDER BY (year DESC, title ASC);
+     * ) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
      * </pre>
      */
     default void createReportBySpeakerTable(@NotNull final CqlSession cqlSession) {
@@ -167,6 +168,7 @@ public interface ReportDaoMapper extends BaseMapper {
                 .withColumn(REPORT_ATT_TAGS, DataTypes.setOf(DataTypes.TEXT))
                 .withClusteringOrder(REPORT_BY_SPEAKER_ATT_YEAR, ClusteringOrder.DESC)
                 .withClusteringOrder(REPORT_ATT_TITLE, ClusteringOrder.ASC)
+                .withClusteringOrder(REPORT_ATT_ID, ClusteringOrder.ASC)
                 .build());
     }
 

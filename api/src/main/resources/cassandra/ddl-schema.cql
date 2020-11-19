@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS speaker_by_conference (
     avatar text,
     location text,
     PRIMARY KEY (conference_name, year, name, id)
-) WITH CLUSTERING ORDER BY (year DESC, name ASC);
+) WITH CLUSTERING ORDER BY (year DESC, name ASC, id ASC);
 
 CREATE TABLE IF NOT EXISTS conference_by_speaker (
     speaker_id uuid,
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS report_by_conference (
     speakers set<frozen<speaker_short_info>>,
     tags set<text>,
     PRIMARY KEY (conference_name, year, title, id)
-) WITH CLUSTERING ORDER BY (year DESC, title ASC);
+) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
 
 CREATE TABLE IF NOT EXISTS report_by_speaker (
     speaker_id uuid,
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS report_by_speaker (
     source frozen<report_source>,
     tags set<text>,
     PRIMARY KEY (speaker_id, year, title, id)
-) WITH CLUSTERING ORDER BY (year DESC, title ASC);
+) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
 
 CREATE TABLE IF NOT EXISTS report_stats_by_conference (
     conference_name text,
