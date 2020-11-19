@@ -81,7 +81,7 @@ public interface SpeakerDaoMapper extends BaseMapper {
      *     avatar text,
      *     location text,
      *     PRIMARY KEY (conference_name, year, name, id)
-     * ) WITH CLUSTERING ORDER BY (year DESC, name ASC);
+     * ) WITH CLUSTERING ORDER BY (year DESC, name ASC, id ASC);
      * </pre>
      */
     default void createSpeakerByConferenceTable(@NotNull final CqlSession cqlSession) {
@@ -94,6 +94,7 @@ public interface SpeakerDaoMapper extends BaseMapper {
                 .withColumn(SPEAKER_BY_CONF_ATT_LOCATION, DataTypes.TEXT)
                 .withClusteringOrder(SPEAKER_BY_CONF_ATT_YEAR, ClusteringOrder.DESC)
                 .withClusteringOrder(SPEAKER_ATT_NAME, ClusteringOrder.ASC)
+                .withClusteringOrder(SPEAKER_ATT_ID, ClusteringOrder.ASC)
                 .build());
     }
 }
