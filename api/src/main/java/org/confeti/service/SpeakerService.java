@@ -14,8 +14,8 @@ import reactor.function.TupleUtils;
 
 import java.util.UUID;
 
-import static org.confeti.service.BaseEntityService.findAllBy;
-import static org.confeti.service.BaseEntityService.findOneBy;
+import static org.confeti.service.BaseEntityService.findMany;
+import static org.confeti.service.BaseEntityService.findOne;
 
 @Service
 public final class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker, SpeakerDao> {
@@ -77,17 +77,17 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
 
     @NotNull
     public Flux<Speaker> findByName(@NotNull final String name) {
-        return findAllBy(dao.findByName(name), Speaker::from);
+        return findMany(dao.findByName(name), Speaker::from);
     }
 
     @NotNull
     public Mono<Speaker> findBy(@NotNull final UUID id) {
-        return findOneBy(dao.findById(id), Speaker::from);
+        return findOne(dao.findById(id), Speaker::from);
     }
 
     @NotNull
     public Flux<Speaker> findBy(@NotNull final String conferenceName) {
-        return findAllBy(
+        return findMany(
                 speakerByConferenceDao.findByConferenceName(conferenceName),
                 Speaker::from);
     }
@@ -95,7 +95,7 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
     @NotNull
     public Flux<Speaker> findBy(@NotNull final String conferenceName,
                                 @NotNull final Integer year) {
-        return findAllBy(
+        return findMany(
                 speakerByConferenceDao.findByConferenceNameForYear(conferenceName, year),
                 Speaker::from);
     }

@@ -419,6 +419,23 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         testUpdateReportCompanyStatsWith2ReportFromSameConferenceSameYearAnd1CompanyWhen(this::insertReportByTag);
     }
 
+    @Test
+    public void testFindAllReports() {
+        final var report1 = generateReport(1, 1, 1);
+        final var report2 = generateReport(1, 1, 1);
+        final var savedReport1 = insertReport(report1);
+        final var savedReport2 = insertReport(report2);
+
+        final var expectedReport1 = Report.from(ReportEntity.from(savedReport1));
+        final var expectedReport2 = Report.from(ReportEntity.from(savedReport2));
+
+        StepVerifier.create(reportService.findAll())
+                .expectNextMatches(rep -> rep.equals(expectedReport1) || rep.equals(expectedReport2))
+                .expectNextMatches(rep -> rep.equals(expectedReport1) || rep.equals(expectedReport2))
+                .expectComplete()
+                .verify();
+    }
+
     private Report insertReport(@NotNull final Report report) {
         return reportService.upsert(report).block();
     }
