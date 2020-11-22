@@ -36,9 +36,6 @@ public class ReceiverControllerTest {
     @Autowired
     private ReceiverController receiverController;
 
-    @Autowired
-    private WebTestClient webTestClient;
-
     @Test
     public void testPostRouterFailResponseOnEmptyBody() {
         when(reportService.upsert(any())).thenReturn(Mono.just(Report.builder("").build()));
