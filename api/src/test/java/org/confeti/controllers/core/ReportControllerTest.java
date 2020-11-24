@@ -16,6 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -89,5 +90,71 @@ public class ReportControllerTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(TagResponse.class).isEqualTo(response);
+    }
+
+    @Test
+    public void testGetReportTagRequestWithYear() {
+        final int conferenceYear = 1971;
+        final Conference conference1 = Conference.builder("test", conferenceYear).build();
+        final Conference conference2 = Conference.builder("test", 1972).build();
+        final Conference conference3 = Conference.builder("test2", conferenceYear).build();
+
+        when(reportService.findAll())
+                .thenReturn(Flux.fromIterable(Arrays.asList(
+                        Report.builder("title")
+                                .tags(Set.of("a", "b"))
+                                .conferences(Set.of(conference1))
+                                .build(),
+                        Report.builder("title11")
+                                .tags(Set.of("a", "c"))
+                                .conferences(Set.of(conference1))
+                                .build(),
+                        Report.builder("title2")
+                                .tags(Set.of("a", "c"))
+                                .conferences(Set.of(conference2, conference3))
+                                .build()
+                )));
+
+        WebTestClient
+                .bindToController(reportController)
+                .build()
+                .get()
+                .uri(String.format("/api/rest/report/tag?year=%d", conferenceYear))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(List.class);
+    }
+
+    @Test
+    public void testGetReportTagRequest() {
+        final int conferenceYear = 1971;
+        final Conference conference1 = Conference.builder("test", conferenceYear).build();
+        final Conference conference2 = Conference.builder("test", 1972).build();
+        final Conference conference3 = Conference.builder("test2", conferenceYear).build();
+
+        when(reportService.findAll())
+                .thenReturn(Flux.fromIterable(Arrays.asList(
+                        Report.builder("title")
+                                .tags(Set.of("a", "b"))
+                                .conferences(Set.of(conference1))
+                                .build(),
+                        Report.builder("title11")
+                                .tags(Set.of("a", "c"))
+                                .conferences(Set.of(conference1))
+                                .build(),
+                        Report.builder("title2")
+                                .tags(Set.of("a", "c"))
+                                .conferences(Set.of(conference2, conference3))
+                                .build()
+                )));
+
+        WebTestClient
+                .bindToController(reportController)
+                .build()
+                .get()
+                .uri("/api/rest/report/tag")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(List.class);
     }
 }
