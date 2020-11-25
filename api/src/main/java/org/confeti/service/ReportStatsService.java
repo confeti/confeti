@@ -13,8 +13,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-import static org.confeti.service.BaseEntityService.findAllBy;
-import static org.confeti.service.BaseEntityService.findOneBy;
+import static org.confeti.service.BaseEntityService.findMany;
+import static org.confeti.service.BaseEntityService.findOne;
 
 @Service
 public class ReportStatsService implements BaseEntityService {
@@ -70,7 +70,7 @@ public class ReportStatsService implements BaseEntityService {
 
     @NotNull
     public Flux<ReportStats> countConferenceStats(@NotNull final String conferenceName) {
-        return findAllBy(
+        return findMany(
                 statsByConferenceDao.findByConferenceName(conferenceName),
                 ReportStats::from);
     }
@@ -78,14 +78,14 @@ public class ReportStatsService implements BaseEntityService {
     @NotNull
     public Mono<ReportStats> countConferenceStatsForYear(@NotNull final String conferenceName,
                                                          @NotNull final Integer year) {
-        return findOneBy(
+        return findOne(
                 statsByConferenceDao.findByConferenceNameByYear(conferenceName, year),
                 ReportStats::from);
     }
 
     @NotNull
     public Flux<ReportStats> countSpeakerStatsForYears(@NotNull final UUID speakerId) {
-        return findAllBy(
+        return findMany(
                 statsBySpeakerForYearDao.findBySpeakerId(speakerId),
                 ReportStats::from);
     }
@@ -93,14 +93,14 @@ public class ReportStatsService implements BaseEntityService {
     @NotNull
     public Mono<ReportStats> countSpeakerStatsForYear(@NotNull final UUID speakerId,
                                                       @NotNull final Integer year) {
-        return findOneBy(
+        return findOne(
                 statsBySpeakerForYearDao.findBySpeakerIdForYear(speakerId, year),
                 ReportStats::from);
     }
 
     @NotNull
     public Flux<ReportStats> countSpeakerStatsForConferences(@NotNull final UUID speakerId) {
-        return findAllBy(
+        return findMany(
                 statsBySpeakerForConferenceDao.findBySpeakerId(speakerId),
                 ReportStats::from);
     }
@@ -108,14 +108,14 @@ public class ReportStatsService implements BaseEntityService {
     @NotNull
     public Mono<ReportStats> countSpeakerStatsForConference(@NotNull final UUID speakerId,
                                                             @NotNull final String conferenceName) {
-        return findOneBy(
+        return findOne(
                 statsBySpeakerForConferenceDao.findBySpeakerIdForConference(speakerId, conferenceName),
                 ReportStats::from);
     }
 
     @NotNull
     public Flux<ReportStats> countCompanyStats(@NotNull final String companyName) {
-        return findAllBy(
+        return findMany(
                 statsByCompanyDao.findByCompanyName(companyName),
                 ReportStats::from);
     }
@@ -123,7 +123,7 @@ public class ReportStatsService implements BaseEntityService {
     @NotNull
     public Mono<ReportStats> countCompanyStatsForYear(@NotNull final String companyName,
                                                       @NotNull final Integer year) {
-        return findOneBy(
+        return findOne(
                 statsByCompanyDao.findByCompanyNameForYear(companyName, year),
                 ReportStats::from);
     }

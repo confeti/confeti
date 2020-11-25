@@ -23,8 +23,8 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static org.confeti.service.BaseEntityService.findAllBy;
-import static org.confeti.service.BaseEntityService.findOneBy;
+import static org.confeti.service.BaseEntityService.findMany;
+import static org.confeti.service.BaseEntityService.findOne;
 import static org.confeti.service.ReportStatsService.updateReportStatsIf;
 
 @Service
@@ -224,12 +224,12 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
 
     @NotNull
     public Flux<Report> findByTitle(@NotNull final String title) {
-        return findAllBy(dao.findByTitle(title), Report::from);
+        return findMany(dao.findByTitle(title), Report::from);
     }
 
     @NotNull
     public Mono<Report> findBy(@NotNull final UUID id) {
-        return findOneBy(dao.findById(id), Report::from);
+        return findOne(dao.findById(id), Report::from);
     }
 
     @NotNull
@@ -237,7 +237,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
                                @NotNull final Integer year,
                                @NotNull final String title,
                                @NotNull final UUID id) {
-        return findOneBy(
+        return findOne(
                 reportByConferenceDao.findById(conferenceName, year, title, id),
                 Report::from);
     }
@@ -247,7 +247,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
                                @NotNull final Integer year,
                                @NotNull final String title,
                                @NotNull final UUID id) {
-        return findOneBy(
+        return findOne(
                 reportBySpeakerDao.findById(speakerId, year, title, id),
                 Report::from);
     }
@@ -256,7 +256,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     public Mono<Report> findBy(@NotNull final String tagName,
                                @NotNull final String title,
                                @NotNull final UUID id) {
-        return findOneBy(
+        return findOne(
                 reportByTagDao.findById(tagName, title, id),
                 Report::from);
     }
@@ -265,7 +265,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     public Flux<Report> findBy(@NotNull final String conferenceName,
                                @NotNull final Integer year,
                                @NotNull final String title) {
-        return findAllBy(
+        return findMany(
                 reportByConferenceDao.findByTitle(conferenceName, year, title),
                 Report::from);
     }
@@ -274,7 +274,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     public Flux<Report> findBy(@NotNull final UUID speakerId,
                                @NotNull final Integer year,
                                @NotNull final String title) {
-        return findAllBy(
+        return findMany(
                 reportBySpeakerDao.findByTitle(speakerId, year, title),
                 Report::from);
     }
@@ -282,14 +282,14 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     @NotNull
     public Flux<Report> findBy(@NotNull final String tagName,
                                @NotNull final String title) {
-        return findAllBy(
+        return findMany(
                 reportByTagDao.findByTitle(tagName, title),
                 Report::from);
     }
 
     @NotNull
     public Flux<Report> findBy(@NotNull final String conferenceName) {
-        return findAllBy(
+        return findMany(
                 reportByConferenceDao.findByConferenceName(conferenceName),
                 Report::from);
     }
@@ -297,7 +297,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     @NotNull
     public Flux<Report> findBy(@NotNull final String conferenceName,
                                @NotNull final Integer year) {
-        return findAllBy(
+        return findMany(
                 reportByConferenceDao.findByConferenceNameForYear(conferenceName, year),
                 Report::from);
     }
@@ -305,16 +305,21 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     @NotNull
     public Flux<Report> findBy(@NotNull final UUID speakerId,
                                @NotNull final Integer year) {
-        return findAllBy(
+        return findMany(
                 reportBySpeakerDao.findBySpeakerIdForYear(speakerId, year),
                 Report::from);
     }
 
     @NotNull
     public Flux<Report> findBySpeakerId(@NotNull final UUID speakerId) {
-        return findAllBy(
+        return findMany(
                 reportBySpeakerDao.findBySpeakerId(speakerId),
                 Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findAll() {
+        return findMany(dao.findAll(), Report::from);
     }
 
     @NotNull
