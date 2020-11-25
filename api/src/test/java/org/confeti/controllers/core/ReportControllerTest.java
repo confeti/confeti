@@ -36,7 +36,7 @@ public class ReportControllerTest {
     public void testGetReportTagRequestWithYearAndConferenceName() {
         final String conferenceName = "bla";
         final int year = 1970;
-        final TagResponse response = new TagResponse(conferenceName, Map.of(year, Map.of("a", 2, "b", 1, "c", 1)));
+        final TagResponse response = new TagResponse(conferenceName, Map.of(year, Map.of("a", 2L, "b", 1L, "c", 1L)));
 
         when(reportService.findBy(conferenceName, year))
                 .thenReturn(Flux.fromIterable(Arrays.asList(
@@ -63,8 +63,8 @@ public class ReportControllerTest {
         final Conference conference1 = Conference.builder("test", 1971).build();
         final Conference conference2 = Conference.builder("test", 1972).build();
 
-        final TagResponse response = new TagResponse(conference1.getName(), Map.of(1971, Map.of("a", 2, "b", 1, "c", 1),
-                1972, Map.of("a", 1, "c", 1)));
+        final TagResponse response = new TagResponse(conference1.getName(), Map.of(1971, Map.of("a", 2L, "b", 1L, "c", 1L),
+                1972, Map.of("a", 1L, "c", 1L)));
 
         when(reportService.findBy(conference1.getName()))
                 .thenReturn(Flux.fromIterable(Arrays.asList(

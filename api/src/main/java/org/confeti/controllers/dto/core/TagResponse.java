@@ -13,5 +13,5 @@ import java.util.Map;
 @NoArgsConstructor
 public class TagResponse {
     private String conferenceName;
-    private Map<Integer, Map<String, Integer>> years;
+    private Map<Integer, Map<String, Long>> years;
 }
