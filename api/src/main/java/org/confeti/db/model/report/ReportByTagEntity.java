@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -93,6 +94,10 @@ public class ReportByTagEntity extends AbstractReportEntity {
                                          @NotNull final ReportByConferenceEntity report) {
         return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
                 .tagName(tagName)
+                .conferences(Sets.newHashSet(ConferenceShortInfoUDT.builder()
+                        .name(report.getConferenceName())
+                        .year(report.getYear())
+                        .build()))
                 .speakers(report.getSpeakers().stream()
                         .map(SpeakerShortInfoUDT::from)
                         .collect(Collectors.toSet()))
@@ -107,6 +112,9 @@ public class ReportByTagEntity extends AbstractReportEntity {
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
                         .collect(Collectors.toSet()))
+                .speakers(Sets.newHashSet(
+                        SpeakerShortInfoUDT.builder().id(report.getSpeakerId())
+                                .build()))
                 .build();
     }
 

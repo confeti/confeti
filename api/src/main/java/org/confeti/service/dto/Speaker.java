@@ -78,6 +78,10 @@ public class Speaker implements Serializable {
                 || oldValue != null && !oldValue.equals(newValue));
     }
 
+    public static SpeakerBuilder builder(@NotNull final UUID id) {
+        return hiddenBuilder().id(id);
+    }
+
     public static SpeakerBuilder builder(@NotNull final UUID id,
                                          @NotNull final String name) {
         return hiddenBuilder().id(id).name(name);

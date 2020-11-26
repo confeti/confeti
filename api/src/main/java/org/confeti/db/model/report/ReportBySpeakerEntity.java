@@ -78,10 +78,10 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .language(report.getLanguage())
                 .source(ReportSourceUDT.from(report.getSource()))
                 .description(report.getDescription())
-                .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
                         .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 
@@ -93,10 +93,10 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .speakerId(speakerId)
                 .year(year)
                 .description(report.getDescription())
-                .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
                         .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 
@@ -106,6 +106,10 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
         return ((ReportBySpeakerEntityBuilder<?, ?>) fillCommonFields(report, builder()))
                 .speakerId(speakerId)
                 .year(report.getYear())
+                .conferences(Sets.newHashSet(ConferenceShortInfoUDT.builder()
+                        .name(report.getConferenceName())
+                        .year(report.getYear())
+                        .build()))
                 .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
@@ -120,6 +124,7 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
                         .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTagName()))
                 .build();
     }
 
@@ -129,10 +134,10 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .speakerId(report.getSpeakerId())
                 .year(report.getYear())
                 .description(report.getDescription())
-                .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
                         .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 }

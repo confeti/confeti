@@ -74,13 +74,13 @@ public class Report implements Serializable {
                 .language(report.getLanguage())
                 .source(ReportSource.from(report.getSource()))
                 .description(report.getDescription())
-                .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
                         .map(Conference::from)
                         .collect(Collectors.toSet()))
                 .speakers(report.getSpeakers().stream()
                         .map(Speaker::from)
                         .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 
@@ -88,23 +88,26 @@ public class Report implements Serializable {
     public static Report from(@NotNull final ReportEntity report) {
         return fillCommonFields(report)
                 .description(report.getDescription())
-                .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
                         .map(Conference::from)
                         .collect(Collectors.toSet()))
                 .speakers(report.getSpeakers().stream()
                         .map(Speaker::from)
                         .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 
     @NotNull
     public static Report from(@NotNull final ReportByConferenceEntity report) {
         return fillCommonFields(report)
-                .tags(Sets.newHashSet(report.getTags()))
+                .conferences(Sets.newHashSet(
+                        Conference.builder(report.getConferenceName(), report.getYear())
+                                .build()))
                 .speakers(report.getSpeakers().stream()
                         .map(Speaker::from)
                         .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 
@@ -112,10 +115,11 @@ public class Report implements Serializable {
     public static Report from(@NotNull final ReportBySpeakerEntity report) {
         return fillCommonFields(report)
                 .description(report.getDescription())
-                .tags(Sets.newHashSet(report.getTags()))
                 .conferences(report.getConferences().stream()
                         .map(Conference::from)
                         .collect(Collectors.toSet()))
+                .speakers(Sets.newHashSet(Speaker.builder(report.getSpeakerId()).build()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 
@@ -128,6 +132,7 @@ public class Report implements Serializable {
                 .speakers(report.getSpeakers().stream()
                         .map(Speaker::from)
                         .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTagName()))
                 .build();
     }
 
