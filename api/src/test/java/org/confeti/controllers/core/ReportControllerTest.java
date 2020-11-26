@@ -78,7 +78,7 @@ public class ReportControllerTest {
                                 .build(),
                         Report.builder("title2")
                                 .tags(Set.of("a", "c"))
-                                .conferences(Set.of(conference2, Conference.builder("tttt", 1975).build()))
+                                .conferences(Set.of(conference2))
                                 .build()
                 )));
 
