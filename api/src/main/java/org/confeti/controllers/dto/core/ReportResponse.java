@@ -11,7 +11,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TagResponse {
+public class ReportResponse {
     private String conferenceName;
     private Map<Integer, Map<String, Long>> years;
 }
