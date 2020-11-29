@@ -79,7 +79,10 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
 
     @NotNull
     public static SpeakerEntity from(@NotNull final SpeakerEntity speaker) {
-        return ((SpeakerEntityBuilder<?, ?>) fillCommonFields(speaker, builder()))
+        return SpeakerEntity.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
                 .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
                 .build();
@@ -87,7 +90,11 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
 
     @NotNull
     public static SpeakerEntity from(@NotNull final SpeakerByConferenceEntity speaker) {
-        return ((SpeakerEntityBuilder<?, ?>) fillCommonFields(speaker, builder())).build();
+        return SpeakerEntity.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar())
+                .build();
     }
 
     @NotNull

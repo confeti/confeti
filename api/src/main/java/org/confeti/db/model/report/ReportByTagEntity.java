@@ -78,7 +78,12 @@ public class ReportByTagEntity extends AbstractReportEntity {
 
     @NotNull
     public static ReportByTagEntity from(@NotNull final ReportByTagEntity report) {
-        return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+        return ReportByTagEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .tagName(report.getTagName())
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
@@ -92,7 +97,12 @@ public class ReportByTagEntity extends AbstractReportEntity {
     @NotNull
     public static ReportByTagEntity from(@NotNull final String tagName,
                                          @NotNull final ReportByConferenceEntity report) {
-        return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+        return ReportByTagEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .tagName(tagName)
                 .conferences(Sets.newHashSet(ConferenceShortInfoUDT.builder()
                         .name(report.getConferenceName())
@@ -107,7 +117,12 @@ public class ReportByTagEntity extends AbstractReportEntity {
     @NotNull
     public static ReportByTagEntity from(@NotNull final String tagName,
                                          @NotNull final ReportBySpeakerEntity report) {
-        return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+        return ReportByTagEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .tagName(tagName)
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)
@@ -121,7 +136,12 @@ public class ReportByTagEntity extends AbstractReportEntity {
     @NotNull
     public static ReportByTagEntity from(@NotNull final String tagName,
                                          @NotNull final ReportEntity report) {
-        return ((ReportByTagEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+        return ReportByTagEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .tagName(tagName)
                 .conferences(report.getConferences().stream()
                         .map(ConferenceShortInfoUDT::from)

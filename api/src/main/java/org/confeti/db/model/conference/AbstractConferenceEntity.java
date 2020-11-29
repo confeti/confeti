@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -42,15 +41,4 @@ public abstract class AbstractConferenceEntity implements Serializable {
     protected String url;
 
     public abstract String getName();
-
-    @NotNull
-    protected static AbstractConferenceEntityBuilder<?, ?> fillCommonFields(@NotNull final AbstractConferenceEntity conference,
-                                                                            @NotNull final AbstractConferenceEntityBuilder<?, ?> builder) {
-        return builder
-                .name(conference.getName())
-                .year(conference.getYear())
-                .location(conference.getLocation())
-                .logo(conference.getLogo())
-                .url(conference.getUrl());
-    }
 }

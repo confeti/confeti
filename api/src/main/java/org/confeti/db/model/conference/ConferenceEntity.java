@@ -55,11 +55,23 @@ public class ConferenceEntity extends AbstractConferenceEntity implements BaseEn
 
     @NotNull
     public static ConferenceEntity from(@NotNull final ConferenceEntity conference) {
-        return ((ConferenceEntityBuilder<?, ?>) fillCommonFields(conference, builder())).build();
+        return ConferenceEntity.builder()
+                .name(conference.getName())
+                .year(conference.getYear())
+                .location(conference.getLocation())
+                .logo(conference.getLogo())
+                .url(conference.getUrl())
+                .build();
     }
 
     @NotNull
     public static ConferenceEntity from(@NotNull final ConferenceBySpeakerEntity conference) {
-        return ((ConferenceEntityBuilder<?, ?>) fillCommonFields(conference, builder())).build();
+        return ConferenceEntity.builder()
+                .name(conference.getName())
+                .year(conference.getYear())
+                .location(conference.getLocation())
+                .logo(conference.getLogo())
+                .url(conference.getUrl())
+                .build();
     }
 }

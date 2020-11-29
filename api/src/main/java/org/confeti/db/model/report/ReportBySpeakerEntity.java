@@ -89,7 +89,12 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
     public static ReportBySpeakerEntity from(@NotNull final UUID speakerId,
                                              @NotNull final Integer year,
                                              @NotNull final ReportEntity report) {
-        return ((ReportBySpeakerEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+        return ReportBySpeakerEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .speakerId(speakerId)
                 .year(year)
                 .description(report.getDescription())
@@ -103,7 +108,12 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
     @NotNull
     public static ReportBySpeakerEntity from(@NotNull final UUID speakerId,
                                              @NotNull final ReportByConferenceEntity report) {
-        return ((ReportBySpeakerEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+        return ReportBySpeakerEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .speakerId(speakerId)
                 .year(report.getYear())
                 .conferences(Sets.newHashSet(ConferenceShortInfoUDT.builder()
@@ -118,7 +128,12 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
     public static ReportBySpeakerEntity from(@NotNull final UUID speakerId,
                                              @NotNull final Integer year,
                                              @NotNull final ReportByTagEntity report) {
-        return ((ReportBySpeakerEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+        return ReportBySpeakerEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .speakerId(speakerId)
                 .year(year)
                 .conferences(report.getConferences().stream()
@@ -130,7 +145,12 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
 
     @NotNull
     public static ReportBySpeakerEntity from(@NotNull final ReportBySpeakerEntity report) {
-        return ((ReportBySpeakerEntityBuilder<?, ?>) fillCommonFields(report, builder()))
+        return ReportBySpeakerEntity.builder()
+                .id(report.getId())
+                .title(report.getTitle())
+                .complexity(report.getComplexity())
+                .language(report.getLanguage())
+                .source(ReportSourceUDT.from(report.getSource()))
                 .speakerId(report.getSpeakerId())
                 .year(report.getYear())
                 .description(report.getDescription())

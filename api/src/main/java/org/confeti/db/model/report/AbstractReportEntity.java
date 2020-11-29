@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.confeti.db.model.udt.ReportSourceUDT;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -47,15 +46,4 @@ public abstract class AbstractReportEntity implements Serializable {
     public abstract UUID getId();
 
     public abstract String getTitle();
-
-    @NotNull
-    protected static AbstractReportEntityBuilder<?, ?> fillCommonFields(@NotNull final AbstractReportEntity report,
-                                                                        @NotNull final AbstractReportEntityBuilder<?, ?> builder) {
-        return builder
-                .id(report.getId())
-                .title(report.getTitle())
-                .complexity(report.getComplexity())
-                .language(report.getLanguage())
-                .source(ReportSourceUDT.from(report.getSource()));
-    }
 }
