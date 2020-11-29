@@ -51,7 +51,12 @@ public class ConferenceBySpeakerEntity extends AbstractConferenceEntity {
 
     @NotNull
     public static ConferenceBySpeakerEntity from(@NotNull final ConferenceBySpeakerEntity conference) {
-        return ((ConferenceBySpeakerEntityBuilder<?, ?>) fillCommonFields(conference, builder()))
+        return ConferenceBySpeakerEntity.builder()
+                .name(conference.getName())
+                .year(conference.getYear())
+                .location(conference.getLocation())
+                .logo(conference.getLogo())
+                .url(conference.getUrl())
                 .speakerId(conference.getSpeakerId())
                 .build();
     }
@@ -59,7 +64,12 @@ public class ConferenceBySpeakerEntity extends AbstractConferenceEntity {
     @NotNull
     public static ConferenceBySpeakerEntity from(@NotNull final UUID speakerId,
                                                  @NotNull final ConferenceEntity conference) {
-        return ((ConferenceBySpeakerEntityBuilder<?, ?>) fillCommonFields(conference, builder()))
+        return ConferenceBySpeakerEntity.builder()
+                .name(conference.getName())
+                .year(conference.getYear())
+                .location(conference.getLocation())
+                .logo(conference.getLogo())
+                .url(conference.getUrl())
                 .speakerId(speakerId)
                 .build();
     }

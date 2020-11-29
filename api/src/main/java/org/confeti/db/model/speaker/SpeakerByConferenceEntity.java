@@ -67,7 +67,10 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
 
     @NotNull
     public static SpeakerByConferenceEntity from(@NotNull final SpeakerByConferenceEntity speaker) {
-        return ((SpeakerByConferenceEntityBuilder<?, ?>) fillCommonFields(speaker, builder()))
+        return SpeakerByConferenceEntity.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar())
                 .conferenceName(speaker.getConferenceName())
                 .year(speaker.getYear())
                 .location(speaker.getLocation())
@@ -78,7 +81,10 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
     public static SpeakerByConferenceEntity from(@NotNull final String conferenceName,
                                                  @NotNull final Integer year,
                                                  @NotNull final SpeakerEntity speaker) {
-        return ((SpeakerByConferenceEntityBuilder<?, ?>) fillCommonFields(speaker, builder()))
+        return SpeakerByConferenceEntity.builder()
+                .id(speaker.getId())
+                .name(speaker.getName())
+                .avatar(speaker.getAvatar())
                 .conferenceName(conferenceName)
                 .year(year)
                 .location(speaker.getContactInfo() == null ? null : speaker.getContactInfo().getLocation())
