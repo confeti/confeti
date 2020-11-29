@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.confeti.controllers.ControllersUtils.COMPANY_NAME_URI_PARAMETER;
+import static org.confeti.controllers.ControllersUtils.COMPANY_URI_PARAMETER;
 import static org.confeti.controllers.ControllersUtils.REST_API_PATH;
 import static org.confeti.controllers.ControllersUtils.YEAR_URI_PARAMETER;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -31,10 +31,10 @@ public class CompanyController {
     private final ReportStatsService reportStatsService;
     private final CompanyService companyService;
 
-    @GetMapping(path = "{" + COMPANY_NAME_URI_PARAMETER + "}/stat")
+    @GetMapping(path = "{" + COMPANY_URI_PARAMETER + "}/stat")
     @ResponseBody
     public Mono<ResponseEntity<?>> handleRequestCompany(
-            @PathVariable(COMPANY_NAME_URI_PARAMETER) final String companyName) {
+            @PathVariable(COMPANY_URI_PARAMETER) final String companyName) {
         return reportStatsService.countCompanyStats(companyName)
                 .collectMap(ReportStatsByCompany::getYear, ReportStatsByCompany::getReportTotal)
                 .map(map -> new CompanyStatResponse()
@@ -44,10 +44,10 @@ public class CompanyController {
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
 
-    @GetMapping(path = "{" + COMPANY_NAME_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
+    @GetMapping(path = "{" + COMPANY_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
     @ResponseBody
     public Mono<ResponseEntity<?>> handleRequestCompanyYear(
-            @PathVariable(COMPANY_NAME_URI_PARAMETER) final String companyName,
+            @PathVariable(COMPANY_URI_PARAMETER) final String companyName,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
         return reportStatsService.countCompanyStatsForYear(companyName, year)
                 .map(stat -> new CompanyStatResponse()
@@ -63,7 +63,8 @@ public class CompanyController {
         return reportStatsService.countCompanyStats()
                 .groupBy(ReportStatsByCompany::getCompanyName)
                 .flatMap(group ->
-                        group.collectMap(ReportStatsByCompany::getYear, ReportStatsByCompany::getReportTotal)
+                        group
+                                .collectMap(ReportStatsByCompany::getYear, ReportStatsByCompany::getReportTotal)
                                 .zipWith(Mono.just(Objects.requireNonNull(group.key()))))
                 .map(tuple -> new CompanyStatResponse()
                         .setCompanyName(tuple.getT2())
@@ -82,4 +83,5 @@ public class CompanyController {
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
+
 }
