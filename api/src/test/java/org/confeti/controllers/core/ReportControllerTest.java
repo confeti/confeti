@@ -84,7 +84,6 @@ public class ReportControllerTest {
         final int conferenceYear = 1971;
         final Conference conference1 = Conference.builder("test", conferenceYear).build();
         final Conference conference2 = Conference.builder("test", 1972).build();
-        final Conference conference3 = Conference.builder("test2", conferenceYear).build();
 
         when(reportService.findAll())
                 .thenReturn(Flux.fromIterable(Arrays.asList(

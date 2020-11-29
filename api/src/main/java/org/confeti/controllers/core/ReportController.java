@@ -24,7 +24,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
+import static org.confeti.controllers.ControllersUtils.CONFERENCE_NAME_URI_PARAMETER;
 import static org.confeti.controllers.ControllersUtils.REST_API_PATH;
+import static org.confeti.controllers.ControllersUtils.YEAR_URI_PARAMETER;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -32,8 +34,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class ReportController {
 
-    private static final String CONFERENCE_NAME_URI_PARAMETER = "conference_name";
-    private static final String YEAR_URI_PARAMETER = "year";
     private final ReportService reportService;
 
     @GetMapping(path = "/tag", params = {YEAR_URI_PARAMETER, CONFERENCE_NAME_URI_PARAMETER})
