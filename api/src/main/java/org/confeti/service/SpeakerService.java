@@ -101,6 +101,11 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
     }
 
     @NotNull
+    public Flux<Speaker> findAll() {
+        return findMany(dao.findAll(), Speaker::from);
+    }
+
+    @NotNull
     @Override
     protected Mono<SpeakerEntity> findByPrimaryKey(@NotNull final Speaker speaker) {
         return Mono.from(dao.findById(speaker.getId()));

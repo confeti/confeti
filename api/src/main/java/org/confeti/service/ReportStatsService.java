@@ -76,6 +76,11 @@ public class ReportStatsService implements BaseEntityService {
     }
 
     @NotNull
+    public Flux<ReportStats> countConferenceStats() {
+        return findMany(statsByConferenceDao.findAll(), ReportStats::from);
+    }
+
+    @NotNull
     public Mono<ReportStats> countConferenceStatsForYear(@NotNull final String conferenceName,
                                                          @NotNull final Integer year) {
         return findOne(
@@ -84,7 +89,12 @@ public class ReportStatsService implements BaseEntityService {
     }
 
     @NotNull
-    public Flux<ReportStats> countSpeakerStatsForYears(@NotNull final UUID speakerId) {
+    public Flux<ReportStats> countSpeakerStatsForYear() {
+        return findMany(statsBySpeakerForYearDao.findAll(), ReportStats::from);
+    }
+
+    @NotNull
+    public Flux<ReportStats> countSpeakerStatsForYear(@NotNull final UUID speakerId) {
         return findMany(
                 statsBySpeakerForYearDao.findBySpeakerId(speakerId),
                 ReportStats::from);
@@ -99,7 +109,12 @@ public class ReportStatsService implements BaseEntityService {
     }
 
     @NotNull
-    public Flux<ReportStats> countSpeakerStatsForConferences(@NotNull final UUID speakerId) {
+    public Flux<ReportStats> countSpeakerStatsForConference() {
+        return findMany(statsBySpeakerForConferenceDao.findAll(), ReportStats::from);
+    }
+
+    @NotNull
+    public Flux<ReportStats> countSpeakerStatsForConference(@NotNull final UUID speakerId) {
         return findMany(
                 statsBySpeakerForConferenceDao.findBySpeakerId(speakerId),
                 ReportStats::from);
@@ -111,6 +126,11 @@ public class ReportStatsService implements BaseEntityService {
         return findOne(
                 statsBySpeakerForConferenceDao.findBySpeakerIdForConference(speakerId, conferenceName),
                 ReportStats::from);
+    }
+
+    @NotNull
+    public Flux<ReportStats> countCompanyStats() {
+        return findMany(statsByCompanyDao.findAll(), ReportStats::from);
     }
 
     @NotNull

@@ -4,6 +4,7 @@ import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.confeti.db.dao.BaseDao;
+import org.confeti.db.dao.BaseEntityDao;
 import org.confeti.db.model.BaseEntity;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
@@ -14,7 +15,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extends BaseDao<E>>
+public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extends BaseEntityDao<E>>
         implements BaseEntityService {
 
     protected final R dao;
