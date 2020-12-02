@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+import static org.confeti.util.EntityUtil.updateValue;
+
 @Accessors(chain = true)
 @Data
 @Builder(builderMethodName = "hiddenBuilder")
@@ -96,7 +98,7 @@ public class Speaker implements Serializable {
         return Speaker.builder(speaker.getId(), speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(ContactInfo.from(speaker.getContactInfo()))
+                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfo::from))
                 .build();
     }
 
@@ -104,7 +106,7 @@ public class Speaker implements Serializable {
     public static Speaker from(@NotNull final SpeakerEntity speaker) {
         return fillCommonFields(speaker)
                 .bio(speaker.getBio())
-                .contactInfo(ContactInfo.from(speaker.getContactInfo()))
+                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfo::from))
                 .build();
     }
 
@@ -118,14 +120,14 @@ public class Speaker implements Serializable {
         return Speaker.builder(speakerUDT.getId(), speakerUDT.getName())
                 .avatar(speakerUDT.getAvatar())
                 .bio(speakerUDT.getBio())
-                .contactInfo(ContactInfo.from(speakerUDT.getContactInfo()))
+                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfo::from))
                 .build();
     }
 
     @NotNull
     public static Speaker from(@NotNull final SpeakerShortInfoUDT speakerUDT) {
         return Speaker.builder(speakerUDT.getId(), speakerUDT.getName())
-                .contactInfo(ContactInfo.from(speakerUDT.getContactInfo()))
+                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfo::from))
                 .build();
     }
 
@@ -182,7 +184,7 @@ public class Speaker implements Serializable {
                     .email(contactInfoUDT.getEmail())
                     .location(contactInfoUDT.getLocation())
                     .twitterUsername(contactInfoUDT.getTwitterUsername())
-                    .company(company == null ? null : SpeakerCompany.from(company))
+                    .company(updateValue(company, SpeakerCompany::from))
                     .build();
         }
 
@@ -192,7 +194,7 @@ public class Speaker implements Serializable {
                     .email(contactInfo.getEmail())
                     .location(contactInfo.getLocation())
                     .twitterUsername(contactInfo.getTwitterUsername())
-                    .company(SpeakerCompany.from(contactInfo.getCompany()))
+                    .company(updateValue(contactInfo.getCompany(), SpeakerCompany::from))
                     .build();
         }
 

@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
-import static org.confeti.db.model.BaseEntity.updateValue;
+import static org.confeti.util.EntityUtil.updateValue;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -73,7 +73,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
+                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -84,7 +84,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(ContactInfoUDT.from(speaker.getContactInfo()))
+                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -104,7 +104,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
                 .name(speakerUDT.getName())
                 .avatar(speakerUDT.getAvatar())
                 .bio(speakerUDT.getBio())
-                .contactInfo(ContactInfoUDT.from(speakerUDT.getContactInfo()))
+                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -113,7 +113,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
         return SpeakerEntity.builder()
                 .id(speakerUDT.getId())
                 .name(speakerUDT.getName())
-                .contactInfo(ContactInfoUDT.from(speakerUDT.getContactInfo()))
+                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 }

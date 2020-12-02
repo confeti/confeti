@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
-import static org.confeti.db.model.BaseEntity.updateValue;
+import static org.confeti.util.EntityUtil.updateValue;
 
 @Data
 @NoArgsConstructor

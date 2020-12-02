@@ -158,6 +158,20 @@ CREATE TABLE IF NOT EXISTS report_by_speaker (
     PRIMARY KEY (speaker_id, year, title, id)
 ) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
 
+CREATE TABLE IF NOT EXISTS report_by_company (
+    company_name text,
+    year int,
+    title text,
+    id uuid,
+    complexity int,
+    conferences set<frozen<conference_short_info>>,
+    language text,
+    source frozen<report_source>,
+    speakers set<frozen<speaker_short_info>>,
+    tags set<text>,
+    PRIMARY KEY (company_name, year, title, id)
+) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
+
 CREATE TABLE IF NOT EXISTS report_stats_by_conference (
     conference_name text,
     year int,

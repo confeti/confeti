@@ -46,7 +46,7 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
             speaker.setId(UUID.randomUUID());
         }
 
-        final var savedEntity = upsertCompany(speaker)
+        final var savedSpeaker = upsertCompany(speaker)
                 .flatMapMany(sp -> findByName(sp.getName()))
                 .filter(foundSpeaker -> foundSpeaker.canBeUpdatedTo(speaker))
                 .collectList()
@@ -54,10 +54,10 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
                         ? speaker
                         : Speaker.updateOrNew(foundSpeakers.get(0), speaker))
                 .flatMap(sp -> upsert(sp, SpeakerEntity::from)).cache();
-        return savedEntity
+        return savedSpeaker
                 .flatMapMany(se -> conferenceService.findBy(se.getId()).zipWith(Mono.just(se)))
                 .flatMap(TupleUtils.function((conf, se) -> upsert(se, conf.getName(), conf.getYear())))
-                .then(savedEntity.map(Speaker::from));
+                .then(savedSpeaker.map(Speaker::from));
     }
 
     @NotNull

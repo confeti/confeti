@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.db.model.udt.ConferenceShortInfoUDT;
 import org.confeti.db.model.udt.ReportSourceUDT;
 import org.confeti.db.model.udt.SpeakerShortInfoUDT;
 import org.confeti.service.dto.Report;
@@ -18,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_CONFERENCES;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_SPEAKERS;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_TAGS;
 import static org.confeti.util.EntityUtil.updateValue;
@@ -27,22 +29,24 @@ import static org.confeti.util.EntityUtil.updateValue;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
-@CqlName(ReportByConferenceEntity.REPORT_BY_CONF_TABLE)
-public class ReportByConferenceEntity extends AbstractReportEntity {
-
+@CqlName(ReportByCompanyEntity.REPORT_BY_COMPANY_TABLE)
+public class ReportByCompanyEntity extends AbstractReportEntity {
     private static final long serialVersionUID = 1L;
 
-    public static final String REPORT_BY_CONF_TABLE = "report_by_conference";
-    public static final String REPORT_BY_CONF_ATT_CONF_NAME = "conference_name";
-    public static final String REPORT_BY_CONF_ATT_YEAR = "year";
+    public static final String REPORT_BY_COMPANY_TABLE = "report_by_company";
+    public static final String REPORT_BY_COMPANY_ATT_COMPANY_NAME = "company_name";
+    public static final String REPORT_BY_COMPANY_ATT_YEAR = "year";
 
     @PartitionKey
-    @CqlName(REPORT_BY_CONF_ATT_CONF_NAME)
-    private String conferenceName;
+    @CqlName(REPORT_BY_COMPANY_ATT_COMPANY_NAME)
+    private String companyName;
 
     @ClusteringColumn(1)
-    @CqlName(REPORT_BY_CONF_ATT_YEAR)
+    @CqlName(REPORT_BY_COMPANY_ATT_YEAR)
     private Integer year;
+
+    @CqlName(REPORT_ATT_CONFERENCES)
+    private Set<ConferenceShortInfoUDT> conferences;
 
     @CqlName(REPORT_ATT_SPEAKERS)
     private Set<SpeakerShortInfoUDT> speakers;
@@ -63,17 +67,22 @@ public class ReportByConferenceEntity extends AbstractReportEntity {
     }
 
     @NotNull
-    public static ReportByConferenceEntity from(@NotNull final String conferenceName,
-                                                @NotNull final Integer year,
-                                                @NotNull final Report report) {
-        return ReportByConferenceEntity.builder()
-                .conferenceName(conferenceName)
+    public static ReportByCompanyEntity from(@NotNull final String companyName,
+                                             @NotNull final Integer year,
+                                             @NotNull final Report report) {
+        return ReportByCompanyEntity.builder()
+                .companyName(companyName)
                 .year(year)
                 .id(report.getId())
                 .title(report.getTitle())
                 .complexity(report.getComplexity().getValue())
                 .language(report.getLanguage())
                 .source(updateValue(report.getSource(), ReportSourceUDT::from))
+                .conferences(updateValue(
+                        report.getConferences(),
+                        conferences -> conferences.stream()
+                                .map(ConferenceShortInfoUDT::from)
+                                .collect(Collectors.toSet())))
                 .speakers(updateValue(
                         report.getSpeakers(),
                         speakers -> speakers.stream()
@@ -84,17 +93,22 @@ public class ReportByConferenceEntity extends AbstractReportEntity {
     }
 
     @NotNull
-    public static ReportByConferenceEntity from(@NotNull final String conferenceName,
-                                                @NotNull final Integer year,
-                                                @NotNull final ReportEntity report) {
-        return ReportByConferenceEntity.builder()
+    public static ReportByCompanyEntity from(@NotNull final String companyName,
+                                             @NotNull final Integer year,
+                                             @NotNull final ReportEntity report) {
+        return ReportByCompanyEntity.builder()
                 .id(report.getId())
                 .title(report.getTitle())
                 .complexity(report.getComplexity())
                 .language(report.getLanguage())
                 .source(updateValue(report.getSource(), ReportSourceUDT::from))
-                .conferenceName(conferenceName)
+                .companyName(companyName)
                 .year(year)
+                .conferences(updateValue(
+                        report.getConferences(),
+                        conferences -> conferences.stream()
+                                .map(ConferenceShortInfoUDT::from)
+                                .collect(Collectors.toSet())))
                 .speakers(updateValue(
                         report.getSpeakers(),
                         speakers -> speakers.stream()
@@ -105,15 +119,20 @@ public class ReportByConferenceEntity extends AbstractReportEntity {
     }
 
     @NotNull
-    public static ReportByConferenceEntity from(@NotNull final ReportByConferenceEntity report) {
-        return ReportByConferenceEntity.builder()
+    public static ReportByCompanyEntity from(@NotNull final ReportByCompanyEntity report) {
+        return ReportByCompanyEntity.builder()
                 .id(report.getId())
                 .title(report.getTitle())
                 .complexity(report.getComplexity())
                 .language(report.getLanguage())
                 .source(updateValue(report.getSource(), ReportSourceUDT::from))
-                .conferenceName(report.getConferenceName())
+                .companyName(report.getCompanyName())
                 .year(report.getYear())
+                .conferences(updateValue(
+                        report.getConferences(),
+                        conferences -> conferences.stream()
+                                .map(ConferenceShortInfoUDT::from)
+                                .collect(Collectors.toSet())))
                 .speakers(updateValue(
                         report.getSpeakers(),
                         speakers -> speakers.stream()

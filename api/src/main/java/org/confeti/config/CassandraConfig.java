@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.confeti.db.dao.company.CompanyDao;
 import org.confeti.db.dao.conference.ConferenceBySpeakerDao;
 import org.confeti.db.dao.conference.ConferenceDao;
+import org.confeti.db.dao.report.ReportByCompanyDao;
 import org.confeti.db.dao.report.ReportByConferenceDao;
 import org.confeti.db.dao.report.ReportBySpeakerDao;
 import org.confeti.db.dao.report.ReportByTagDao;
@@ -167,6 +168,13 @@ public class CassandraConfig {
                                          final ReportDaoMapper reportDaoMapper) {
         reportDaoMapper.createReportByTagTable(cqlSession);
         return reportDaoMapper.reportByTagDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public ReportByCompanyDao reportByCompanyDao(final CqlSession cqlSession,
+                                                 final ReportDaoMapper reportDaoMapper) {
+        reportDaoMapper.createReportByCompanyTable(cqlSession);
+        return reportDaoMapper.reportByCompanyDao(cqlSession.getKeyspace().get());
     }
 
     @Bean

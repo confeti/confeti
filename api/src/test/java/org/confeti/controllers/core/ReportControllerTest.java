@@ -38,7 +38,7 @@ public class ReportControllerTest {
         final int year = 1970;
         final ReportResponse response = new ReportResponse(conferenceName, Map.of(year, Map.of("a", 2L, "b", 1L, "c", 1L)));
 
-        when(reportService.findBy(conferenceName, year))
+        when(reportService.findByConference(conferenceName, year))
                 .thenReturn(Flux.fromIterable(Arrays.asList(
                         Report.builder("title")
                                 .tags(Set.of("a", "b"))
@@ -61,7 +61,7 @@ public class ReportControllerTest {
                 1971, Map.of("a", 2L, "b", 1L, "c", 1L),
                 1972, Map.of("a", 1L, "c", 1L)));
 
-        when(reportService.findBy(conference1.getName()))
+        when(reportService.findByConference(conference1.getName()))
                 .thenReturn(Flux.fromIterable(Arrays.asList(
                         Report.builder("title")
                                 .tags(Set.of("a", "b"))
@@ -140,7 +140,7 @@ public class ReportControllerTest {
         final int year = 1970;
         final ReportResponse response = new ReportResponse(conferenceName, Map.of(year, Map.of("RU", 3L, "EN", 1L, "FR", 1L)));
 
-        when(reportService.findBy(conferenceName, year))
+        when(reportService.findByConference(conferenceName, year))
                 .thenReturn(Flux.fromIterable(Arrays.asList(
                         Report.builder("title")
                                 .language("RU")
@@ -171,7 +171,7 @@ public class ReportControllerTest {
         final ReportResponse response = new ReportResponse(conference1.getName(), Map.of(1971, Map.of("RU", 2L),
                 1972, Map.of("EN", 1L, "RU", 1L)));
 
-        when(reportService.findBy(conference1.getName()))
+        when(reportService.findByConference(conference1.getName()))
                 .thenReturn(Flux.fromIterable(Arrays.asList(
                         Report.builder("title")
                                 .language("RU")
@@ -197,7 +197,6 @@ public class ReportControllerTest {
     public void testGetReportLanguageRequestWithYear() {
         final int conferenceYear = 1971;
         final Conference conference1 = Conference.builder("test", conferenceYear).build();
-        final Conference conference2 = Conference.builder("test", 1972).build();
         final Conference conference3 = Conference.builder("test2", conferenceYear).build();
 
         when(reportService.findAll())

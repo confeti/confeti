@@ -3,12 +3,14 @@ package org.confeti.service.dto.stats;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.confeti.db.model.report.stats.ReportStatsByConferenceEntity;
 import org.jetbrains.annotations.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @NoArgsConstructor
 @SuperBuilder
 public class ReportStatsByConference extends ReportStats {

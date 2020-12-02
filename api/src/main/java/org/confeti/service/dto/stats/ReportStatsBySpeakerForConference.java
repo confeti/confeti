@@ -3,6 +3,7 @@ package org.confeti.service.dto.stats;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.confeti.db.model.report.stats.ReportStatsBySpeakerForConferenceEntity;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @NoArgsConstructor
 @SuperBuilder
 public class ReportStatsBySpeakerForConference extends ReportStats {
