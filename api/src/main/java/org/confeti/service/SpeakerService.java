@@ -84,9 +84,9 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
 
     @NotNull
     private Mono<Speaker> upsertCompany(@NotNull final Speaker speaker) {
-        final var companyName = speaker.getContactInfo() != null && speaker.getContactInfo().getCompany() != null
-                ? Optional.ofNullable(speaker.getContactInfo().getCompany().getName())
-                : Optional.<String>empty();
+        final var companyName = speaker.getContactInfo() == null || speaker.getContactInfo().getCompany() == null
+                ? Optional.<String>empty()
+                : Optional.ofNullable(speaker.getContactInfo().getCompany().getName());
         return Mono.justOrEmpty(companyName)
                 .flatMap(company -> companyService.upsert(Company.builder(company).build()))
                 .then(Mono.just(speaker));

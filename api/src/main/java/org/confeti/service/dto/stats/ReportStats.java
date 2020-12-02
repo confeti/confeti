@@ -13,7 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
-public abstract class ReportStats implements Serializable {
+public class ReportStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

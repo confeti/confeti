@@ -37,6 +37,7 @@ import java.util.List;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createKeyspace;
 
+@SuppressWarnings({"PMD.CouplingBetweenObjects"})
 @Configuration
 @Slf4j
 public class CassandraConfig {
