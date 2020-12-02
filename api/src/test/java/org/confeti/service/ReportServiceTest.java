@@ -8,8 +8,11 @@ import org.confeti.db.model.report.ReportEntity;
 import org.confeti.db.model.speaker.SpeakerByConferenceEntity;
 import org.confeti.service.dto.Conference;
 import org.confeti.service.dto.Report;
-import org.confeti.service.dto.ReportStats;
 import org.confeti.service.dto.Speaker;
+import org.confeti.service.dto.stats.ReportStatsByCompany;
+import org.confeti.service.dto.stats.ReportStatsByConference;
+import org.confeti.service.dto.stats.ReportStatsBySpeakerForConference;
+import org.confeti.service.dto.stats.ReportStatsBySpeakerForYear;
 import org.confeti.support.AbstractIntegrationTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -670,14 +673,30 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         upsertReport.apply(report1);
         upsertReport.apply(report2);
 
+        final var expectedReportStatsByConf1 = ReportStatsByConference.builder()
+                .conferenceName(conference1.getName())
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsByConf2 = ReportStatsByConference.builder()
+                .conferenceName(conference1.getName())
+                .year(newConference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsByConf3 = ReportStatsByConference.builder()
+                .conferenceName(conference2.getName())
+                .year(conference2.getYear())
+                .reportTotal(2L)
+                .build();
+
         StepVerifier.create(reportStatsService.countConferenceStats(conference1.getName()))
-                .expectNext(new ReportStats(1L))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByConf2)
+                .expectNext(expectedReportStatsByConf1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countConferenceStatsForYear(conference2.getName(), conference2.getYear()))
-                .expectNext(new ReportStats(2L))
+                .expectNext(expectedReportStatsByConf3)
                 .expectComplete()
                 .verify();
     }
@@ -699,33 +718,64 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         final var speaker1 = savedReport1.getSpeakers().iterator().next();
         final var speaker2 = savedReport2.getSpeakers().iterator().next();
 
+        final var expectedReportStatsBySpeaker1ForYear1 = ReportStatsBySpeakerForYear.builder()
+                .speakerId(speaker1.getId())
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsBySpeaker2ForYear1 = ReportStatsBySpeakerForYear.builder()
+                .speakerId(speaker2.getId())
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsBySpeaker2ForYear2 = ReportStatsBySpeakerForYear.builder()
+                .speakerId(speaker2.getId())
+                .year(newConference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsBySpeaker1ForConf1 = ReportStatsBySpeakerForConference.builder()
+                .speakerId(speaker1.getId())
+                .conferenceName(conference1.getName())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsBySpeaker2ForConf1 = ReportStatsBySpeakerForConference.builder()
+                .speakerId(speaker2.getId())
+                .conferenceName(conference1.getName())
+                .reportTotal(2L)
+                .build();
+        final var expectedReportStatsBySpeaker1ForConf2 = ReportStatsBySpeakerForConference.builder()
+                .speakerId(speaker1.getId())
+                .conferenceName(conference2.getName())
+                .reportTotal(1L)
+                .build();
+
         StepVerifier.create(reportStatsService.countSpeakerStatsForYear(speaker1.getId(), conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsBySpeaker1ForYear1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countSpeakerStatsForConference(speaker1.getId(), conference1.getName()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsBySpeaker1ForConf1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countSpeakerStatsForConference(speaker1.getId(), conference2.getName()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsBySpeaker1ForConf2)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countSpeakerStatsForConference(speaker2.getId(), conference1.getName()))
-                .expectNext(new ReportStats(2L))
+                .expectNext(expectedReportStatsBySpeaker2ForConf1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countSpeakerStatsForYear(speaker2.getId(), conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsBySpeaker2ForYear1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countSpeakerStatsForYear(speaker2.getId(), newConference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsBySpeaker2ForYear2)
                 .expectComplete()
                 .verify();
     }
@@ -746,13 +796,24 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
         upsertReport.apply(report);
 
+        final var expectedReportStatsByCompany1 = ReportStatsByCompany.builder()
+                .companyName(companyName)
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsByCompany2 = ReportStatsByCompany.builder()
+                .companyName(companyName)
+                .year(conference2.getYear())
+                .reportTotal(1L)
+                .build();
+
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(companyName, conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(companyName, conference2.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany2)
                 .expectComplete()
                 .verify();
     }
@@ -773,8 +834,14 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
         upsertReport.apply(report);
 
+        final var expectedReportStatsByCompany = ReportStatsByCompany.builder()
+                .companyName(companyName)
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(companyName, conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany)
                 .expectComplete()
                 .verify();
     }
@@ -794,13 +861,24 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
         upsertReport.apply(report);
 
+        final var expectedReportStatsByCompany1 = ReportStatsByCompany.builder()
+                .companyName(company1)
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsByCompany2 = ReportStatsByCompany.builder()
+                .companyName(company2)
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(company1, conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(company2, conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany2)
                 .expectComplete()
                 .verify();
     }
@@ -820,13 +898,24 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
         upsertReport.apply(report);
 
+        final var expectedReportStatsByCompany1 = ReportStatsByCompany.builder()
+                .companyName(company1)
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsByCompany2 = ReportStatsByCompany.builder()
+                .companyName(company2)
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(company1, conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(company2, conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany2)
                 .expectComplete()
                 .verify();
     }
@@ -846,13 +935,24 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         upsertReport.apply(report1);
         upsertReport.apply(report2);
 
+        final var expectedReportStatsByCompany1 = ReportStatsByCompany.builder()
+                .companyName(company)
+                .year(conference1.getYear())
+                .reportTotal(1L)
+                .build();
+        final var expectedReportStatsByCompany2 = ReportStatsByCompany.builder()
+                .companyName(company)
+                .year(conference2.getYear())
+                .reportTotal(1L)
+                .build();
+
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(company, conference1.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany1)
                 .expectComplete()
                 .verify();
 
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(company, conference2.getYear()))
-                .expectNext(new ReportStats(1L))
+                .expectNext(expectedReportStatsByCompany2)
                 .expectComplete()
                 .verify();
     }
@@ -872,8 +972,14 @@ public class ReportServiceTest extends AbstractIntegrationTest {
         upsertReport.apply(report1);
         upsertReport.apply(report2);
 
+        final var expectedReportStatsByCompany = ReportStatsByCompany.builder()
+                .companyName(company)
+                .year(conference1.getYear())
+                .reportTotal(2L)
+                .build();
+
         StepVerifier.create(reportStatsService.countCompanyStatsForYear(company, conference1.getYear()))
-                .expectNext(new ReportStats(2L))
+                .expectNext(expectedReportStatsByCompany)
                 .expectComplete()
                 .verify();
     }
