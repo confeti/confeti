@@ -4,6 +4,7 @@ import org.confeti.db.dao.speaker.SpeakerByConferenceDao;
 import org.confeti.db.dao.speaker.SpeakerDao;
 import org.confeti.db.model.speaker.SpeakerByConferenceEntity;
 import org.confeti.db.model.speaker.SpeakerEntity;
+import org.confeti.service.dto.Company;
 import org.confeti.service.dto.Speaker;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.function.TupleUtils;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.confeti.service.BaseEntityService.findMany;
@@ -21,12 +23,15 @@ import static org.confeti.service.BaseEntityService.findOne;
 public final class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker, SpeakerDao> {
 
     private final SpeakerByConferenceDao speakerByConferenceDao;
+    private final CompanyService companyService;
     private ConferenceService conferenceService;
 
     protected SpeakerService(final SpeakerDao speakerDao,
-                             final SpeakerByConferenceDao speakerByConferenceDao) {
+                             final SpeakerByConferenceDao speakerByConferenceDao,
+                             final CompanyService companyService) {
         super(speakerDao);
         this.speakerByConferenceDao = speakerByConferenceDao;
+        this.companyService = companyService;
     }
 
     @Autowired
@@ -40,7 +45,9 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
         if (speaker.getId() == null) {
             speaker.setId(UUID.randomUUID());
         }
-        final var savedEntity = findByName(speaker.getName())
+
+        final var savedEntity = upsertCompany(speaker)
+                .flatMapMany(sp -> findByName(sp.getName()))
                 .filter(foundSpeaker -> foundSpeaker.canBeUpdatedTo(speaker))
                 .collectList()
                 .map(foundSpeakers -> foundSpeakers.isEmpty()
@@ -73,6 +80,16 @@ public final class SpeakerService extends AbstractEntityService<SpeakerEntity, S
                 sp -> conferenceService.findBy(conferenceName, year)
                         .map(conference -> SpeakerByConferenceEntity.from(conference.getName(), year, sp)),
                 speakerByConferenceDao);
+    }
+
+    @NotNull
+    private Mono<Speaker> upsertCompany(@NotNull final Speaker speaker) {
+        final var companyName = speaker.getContactInfo() != null && speaker.getContactInfo().getCompany() != null
+                ? Optional.ofNullable(speaker.getContactInfo().getCompany().getName())
+                : Optional.<String>empty();
+        return Mono.justOrEmpty(companyName)
+                .flatMap(company -> companyService.upsert(Company.builder(company).build()))
+                .then(Mono.just(speaker));
     }
 
     @NotNull

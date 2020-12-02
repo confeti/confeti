@@ -21,6 +21,12 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
     protected final R dao;
 
     @NotNull
+    protected Mono<E> insert(@NotNull final E entity) {
+        return Mono.from(dao.insert(entity))
+                .then(Mono.just(entity));
+    }
+
+    @NotNull
     protected Mono<E> upsert(@NotNull final E entity) {
         return Mono.from(dao.upsert(entity))
                 .then(Mono.just(entity));
@@ -32,8 +38,8 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
         final var newEntity = dtoToModelConverter.apply(dto);
         return findByPrimaryKey(dto)
                 .doOnNext(foundEntity -> foundEntity.updateFrom(newEntity))
-                .defaultIfEmpty(newEntity)
-                .flatMap(this::upsert);
+                .flatMap(this::upsert)
+                .switchIfEmpty(Mono.from(insert(newEntity)));
     }
 
     @NotNull

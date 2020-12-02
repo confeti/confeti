@@ -2,6 +2,7 @@ package org.confeti.support;
 
 import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import org.apache.commons.lang.RandomStringUtils;
+import org.confeti.service.dto.Company;
 import org.confeti.service.dto.Conference;
 import org.confeti.service.dto.Report;
 import org.confeti.service.dto.Speaker;
@@ -26,6 +27,9 @@ public final class TestUtil {
     private static final String CONTACT_INFO_LOCATION_PREFIX = "location";
     private static final String CONTACT_INFO_TWITTER_USERNAME = "username";
 
+    private static final String COMPANY_PREFIX = "company";
+    private static final String COMPANY_LOGO_PREFIX = "logo";
+
     private static final String CONFERENCE_PREFIX = "conference";
     private static final String CONFERENCE_LOCATION_PREFIX = "location";
     private static final String CONFERENCE_LOGO_PREFIX = "logo";
@@ -44,12 +48,17 @@ public final class TestUtil {
     private static final int maxYear = 2020;
 
     private static long speakerSeqNum = 0L;
+    private static long companySeqNum = 0L;
     private static long conferenceSeqNum = 0L;
     private static long reportSeqNum = 0L;
     private static long tagSeqNum = 0L;
 
     private static long nextSpeakerNum() {
         return ++speakerSeqNum;
+    }
+
+    private static long nextCompanyNum() {
+        return ++companySeqNum;
     }
 
     private static long nextConferenceNum() {
@@ -123,10 +132,11 @@ public final class TestUtil {
     }
 
     @NotNull
-    public static Speaker.ContactInfo.SpeakerCompany generateSpeakerCompany(final long speakerNum) {
-       return Speaker.ContactInfo.SpeakerCompany.builder()
+    public static Speaker.ContactInfo.SpeakerCompany generateSpeakerCompany() {
+        final var company = generateCompany();
+        return Speaker.ContactInfo.SpeakerCompany.builder()
                .addedDate(Instant.ofEpochMilli(Instant.now().toEpochMilli()))
-               .name(CONTACT_INFO_COMPANY_PREFIX + speakerNum)
+               .name(company.getName())
                .year(generateYear())
                .build();
     }
@@ -145,7 +155,7 @@ public final class TestUtil {
     public static Speaker.ContactInfo generateContactInfo(@NotNull final String speakerName,
                                                           final long speakerNum) {
         return Speaker.ContactInfo.builder()
-                .company(generateSpeakerCompany(speakerNum))
+                .company(generateSpeakerCompany())
                 .email(speakerName + CONTACT_INFO_EMAIL_SUFFIX)
                 .location(CONTACT_INFO_LOCATION_PREFIX + speakerNum)
                 .twitterUsername(CONTACT_INFO_TWITTER_USERNAME + speakerNum)
@@ -203,12 +213,28 @@ public final class TestUtil {
     }
 
     @NotNull
+    public static Company generateCompany() {
+        final long num = nextCompanyNum();
+        final var name = COMPANY_PREFIX + num;
+        return Company.builder(name)
+                .logo(name + COMPANY_LOGO_PREFIX + num)
+                .build();
+    }
+
+    public static Company updateCompany(@NotNull final Company company) {
+        final var randomString = RandomStringUtils.randomAlphabetic(5);
+        return Company.builder(company.getName())
+                .logo(company.getLogo() + randomString)
+                .build();
+    }
+
+    @NotNull
     public static Conference generateConference() {
         final long num = nextConferenceNum();
         final var name = CONFERENCE_PREFIX + num;
         return Conference.builder(name, generateYear())
                 .url(URL_PREFIX + name)
-                .logo(CONFERENCE_LOGO_PREFIX + num)
+                .logo(name + CONFERENCE_LOGO_PREFIX + num)
                 .location(CONFERENCE_LOCATION_PREFIX + num)
                 .build();
     }

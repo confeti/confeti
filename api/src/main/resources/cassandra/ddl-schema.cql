@@ -2,6 +2,7 @@ DROP INDEX IF EXISTS speaker_name_idx;
 DROP TABLE IF EXISTS conference;
 DROP TABLE IF EXISTS speaker;
 DROP TABLE IF EXISTS report;
+DROP TABLE IF EXISTS company;
 DROP TABLE IF EXISTS speaker_by_conference;
 DROP TABLE IF EXISTS conference_by_speaker;
 DROP TABLE IF EXISTS report_by_conference;
@@ -90,6 +91,12 @@ CREATE TABLE IF NOT EXISTS report (
     tags set<text>,
     title text,
     PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS company (
+    name text,
+    logo text,
+    PRIMARY KEY (name)
 );
 
 CREATE TABLE IF NOT EXISTS speaker_by_conference (

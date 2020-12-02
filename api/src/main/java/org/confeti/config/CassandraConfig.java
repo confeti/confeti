@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.internal.core.ContactPoints;
 import lombok.extern.slf4j.Slf4j;
+import org.confeti.db.dao.company.CompanyDao;
 import org.confeti.db.dao.conference.ConferenceBySpeakerDao;
 import org.confeti.db.dao.conference.ConferenceDao;
 import org.confeti.db.dao.report.ReportByConferenceDao;
@@ -16,6 +17,8 @@ import org.confeti.db.dao.report.stats.ReportStatsBySpeakerForConferenceDao;
 import org.confeti.db.dao.report.stats.ReportStatsBySpeakerForYearDao;
 import org.confeti.db.dao.speaker.SpeakerByConferenceDao;
 import org.confeti.db.dao.speaker.SpeakerDao;
+import org.confeti.db.mapper.company.CompanyDaoMapper;
+import org.confeti.db.mapper.company.CompanyDaoMapperBuilder;
 import org.confeti.db.mapper.conference.ConferenceDaoMapper;
 import org.confeti.db.mapper.conference.ConferenceDaoMapperBuilder;
 import org.confeti.db.mapper.report.ReportDaoMapper;
@@ -89,6 +92,11 @@ public class CassandraConfig {
     }
 
     @Bean
+    public CompanyDaoMapper companyDaoMapper(final CqlSession cqlSession) {
+        return new CompanyDaoMapperBuilder(cqlSession).build();
+    }
+
+    @Bean
     public ReportDaoMapper reportDaoMapper(final CqlSession cqlSession) {
         return new ReportDaoMapperBuilder(cqlSession).build();
     }
@@ -124,6 +132,13 @@ public class CassandraConfig {
                                                          final SpeakerDaoMapper speakerDaoMapper) {
         speakerDaoMapper.createSpeakerByConferenceTable(cqlSession);
         return speakerDaoMapper.speakerByConferenceDao(cqlSession.getKeyspace().get());
+    }
+
+    @Bean
+    public CompanyDao companyDao(final CqlSession cqlSession,
+                                 final CompanyDaoMapper companyDaoMapper) {
+        companyDaoMapper.createCompanyTable(cqlSession);
+        return companyDaoMapper.companyDao(cqlSession.getKeyspace().get());
     }
 
     @Bean
