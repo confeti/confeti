@@ -11,6 +11,9 @@ import org.confeti.db.model.report.stats.ReportStatsByCompanyEntity;
 public interface ReportStatsByCompanyDao {
 
     @Select
+    MappedReactiveResultSet<ReportStatsByCompanyEntity> findAll();
+
+    @Select
     MappedReactiveResultSet<ReportStatsByCompanyEntity> findByCompanyName(String companyName);
 
     @Select

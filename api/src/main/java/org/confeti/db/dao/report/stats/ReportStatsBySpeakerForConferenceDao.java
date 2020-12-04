@@ -13,6 +13,9 @@ import java.util.UUID;
 public interface ReportStatsBySpeakerForConferenceDao {
 
     @Select
+    MappedReactiveResultSet<ReportStatsBySpeakerForConferenceEntity> findAll();
+
+    @Select
     MappedReactiveResultSet<ReportStatsBySpeakerForConferenceEntity> findBySpeakerId(UUID speakerId);
 
     @Select

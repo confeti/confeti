@@ -11,6 +11,9 @@ import org.confeti.db.model.report.stats.ReportStatsByConferenceEntity;
 public interface ReportStatsByConferenceDao {
 
     @Select
+    MappedReactiveResultSet<ReportStatsByConferenceEntity> findAll();
+
+    @Select
     MappedReactiveResultSet<ReportStatsByConferenceEntity> findByConferenceName(String conferenceName);
 
     @Select

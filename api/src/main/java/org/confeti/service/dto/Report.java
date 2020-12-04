@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.confeti.db.model.report.AbstractReportEntity;
+import org.confeti.db.model.report.ReportByCompanyEntity;
 import org.confeti.db.model.report.ReportByConferenceEntity;
 import org.confeti.db.model.report.ReportBySpeakerEntity;
 import org.confeti.db.model.report.ReportByTagEntity;
@@ -22,6 +23,8 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static org.confeti.util.EntityUtil.updateValue;
 
 @Accessors(chain = true)
 @Data
@@ -72,15 +75,19 @@ public class Report implements Serializable {
         return Report.builder(report.getId(), report.getTitle())
                 .complexity(report.getComplexity())
                 .language(report.getLanguage())
-                .source(ReportSource.from(report.getSource()))
+                .source(updateValue(report.getSource(), ReportSource::from))
                 .description(report.getDescription())
-                .conferences(report.getConferences().stream()
-                        .map(Conference::from)
-                        .collect(Collectors.toSet()))
-                .speakers(report.getSpeakers().stream()
-                        .map(Speaker::from)
-                        .collect(Collectors.toSet()))
-                .tags(Sets.newHashSet(report.getTags()))
+                .conferences(updateValue(
+                        report.getConferences(),
+                        conferences -> conferences.stream()
+                                .map(Conference::from)
+                                .collect(Collectors.toSet())))
+                .speakers(updateValue(
+                        report.getSpeakers(),
+                        speakers -> speakers.stream()
+                                .map(Speaker::from)
+                                .collect(Collectors.toSet())))
+                .tags(updateValue(report.getTags(), Sets::newHashSet))
                 .build();
     }
 
@@ -88,13 +95,17 @@ public class Report implements Serializable {
     public static Report from(@NotNull final ReportEntity report) {
         return fillCommonFields(report)
                 .description(report.getDescription())
-                .conferences(report.getConferences().stream()
-                        .map(Conference::from)
-                        .collect(Collectors.toSet()))
-                .speakers(report.getSpeakers().stream()
-                        .map(Speaker::from)
-                        .collect(Collectors.toSet()))
-                .tags(Sets.newHashSet(report.getTags()))
+                .conferences(updateValue(
+                        report.getConferences(),
+                        conferences -> conferences.stream()
+                                .map(Conference::from)
+                                .collect(Collectors.toSet())))
+                .speakers(updateValue(
+                        report.getSpeakers(),
+                        speakers -> speakers.stream()
+                                .map(Speaker::from)
+                                .collect(Collectors.toSet())))
+                .tags(updateValue(report.getTags(), Sets::newHashSet))
                 .build();
     }
 
@@ -104,10 +115,12 @@ public class Report implements Serializable {
                 .conferences(Sets.newHashSet(
                         Conference.builder(report.getConferenceName(), report.getYear())
                                 .build()))
-                .speakers(report.getSpeakers().stream()
-                        .map(Speaker::from)
-                        .collect(Collectors.toSet()))
-                .tags(Sets.newHashSet(report.getTags()))
+                .speakers(updateValue(
+                        report.getSpeakers(),
+                        speakers -> speakers.stream()
+                                .map(Speaker::from)
+                                .collect(Collectors.toSet())))
+                .tags(updateValue(report.getTags(), Sets::newHashSet))
                 .build();
     }
 
@@ -115,33 +128,57 @@ public class Report implements Serializable {
     public static Report from(@NotNull final ReportBySpeakerEntity report) {
         return fillCommonFields(report)
                 .description(report.getDescription())
-                .conferences(report.getConferences().stream()
-                        .map(Conference::from)
-                        .collect(Collectors.toSet()))
+                .conferences(updateValue(
+                        report.getConferences(),
+                        conferences -> conferences.stream()
+                                .map(Conference::from)
+                                .collect(Collectors.toSet())))
                 .speakers(Sets.newHashSet(Speaker.builder(report.getSpeakerId()).build()))
-                .tags(Sets.newHashSet(report.getTags()))
+                .tags(updateValue(report.getTags(), Sets::newHashSet))
                 .build();
     }
 
     @NotNull
     public static Report from(@NotNull final ReportByTagEntity report) {
         return fillCommonFields(report)
-                .conferences(report.getConferences().stream()
-                        .map(Conference::from)
-                        .collect(Collectors.toSet()))
-                .speakers(report.getSpeakers().stream()
-                        .map(Speaker::from)
-                        .collect(Collectors.toSet()))
+                .conferences(updateValue(
+                        report.getConferences(),
+                        conferences -> conferences.stream()
+                                .map(Conference::from)
+                                .collect(Collectors.toSet())))
+                .speakers(updateValue(
+                        report.getSpeakers(),
+                        speakers -> speakers.stream()
+                                .map(Speaker::from)
+                                .collect(Collectors.toSet())))
                 .tags(Sets.newHashSet(report.getTagName()))
+                .build();
+    }
+
+    @NotNull
+    public static Report from(@NotNull final ReportByCompanyEntity report) {
+        return fillCommonFields(report)
+                .conferences(updateValue(
+                        report.getConferences(),
+                        conferences -> conferences.stream()
+                                .map(Conference::from)
+                                .collect(Collectors.toSet())))
+                .speakers(updateValue(
+                        report.getSpeakers(),
+                        speakers -> speakers.stream()
+                                .map(Speaker::from)
+                                .collect(Collectors.toSet())))
+                .tags(updateValue(report.getTags(), Sets::newHashSet))
                 .build();
     }
 
     @NotNull
     private static ReportBuilder fillCommonFields(@NotNull final AbstractReportEntity report) {
         return Report.builder(report.getId(), report.getTitle())
-                .complexity(Complexity.valueOf(report.getComplexity()))
+                .complexity(updateValue(report.getComplexity(), Complexity::valueOf))
                 .language(report.getLanguage())
-                .source(ReportSource.from(report.getSource()));
+                .source(updateValue(report.getSource(), ReportSource::from));
+
     }
 
     @Accessors(chain = true)

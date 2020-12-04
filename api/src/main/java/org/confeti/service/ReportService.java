@@ -1,10 +1,11 @@
 package org.confeti.service;
 
-import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
+import org.confeti.db.dao.report.ReportByCompanyDao;
 import org.confeti.db.dao.report.ReportByConferenceDao;
 import org.confeti.db.dao.report.ReportBySpeakerDao;
 import org.confeti.db.dao.report.ReportByTagDao;
 import org.confeti.db.dao.report.ReportDao;
+import org.confeti.db.model.report.ReportByCompanyEntity;
 import org.confeti.db.model.report.ReportByConferenceEntity;
 import org.confeti.db.model.report.ReportBySpeakerEntity;
 import org.confeti.db.model.report.ReportByTagEntity;
@@ -18,10 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.function.TupleUtils;
 
-import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import static org.confeti.service.BaseEntityService.findMany;
 import static org.confeti.service.BaseEntityService.findOne;
@@ -33,6 +31,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     private final ReportByConferenceDao reportByConferenceDao;
     private final ReportBySpeakerDao reportBySpeakerDao;
     private final ReportByTagDao reportByTagDao;
+    private final ReportByCompanyDao reportByCompanyDao;
     private final ConferenceService conferenceService;
     private final SpeakerService speakerService;
     private final ReportStatsService reportStatsService;
@@ -41,6 +40,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
                             final ReportByConferenceDao reportByConferenceDao,
                             final ReportBySpeakerDao reportBySpeakerDao,
                             final ReportByTagDao reportByTagDao,
+                            final ReportByCompanyDao reportByCompanyDao,
                             final ConferenceService conferenceService,
                             final SpeakerService speakerService,
                             final ReportStatsService reportStatsService) {
@@ -48,6 +48,7 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
         this.reportByConferenceDao = reportByConferenceDao;
         this.reportBySpeakerDao = reportBySpeakerDao;
         this.reportByTagDao = reportByTagDao;
+        this.reportByCompanyDao = reportByCompanyDao;
         this.conferenceService = conferenceService;
         this.speakerService = speakerService;
         this.reportStatsService = reportStatsService;
@@ -61,12 +62,6 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
             newReport.setId(UUID.randomUUID());
         }
 
-        final var companies = newReport.getSpeakers().stream()
-                .map(Speaker::getContactInfo)
-                .map(Speaker.ContactInfo::getCompany)
-                .map(Speaker.ContactInfo.SpeakerCompany::getName)
-                .collect(Collectors.toSet());
-
         final var savedReport = upsertMany(newReport.getConferences(), conferenceService::upsert)
                 .doOnNext(newReport::setConferences)
                 .then(upsertMany(newReport.getSpeakers(), speakerService::upsert))
@@ -79,19 +74,18 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
                 .map(Report::getConferences)
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(conference -> savedReport.zipWith(Mono.just(conference)))
-                .concatMap(TupleUtils.function((reportEntity, conference) ->
-                        spreadReport(reportEntity, conference, Sets.newConcurrentHashSet(companies))))
+                .concatMap(TupleUtils.function(this::spreadReport))
                 .then(savedReport.map(ReportEntity::getTags))
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(tag -> savedReport.zipWith(Mono.just(tag)))
-                .flatMap(TupleUtils.function((BiFunction<ReportEntity, String, Mono<Report>>) this::upsert))
+                .flatMap(TupleUtils.function(this::upsertByTag))
                 .then(savedReport.map(Report::from));
     }
 
     @NotNull
-    public Mono<Report> upsert(@NotNull final Report report,
-                               @NotNull final String conferenceName,
-                               @NotNull final Integer year) {
+    public Mono<Report> upsertByConference(@NotNull final Report report,
+                                           @NotNull final String conferenceName,
+                                           @NotNull final Integer year) {
         return upsert(
                 upsert(report),
                 rep -> conferenceService.findBy(conferenceName, year)
@@ -100,9 +94,9 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     }
 
     @NotNull
-    private Mono<Report> upsert(@NotNull final ReportEntity report,
-                                @NotNull final String conferenceName,
-                                @NotNull final Integer year) {
+    private Mono<Report> upsertByConference(@NotNull final ReportEntity report,
+                                            @NotNull final String conferenceName,
+                                            @NotNull final Integer year) {
         return upsert(
                 upsert(report).map(Report::from),
                 rep -> conferenceService.findBy(conferenceName, year)
@@ -111,9 +105,9 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     }
 
     @NotNull
-    public Mono<Report> upsert(@NotNull final Report report,
-                               @NotNull final UUID speakerId,
-                               @NotNull final Integer year) {
+    public Mono<Report> upsertBySpeaker(@NotNull final Report report,
+                                        @NotNull final UUID speakerId,
+                                        @NotNull final Integer year) {
         return upsert(
                 upsert(report),
                 rep -> speakerService.findBy(speakerId)
@@ -122,9 +116,9 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     }
 
     @NotNull
-    private Mono<Report> upsert(@NotNull final ReportEntity report,
-                                @NotNull final UUID speakerId,
-                                @NotNull final Integer year) {
+    private Mono<Report> upsertBySpeaker(@NotNull final ReportEntity report,
+                                         @NotNull final UUID speakerId,
+                                         @NotNull final Integer year) {
         return upsert(
                 upsert(report).map(Report::from),
                 rep -> speakerService.findBy(speakerId)
@@ -133,8 +127,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     }
 
     @NotNull
-    public Mono<Report> upsert(@NotNull final Report report,
-                               @NotNull final String tagName) {
+    public Mono<Report> upsertByTag(@NotNull final Report report,
+                                    @NotNull final String tagName) {
         return upsert(
                 upsert(report),
                 rep -> Mono.just(ReportByTagEntity.from(tagName, rep)),
@@ -142,12 +136,32 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     }
 
     @NotNull
-    private Mono<Report> upsert(@NotNull final ReportEntity report,
-                                @NotNull final String tagName) {
+    private Mono<Report> upsertByTag(@NotNull final ReportEntity report,
+                                     @NotNull final String tagName) {
         return upsert(
                 upsert(report).map(Report::from),
                 rep -> Mono.just(ReportByTagEntity.from(tagName, rep)),
                 reportByTagDao);
+    }
+
+    @NotNull
+    public Mono<Report> upsertByCompany(@NotNull final Report report,
+                                        @NotNull final String companyName,
+                                        @NotNull final Integer year) {
+        return upsert(
+                upsert(report),
+                rep -> Mono.just(ReportByCompanyEntity.from(companyName, year, rep)),
+                reportByCompanyDao);
+    }
+
+    @NotNull
+    public Mono<Report> upsertByCompany(@NotNull final ReportEntity report,
+                                        @NotNull final String companyName,
+                                        @NotNull final Integer year) {
+        return upsert(
+                upsert(report).map(Report::from),
+                rep -> Mono.just(ReportByCompanyEntity.from(companyName, year, rep)),
+                reportByCompanyDao);
     }
 
     @NotNull
@@ -165,25 +179,28 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
 
     @NotNull
     private Mono<?> spreadReport(@NotNull final ReportEntity report,
-                                 @NotNull final Conference conference,
-                                 @NotNull final Set<String> companies) {
+                                 @NotNull final Conference conference) {
         return Flux.fromIterable(report.getSpeakers())
                 .map(Speaker::from)
-                .flatMap(speaker -> updateReportStatsBySpeaker(conference, speaker, report, companies)
+                .flatMap(speaker -> updateReportStatsBySpeaker(conference, speaker, report)
                         .then(Mono.just(speaker)))
-                .flatMap(speaker -> upsert(report, speaker.getId(), conference.getYear())
+                .concatMap(speaker -> updateReportStatsByCompany(
+                            speaker.getContactInfo().getCompany().getName(), conference.getYear(), report)
+                        .then(upsertByCompany(report, speaker.getContactInfo().getCompany().getName(), conference.getYear()))
+                        .then(Mono.just(speaker)))
+                .flatMap(speaker -> upsertBySpeaker(report, speaker.getId(), conference.getYear())
                         .then(Mono.just(speaker)))
                 .flatMap(speaker -> speakerService.upsert(speaker, conference.getName(), conference.getYear())
                         .then(Mono.just(speaker)))
                 .flatMap(speaker -> conferenceService.upsert(conference, speaker.getId()))
                 .then(updateReportStatsByConference(conference, report))
-                .then(upsert(report, conference.getName(), conference.getYear()));
+                .then(upsertByConference(report, conference.getName(), conference.getYear()));
     }
 
     @NotNull
     private Mono<Conference> updateReportStatsByConference(@NotNull final Conference conference,
                                                            @NotNull final ReportEntity report) {
-        return findBy(conference.getName(), conference.getYear(), report.getTitle(), report.getId())
+        return findByConference(conference.getName(), conference.getYear(), report.getTitle(), report.getId())
                 .hasElement()
                 .flatMap(isReportByConfExist -> updateReportStatsIf(
                         !isReportByConfExist,
@@ -194,32 +211,31 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     @NotNull
     private Mono<Speaker> updateReportStatsBySpeaker(@NotNull final Conference conference,
                                                      @NotNull final Speaker speaker,
-                                                     @NotNull final ReportEntity report,
-                                                     @NotNull final Set<String> companies) {
-        return findBy(conference.getName(), conference.getYear(), report.getTitle(), report.getId())
+                                                     @NotNull final ReportEntity report) {
+        return findByConference(conference.getName(), conference.getYear(), report.getTitle(), report.getId())
                 .hasElement()
                 .flatMap(isReportByConferenceExist -> updateReportStatsIf(
                         !isReportByConferenceExist,
                         speaker,
                         reportStatsService.updateReportStatsBySpeakerForConference(conference.getName(), speaker.getId())))
-                .then(findBy(speaker.getId(), conference.getYear(), report.getTitle(), report.getId()))
+                .then(findBySpeaker(speaker.getId(), conference.getYear(), report.getTitle(), report.getId()))
                 .hasElement()
                 .flatMap(isReportBySpeakerExist -> updateReportStatsIf(
                             !isReportBySpeakerExist,
                             speaker,
-                            reportStatsService.updateReportStatsBySpeakerForYear(conference.getYear(), speaker.getId())
-                                    .then(updateReportStatsByCompanies(conference, companies))));
+                            reportStatsService.updateReportStatsBySpeakerForYear(conference.getYear(), speaker.getId())));
     }
 
     @NotNull
-    private Mono<Conference> updateReportStatsByCompanies(@NotNull final Conference conference,
-                                                          @NotNull final Set<String> companies) {
-        return Flux.fromIterable(companies)
-                .flatMap(company -> {
-                    companies.remove(company);
-                    return reportStatsService.updateReportStatsByCompany(conference.getYear(), company);
-                })
-                .then(Mono.just(conference));
+    private Mono<String> updateReportStatsByCompany(@NotNull final String company,
+                                                    @NotNull final Integer year,
+                                                    @NotNull final ReportEntity report) {
+        return findByCompany(company, year, report.getTitle(), report.getId())
+                .hasElement()
+                .flatMap(isReportByConfExist -> updateReportStatsIf(
+                        !isReportByConfExist,
+                        company,
+                        reportStatsService.updateReportStatsByCompany(year, company)));
     }
 
     @NotNull
@@ -228,92 +244,133 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     }
 
     @NotNull
-    public Mono<Report> findBy(@NotNull final UUID id) {
+    public Mono<Report> findById(@NotNull final UUID id) {
         return findOne(dao.findById(id), Report::from);
     }
 
     @NotNull
-    public Mono<Report> findBy(@NotNull final String conferenceName,
-                               @NotNull final Integer year,
-                               @NotNull final String title,
-                               @NotNull final UUID id) {
-        return findOne(
-                reportByConferenceDao.findById(conferenceName, year, title, id),
-                Report::from);
-    }
-
-    @NotNull
-    public Mono<Report> findBy(@NotNull final UUID speakerId,
-                               @NotNull final Integer year,
-                               @NotNull final String title,
-                               @NotNull final UUID id) {
-        return findOne(
-                reportBySpeakerDao.findById(speakerId, year, title, id),
-                Report::from);
-    }
-
-    @NotNull
-    public Mono<Report> findBy(@NotNull final String tagName,
-                               @NotNull final String title,
-                               @NotNull final UUID id) {
-        return findOne(
-                reportByTagDao.findById(tagName, title, id),
-                Report::from);
-    }
-
-    @NotNull
-    public Flux<Report> findBy(@NotNull final String conferenceName,
-                               @NotNull final Integer year,
-                               @NotNull final String title) {
+    public Flux<Report> findBySpeaker(@NotNull final UUID speakerId) {
         return findMany(
-                reportByConferenceDao.findByTitle(conferenceName, year, title),
+                reportBySpeakerDao.findBySpeakerId(speakerId),
                 Report::from);
     }
 
     @NotNull
-    public Flux<Report> findBy(@NotNull final UUID speakerId,
-                               @NotNull final Integer year,
-                               @NotNull final String title) {
-        return findMany(
-                reportBySpeakerDao.findByTitle(speakerId, year, title),
-                Report::from);
-    }
-
-    @NotNull
-    public Flux<Report> findBy(@NotNull final String tagName,
-                               @NotNull final String title) {
-        return findMany(
-                reportByTagDao.findByTitle(tagName, title),
-                Report::from);
-    }
-
-    @NotNull
-    public Flux<Report> findBy(@NotNull final String conferenceName) {
-        return findMany(
-                reportByConferenceDao.findByConferenceName(conferenceName),
-                Report::from);
-    }
-
-    @NotNull
-    public Flux<Report> findBy(@NotNull final String conferenceName,
-                               @NotNull final Integer year) {
-        return findMany(
-                reportByConferenceDao.findByConferenceNameForYear(conferenceName, year),
-                Report::from);
-    }
-
-    @NotNull
-    public Flux<Report> findBy(@NotNull final UUID speakerId,
-                               @NotNull final Integer year) {
+    public Flux<Report> findBySpeaker(@NotNull final UUID speakerId,
+                                      @NotNull final Integer year) {
         return findMany(
                 reportBySpeakerDao.findBySpeakerIdForYear(speakerId, year),
                 Report::from);
     }
 
     @NotNull
-    public Flux<Report> findBySpeakerId(@NotNull final UUID speakerId) {
+    public Flux<Report> findBySpeaker(@NotNull final UUID speakerId,
+                                      @NotNull final Integer year,
+                                      @NotNull final String title) {
         return findMany(
-                reportBySpeakerDao.findBySpeakerId(speakerId),
+                reportBySpeakerDao.findByTitle(speakerId, year, title),
+                Report::from);
+    }
+
+    @NotNull
+    public Mono<Report> findBySpeaker(@NotNull final UUID speakerId,
+                                      @NotNull final Integer year, 
+                                      @NotNull final String title, 
+                                      @NotNull final UUID id) {
+        return findOne(
+                reportBySpeakerDao.findById(speakerId, year, title, id),
+                Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findByTag(@NotNull final String tagName) {
+        return findMany(
+                reportByTagDao.findByTagName(tagName),
+                Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findByTag(@NotNull final String tagName,
+                                  @NotNull final String title) {
+        return findMany(
+                reportByTagDao.findByTitle(tagName, title),
+                Report::from);
+    }
+
+    @NotNull
+    public Mono<Report> findByTag(@NotNull final String tagName, 
+                                  @NotNull final String title, 
+                                  @NotNull final UUID id) {
+        return findOne(
+                reportByTagDao.findById(tagName, title, id),
+                Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findByCompany(@NotNull final String companyName) {
+        return findMany(
+                reportByCompanyDao.findByCompanyName(companyName),
+                Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findByCompany(@NotNull final String companyName,
+                                      @NotNull final Integer year) {
+        return findMany(
+                reportByCompanyDao.findByCompanyNameForYear(companyName, year),
+                Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findByCompany(@NotNull final String companyName,
+                                      @NotNull final Integer year,
+                                      @NotNull final String title) {
+        return findMany(
+                reportByCompanyDao.findByTitle(companyName, year, title),
+                Report::from);
+    }
+
+    @NotNull
+    public Mono<Report> findByCompany(@NotNull final String companyName,
+                                      @NotNull final Integer year,
+                                      @NotNull final String title,
+                                      @NotNull final UUID id) {
+        return findOne(
+                reportByCompanyDao.findById(companyName, year, title, id),
+                Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findByConference(@NotNull final String conferenceName) {
+        return findMany(
+                reportByConferenceDao.findByConferenceName(conferenceName),
+                Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findByConference(@NotNull final String conferenceName,
+                                         @NotNull final Integer year) {
+        return findMany(
+                reportByConferenceDao.findByConferenceNameForYear(conferenceName, year),
+                Report::from);
+    }
+
+    @NotNull
+    public Flux<Report> findByConference(@NotNull final String conferenceName,
+                                         @NotNull final Integer year,
+                                         @NotNull final String title) {
+        return findMany(
+                reportByConferenceDao.findByTitle(conferenceName, year, title),
+                Report::from);
+    }
+
+    @NotNull
+    public Mono<Report> findByConference(@NotNull final String conferenceName,
+                                         @NotNull final Integer year,
+                                         @NotNull final String title,
+                                         @NotNull final UUID id) {
+        return findOne(
+                reportByConferenceDao.findById(conferenceName, year, title, id),
                 Report::from);
     }
 

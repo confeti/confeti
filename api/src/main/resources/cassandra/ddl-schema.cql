@@ -2,6 +2,7 @@ DROP INDEX IF EXISTS speaker_name_idx;
 DROP TABLE IF EXISTS conference;
 DROP TABLE IF EXISTS speaker;
 DROP TABLE IF EXISTS report;
+DROP TABLE IF EXISTS company;
 DROP TABLE IF EXISTS speaker_by_conference;
 DROP TABLE IF EXISTS conference_by_speaker;
 DROP TABLE IF EXISTS report_by_conference;
@@ -92,6 +93,12 @@ CREATE TABLE IF NOT EXISTS report (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS company (
+    name text,
+    logo text,
+    PRIMARY KEY (name)
+);
+
 CREATE TABLE IF NOT EXISTS speaker_by_conference (
     conference_name text,
     year int,
@@ -149,6 +156,20 @@ CREATE TABLE IF NOT EXISTS report_by_speaker (
     source frozen<report_source>,
     tags set<text>,
     PRIMARY KEY (speaker_id, year, title, id)
+) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
+
+CREATE TABLE IF NOT EXISTS report_by_company (
+    company_name text,
+    year int,
+    title text,
+    id uuid,
+    complexity int,
+    conferences set<frozen<conference_short_info>>,
+    language text,
+    source frozen<report_source>,
+    speakers set<frozen<speaker_short_info>>,
+    tags set<text>,
+    PRIMARY KEY (company_name, year, title, id)
 ) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
 
 CREATE TABLE IF NOT EXISTS report_stats_by_conference (

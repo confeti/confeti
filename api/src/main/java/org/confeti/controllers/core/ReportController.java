@@ -79,14 +79,14 @@ public class ReportController {
     private Mono<ResponseEntity<?>> handleRequest(final int year,
                                                   final String conferenceName,
                                                   final Function<Report, Collection<String>> reportConverter) {
-        return countInfo(reportService.findBy(conferenceName, year), reportConverter)
+        return countInfo(reportService.findByConference(conferenceName, year), reportConverter)
                 .<ResponseEntity<?>>map(map -> ResponseEntity.ok(new ReportResponse(conferenceName, Map.of(year, map))))
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
 
     private Mono<ResponseEntity<?>> handleRequest(final String conferenceName,
                                                   final Function<Report, Collection<String>> reportConverter) {
-        return countInfoByYear(reportService.findBy(conferenceName)
+        return countInfoByYear(reportService.findByConference(conferenceName)
                         /* ATTENTION: in this case Set consists only 1 element */
                         .groupBy(report -> report.getConferences().iterator().next().getYear()),
                 reportConverter)

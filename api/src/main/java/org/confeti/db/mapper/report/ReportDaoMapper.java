@@ -7,6 +7,7 @@ import com.datastax.oss.driver.api.core.type.DataTypes;
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
 import com.datastax.oss.driver.api.mapper.annotations.DaoKeyspace;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
+import org.confeti.db.dao.report.ReportByCompanyDao;
 import org.confeti.db.dao.report.ReportByConferenceDao;
 import org.confeti.db.dao.report.ReportBySpeakerDao;
 import org.confeti.db.dao.report.ReportByTagDao;
@@ -22,6 +23,9 @@ import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_ID;
 import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_LANGUAGE;
 import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_SOURCE;
 import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_TITLE;
+import static org.confeti.db.model.report.ReportByCompanyEntity.REPORT_BY_COMPANY_ATT_COMPANY_NAME;
+import static org.confeti.db.model.report.ReportByCompanyEntity.REPORT_BY_COMPANY_ATT_YEAR;
+import static org.confeti.db.model.report.ReportByCompanyEntity.REPORT_BY_COMPANY_TABLE;
 import static org.confeti.db.model.report.ReportByConferenceEntity.REPORT_BY_CONF_ATT_CONF_NAME;
 import static org.confeti.db.model.report.ReportByConferenceEntity.REPORT_BY_CONF_ATT_YEAR;
 import static org.confeti.db.model.report.ReportByConferenceEntity.REPORT_BY_CONF_TABLE;
@@ -46,6 +50,9 @@ public interface ReportDaoMapper extends BaseMapper {
 
     @DaoFactory
     ReportDao reportDao(@DaoKeyspace CqlIdentifier keyspace);
+
+    @DaoFactory
+    ReportByCompanyDao reportByCompanyDao(@DaoKeyspace CqlIdentifier keyspace);
 
     @DaoFactory
     ReportByConferenceDao reportByConferenceDao(@DaoKeyspace CqlIdentifier keyspace);
@@ -202,6 +209,46 @@ public interface ReportDaoMapper extends BaseMapper {
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
                 .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))
                 .withColumn(REPORT_ATT_SPEAKERS, DataTypes.setOf(udt(SPEAKER_SHORT_INFO_UDT, true)))
+                .build());
+    }
+
+    /**
+     * Create the <i>report_by_company</i> table.
+     *
+     * <pre>
+     * CREATE TABLE IF NOT EXISTS report_by_company (
+     *     company_name text,
+     *     year int,
+     *     title text,
+     *     id uuid,
+     *     complexity int,
+     *     conferences set&lt;frozen&lt;conference_short_info&gt;&gt;,
+     *     language text,
+     *     source frozen&lt;report_source&gt;,
+     *     speakers set&lt;frozen&lt;speaker_short_info&gt;&gt,
+     *     tags set&lt;text&gt;,
+     *     PRIMARY KEY (company_name, year, title, id)
+     * ) WITH CLUSTERING ORDER BY (year DESC, title ASC, id ASC);
+     * </pre>
+     */
+    default void createReportByCompanyTable(@NotNull final CqlSession cqlSession) {
+        createConferenceShortInfoUDT(cqlSession);
+        createReportSourceUDT(cqlSession);
+        createSpeakerShortInfoUDT(cqlSession);
+        cqlSession.execute(createTable(REPORT_BY_COMPANY_TABLE).ifNotExists()
+                .withPartitionKey(REPORT_BY_COMPANY_ATT_COMPANY_NAME, DataTypes.TEXT)
+                .withClusteringColumn(REPORT_BY_COMPANY_ATT_YEAR, DataTypes.INT)
+                .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
+                .withClusteringColumn(REPORT_ATT_ID, DataTypes.UUID)
+                .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
+                .withColumn(REPORT_ATT_CONFERENCES, DataTypes.setOf(udt(CONF_SHORT_INFO_UDT, true)))
+                .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
+                .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))
+                .withColumn(REPORT_ATT_SPEAKERS, DataTypes.setOf(udt(SPEAKER_SHORT_INFO_UDT, true)))
+                .withColumn(REPORT_ATT_TAGS, DataTypes.setOf(DataTypes.TEXT))
+                .withClusteringOrder(REPORT_BY_COMPANY_ATT_YEAR, ClusteringOrder.DESC)
+                .withClusteringOrder(REPORT_ATT_TITLE, ClusteringOrder.ASC)
+                .withClusteringOrder(REPORT_ATT_ID, ClusteringOrder.ASC)
                 .build());
     }
 }

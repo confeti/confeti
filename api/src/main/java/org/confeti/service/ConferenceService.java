@@ -95,6 +95,11 @@ public class ConferenceService extends AbstractEntityService<ConferenceEntity, C
     }
 
     @NotNull
+    public Flux<Conference> findAll() {
+        return findMany(dao.findAll(), Conference::from);
+    }
+
+    @NotNull
     @Override
     protected Mono<ConferenceEntity> findByPrimaryKey(@NotNull final Conference conference) {
         return Mono.from(dao.findByNameForYear(conference.getName(), conference.getYear()));

@@ -5,7 +5,10 @@ import org.confeti.db.dao.report.stats.ReportStatsByCompanyDao;
 import org.confeti.db.dao.report.stats.ReportStatsByConferenceDao;
 import org.confeti.db.dao.report.stats.ReportStatsBySpeakerForConferenceDao;
 import org.confeti.db.dao.report.stats.ReportStatsBySpeakerForYearDao;
-import org.confeti.service.dto.ReportStats;
+import org.confeti.service.dto.stats.ReportStatsByCompany;
+import org.confeti.service.dto.stats.ReportStatsByConference;
+import org.confeti.service.dto.stats.ReportStatsBySpeakerForConference;
+import org.confeti.service.dto.stats.ReportStatsBySpeakerForYear;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -69,62 +72,82 @@ public class ReportStatsService implements BaseEntityService {
     }
 
     @NotNull
-    public Flux<ReportStats> countConferenceStats(@NotNull final String conferenceName) {
+    public Flux<ReportStatsByConference> countConferenceStats(@NotNull final String conferenceName) {
         return findMany(
                 statsByConferenceDao.findByConferenceName(conferenceName),
-                ReportStats::from);
+                ReportStatsByConference::from);
     }
 
     @NotNull
-    public Mono<ReportStats> countConferenceStatsForYear(@NotNull final String conferenceName,
-                                                         @NotNull final Integer year) {
+    public Flux<ReportStatsByConference> countConferenceStats() {
+        return findMany(statsByConferenceDao.findAll(), ReportStatsByConference::from);
+    }
+
+    @NotNull
+    public Mono<ReportStatsByConference> countConferenceStatsForYear(@NotNull final String conferenceName,
+                                                                     @NotNull final Integer year) {
         return findOne(
                 statsByConferenceDao.findByConferenceNameByYear(conferenceName, year),
-                ReportStats::from);
+                ReportStatsByConference::from);
     }
 
     @NotNull
-    public Flux<ReportStats> countSpeakerStatsForYears(@NotNull final UUID speakerId) {
+    public Flux<ReportStatsBySpeakerForYear> countSpeakerStatsForYear() {
+        return findMany(statsBySpeakerForYearDao.findAll(), ReportStatsBySpeakerForYear::from);
+    }
+
+    @NotNull
+    public Flux<ReportStatsBySpeakerForYear> countSpeakerStatsForYear(@NotNull final UUID speakerId) {
         return findMany(
                 statsBySpeakerForYearDao.findBySpeakerId(speakerId),
-                ReportStats::from);
+                ReportStatsBySpeakerForYear::from);
     }
 
     @NotNull
-    public Mono<ReportStats> countSpeakerStatsForYear(@NotNull final UUID speakerId,
-                                                      @NotNull final Integer year) {
+    public Mono<ReportStatsBySpeakerForYear> countSpeakerStatsForYear(@NotNull final UUID speakerId,
+                                                                      @NotNull final Integer year) {
         return findOne(
                 statsBySpeakerForYearDao.findBySpeakerIdForYear(speakerId, year),
-                ReportStats::from);
+                ReportStatsBySpeakerForYear::from);
     }
 
     @NotNull
-    public Flux<ReportStats> countSpeakerStatsForConferences(@NotNull final UUID speakerId) {
+    public Flux<ReportStatsBySpeakerForConference> countSpeakerStatsForConference() {
+        return findMany(statsBySpeakerForConferenceDao.findAll(), ReportStatsBySpeakerForConference::from);
+    }
+
+    @NotNull
+    public Flux<ReportStatsBySpeakerForConference> countSpeakerStatsForConference(@NotNull final UUID speakerId) {
         return findMany(
                 statsBySpeakerForConferenceDao.findBySpeakerId(speakerId),
-                ReportStats::from);
+                ReportStatsBySpeakerForConference::from);
     }
 
     @NotNull
-    public Mono<ReportStats> countSpeakerStatsForConference(@NotNull final UUID speakerId,
-                                                            @NotNull final String conferenceName) {
+    public Mono<ReportStatsBySpeakerForConference> countSpeakerStatsForConference(@NotNull final UUID speakerId,
+                                                                                  @NotNull final String conferenceName) {
         return findOne(
                 statsBySpeakerForConferenceDao.findBySpeakerIdForConference(speakerId, conferenceName),
-                ReportStats::from);
+                ReportStatsBySpeakerForConference::from);
     }
 
     @NotNull
-    public Flux<ReportStats> countCompanyStats(@NotNull final String companyName) {
+    public Flux<ReportStatsByCompany> countCompanyStats() {
+        return findMany(statsByCompanyDao.findAll(), ReportStatsByCompany::from);
+    }
+
+    @NotNull
+    public Flux<ReportStatsByCompany> countCompanyStats(@NotNull final String companyName) {
         return findMany(
                 statsByCompanyDao.findByCompanyName(companyName),
-                ReportStats::from);
+                ReportStatsByCompany::from);
     }
 
     @NotNull
-    public Mono<ReportStats> countCompanyStatsForYear(@NotNull final String companyName,
-                                                      @NotNull final Integer year) {
+    public Mono<ReportStatsByCompany> countCompanyStatsForYear(@NotNull final String companyName,
+                                                               @NotNull final Integer year) {
         return findOne(
                 statsByCompanyDao.findByCompanyNameForYear(companyName, year),
-                ReportStats::from);
+                ReportStatsByCompany::from);
     }
 }

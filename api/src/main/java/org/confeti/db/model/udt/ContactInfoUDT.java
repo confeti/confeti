@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetElement.UDT;
+import static org.confeti.util.EntityUtil.updateValue;
 
 @Data
 @NoArgsConstructor
@@ -67,7 +68,7 @@ public class ContactInfoUDT implements Serializable {
                 .email(contactInfo.getEmail())
                 .location(contactInfo.getLocation())
                 .twitterUsername(contactInfo.getTwitterUsername())
-                .companies(Sets.newHashSet(company == null ? null : SpeakerCompanyUDT.from(company)))
+                .companies(updateValue(company, c -> Sets.newHashSet(SpeakerCompanyUDT.from(c))))
                 .build();
     }
 
@@ -77,9 +78,11 @@ public class ContactInfoUDT implements Serializable {
                 .email(contactInfo.getEmail())
                 .location(contactInfo.getLocation())
                 .twitterUsername(contactInfo.getTwitterUsername())
-                .companies(contactInfo.getCompanies().stream()
-                        .map(SpeakerCompanyUDT::from)
-                        .collect(Collectors.toSet()))
+                .companies(updateValue(
+                        contactInfo.getCompanies(),
+                        companies -> companies.stream()
+                                .map(SpeakerCompanyUDT::from)
+                                .collect(Collectors.toSet())))
                 .build();
     }
 
