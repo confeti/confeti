@@ -9,6 +9,9 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -22,33 +25,12 @@ jobs:
           context: ./
           file: ./api/Dockerfile
           push: true
-          tags: confeti/api:latest
+          tags: confeti/api:${{ steps.get_version.outputs.VERSION }},confeti/api:latest
       - name: Push web to Docker Hub
         uses: docker/build-push-action@v2
         with:
           context: ./web
           file: ./web/Dockerfile
           push: true
-          tags: confeti/web:latest
-      - name: Login to Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.CR_PAT }}
-      - name: Push api to GitHub Packages
-        uses: docker/build-push-action@v2
-        with:
-          context: ./
-          file: ./api/Dockerfile
-          push: true
-          tags: ghcr.io/confeti/confeti/api:latest
-          labels: org.opencontainers.image.source=${{ github.event.repository.html_url }}
-      - name: Push web to GitHub Packages
-        uses: docker/build-push-action@v2
-        with:
-          context: ./web
-          file: ./web/Dockerfile
-          push: true
-          tags: ghcr.io/confeti/confeti/web:latest
-          labels: org.opencontainers.image.source=${{ github.event.repository.html_url }}
+          tags: confeti/web:${{ steps.get_version.outputs.VERSION }},confeti/web:latest
+
