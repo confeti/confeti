@@ -17,8 +17,7 @@ services:
   api:
     build:
       context: ./
-      # Use ./api/Dockerfile if Cassandra is local and ./api/Dockerfile.astra if you use DataStax Astra
-      dockerfile: ./api/Dockerfile.astra
+      dockerfile: ./api/Dockerfile
     expose:
       - 8080
     ports:
@@ -27,6 +26,13 @@ services:
       - PORT=8080
       - API_URL=http://localhost:8080
       - WEB_URL=http://localhost:3000
+      - CASSANDRA_SESSION_NAME=confeti_session
+      - CASSANDRA_KEYSPACE_NAME=confeti
+      - CASSANDRA_RF=1
+      - CASSANDRA_DURABLE=true
+      - CONFETI_LOCAL_DB=${CONFETI_LOCAL_DB}
+      - ASTRA_PASSWD=${ASTRA_PASSWD}
+      - ASTRA_CREDS=${ASTRA_CREDS}
 #    depends_on:
 #      - cassandra
 

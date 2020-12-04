@@ -23,25 +23,16 @@ jobs:
           context: ./
           file: ./api/Dockerfile
           repository: confeti/api:latest
-      - name: Push api-astra to Docker Hub
-        uses: docker/build-push-action@v1
-        with:
-          context: ./
-          file: ./api/Dockerfile.astra
-          repository: confeti/api-astra
-          tag_with_ref: true
       - name: Push web to Docker Hub
         uses: docker/build-push-action@v1
         with:
           context: ./
           file: ./web/Dockerfile
-          repository: confeti/web
-          tag_with_ref: true
+          repository: confeti/web:latest
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: confeti/confeti/confeti
-          tag_with_ref: true
+          repository: confeti/confeti/confeti:latest

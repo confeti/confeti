@@ -6,9 +6,9 @@ confeti:
   cluster:
     webUrl: ${WEB_URL}
   cassandra:
-    local: false
+    local: ${CONFETI_LOCAL_DB}
     session:
       name: ${CASSANDRA_SESSION_NAME}
       keyspace: ${CASSANDRA_KEYSPACE_NAME}
-      rf: 1
-      durable: true
+      rf: ${CASSANDRA_RF}
+      durable: ${CASSANDRA_DURABLE}
