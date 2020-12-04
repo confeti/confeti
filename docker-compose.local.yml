@@ -1,16 +1,23 @@
 version: '3'
 services:
   web:
-    image: confeti/web
+    build:
+      context: ./
+      dockerfile: ./web/Dockerfile.local
     expose:
-      - 80
+      - 3000
     ports:
-      - "80:80"
+      - "3000:3000"
     depends_on:
       - api
+    # remove stdin_open option in production:
+    # https://stackoverflow.com/questions/61837934/content-not-from-webpack-is-served-from-app-public-docker
+    stdin_open: true
 
   api:
-    image: confeti/api
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile
     expose:
       - 8080
     ports:
@@ -26,14 +33,16 @@ services:
       - CONFETI_LOCAL_DB=${CONFETI_LOCAL_DB}
       - ASTRA_PASSWD=${ASTRA_PASSWD}
       - ASTRA_CREDS=${ASTRA_CREDS}
+#    depends_on:
+#      - cassandra
 
-  cassandra:
-    image: cassandra:3.11.8
-    ports:
-      - 7000:7000
-      - 9042:9042
-    ulimits:
-      memlock: -1
+#  cassandra:
+#    image: cassandra:3.11.8
+#    ports:
+#      - 7000:7000
+#      - 9042:9042
+#    ulimits:
+#      memlock: -1
 
 #     Use this command to create the keyspace after starting of the Cassandra db
 #     docker exec -it `docker ps | grep cassandra:3.11.8 | cut -b 1-12` cqlsh -e "create keyspace confeti WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };"
