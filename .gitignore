@@ -3,3 +3,5 @@
 *.iml
 **/out
 /.gradle
+**/__pycache__/**
+*.pyc
