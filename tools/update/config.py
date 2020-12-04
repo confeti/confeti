@@ -14,9 +14,3 @@ class Configuration:
             self.release_uri = data["release_uri"]
             self.check_time = data["check_time"]
             self.docker_images = data["docker_images"]
-
-
-
-
-
-

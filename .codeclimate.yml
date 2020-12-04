@@ -1,4 +1,4 @@
-version: "2"
+version: 2
 plugins:
   checkstyle:
     enabled: true
@@ -8,7 +8,7 @@ plugins:
   sonar-java:
     enabled: true
     config:
-      sonar.java.source: "15"
+      sonar.java.source: 15
     checks:
       squid:S1068:
         enabled: false
@@ -86,6 +86,7 @@ checks:
     enabled: false
 
 exclude_patterns:
-  - "/web/**"
-  - "/api/src/test/**"
+  - /web/**
+  - /api/src/test/**
+  - tools/update/**
 
