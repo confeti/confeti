@@ -7,3 +7,4 @@ def materials_form(material_link):
         return {'presentation':''.join(('https:',material_link))}
     else:
         return {'article':''.join(('https://2019.jpoint.ru',material_link,'/'))}
+        

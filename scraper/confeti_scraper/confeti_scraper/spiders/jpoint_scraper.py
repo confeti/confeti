@@ -80,3 +80,4 @@ class JpointSpider(scrapy.Spider):
         report['speakers'] = speakers_list
         self.conference['report'] = report
         yield self.conference
+        
