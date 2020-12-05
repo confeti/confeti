@@ -20,6 +20,6 @@ public class StatusController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Mono<Status> statusRoute() {
-        return Mono.just(Status.OK);
+        return Mono.just(Status.SUCCESS);
     }
 }
