@@ -38,7 +38,7 @@ public class ReceiverController {
                 .flatMap(reportService::upsert)
                 .hasElements()
                 .flatMap(has -> has ? Mono.empty() : conferenceService.upsert(inputData.getConference()))
-                .thenReturn(ResponseEntity.ok(Status.OK))
+                .thenReturn(ResponseEntity.ok(Status.SUCCESS))
                 .onErrorReturn(ResponseEntity.badRequest().body(Status.FAIL));
     }
 }

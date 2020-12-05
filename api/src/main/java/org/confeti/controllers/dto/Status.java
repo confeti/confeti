@@ -7,7 +7,7 @@ import lombok.Getter;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @Getter
 public enum Status {
-    OK("ok"),
+    SUCCESS("success"),
     FAIL("fail");
 
     @JsonProperty("status")
