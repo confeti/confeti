@@ -1,5 +1,6 @@
 package org.confeti.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class Company implements Serializable {
 
     private String name;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String logo;
 
     public static CompanyBuilder builder(@NotNull final String name) {
