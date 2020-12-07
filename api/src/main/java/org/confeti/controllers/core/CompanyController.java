@@ -1,7 +1,6 @@
 package org.confeti.controllers.core;
 
 import lombok.RequiredArgsConstructor;
-import org.confeti.controllers.dto.ErrorResponse;
 import org.confeti.controllers.dto.core.CompanyStatResponse;
 import org.confeti.service.CompanyService;
 import org.confeti.service.ReportStatsService;
@@ -16,11 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Objects;
 
 import static org.confeti.controllers.ControllersUtils.COMPANY_URI_PARAMETER;
 import static org.confeti.controllers.ControllersUtils.REST_API_PATH;
 import static org.confeti.controllers.ControllersUtils.YEAR_URI_PARAMETER;
+import static org.confeti.controllers.core.StatisticControllerUtils.handleBaseGetRequest;
+import static org.confeti.controllers.core.StatisticControllerUtils.handleForAllRequest;
+import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequest;
+import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequestWithYear;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -35,13 +37,11 @@ public class CompanyController {
     @ResponseBody
     public Mono<ResponseEntity<?>> handleRequestCompany(
             @PathVariable(COMPANY_URI_PARAMETER) final String companyName) {
-        return reportStatsService.countCompanyStats(companyName)
-                .collectMap(ReportStatsByCompany::getYear, ReportStatsByCompany::getReportTotal)
-                .map(map -> new CompanyStatResponse()
+        return handleSpecifiedRequest(reportStatsService.countCompanyStats(companyName),
+                ReportStatsByCompany::getYear,
+                map -> new CompanyStatResponse()
                         .setCompanyName(companyName)
-                        .setYears(map))
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
+                        .setYears(map));
     }
 
     @GetMapping(path = "{" + COMPANY_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
@@ -49,39 +49,27 @@ public class CompanyController {
     public Mono<ResponseEntity<?>> handleRequestCompanyYear(
             @PathVariable(COMPANY_URI_PARAMETER) final String companyName,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
-        return reportStatsService.countCompanyStatsForYear(companyName, year)
-                .map(stat -> new CompanyStatResponse()
+        return handleSpecifiedRequestWithYear(reportStatsService.countCompanyStatsForYear(companyName, year),
+                stat -> new CompanyStatResponse()
                         .setCompanyName(companyName)
-                        .setYears(Map.of(year, stat.getReportTotal())))
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
+                        .setYears(Map.of(year, stat.getReportTotal())));
     }
 
     @GetMapping(path = "/stat")
     @ResponseBody
     public Mono<ResponseEntity<?>> handleStatRequest() {
-        return reportStatsService.countCompanyStats()
-                .groupBy(ReportStatsByCompany::getCompanyName)
-                .flatMap(group ->
-                        group
-                                .collectMap(ReportStatsByCompany::getYear, ReportStatsByCompany::getReportTotal)
-                                .zipWith(Mono.just(Objects.requireNonNull(group.key()))))
-                .map(tuple -> new CompanyStatResponse()
+        return handleForAllRequest(reportStatsService.countCompanyStats(),
+                ReportStatsByCompany::getCompanyName,
+                groupedFlux -> groupedFlux.collectMap(ReportStatsByCompany::getYear, ReportStatsByCompany::getReportTotal),
+                tuple -> new CompanyStatResponse()
                         .setCompanyName(tuple.getT2())
-                        .setYears(tuple.getT1()))
-                .collectList()
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
-
+                        .setYears(tuple.getT1()));
     }
 
     @GetMapping
     @ResponseBody
     public Mono<ResponseEntity<?>> handleCompanyRequest() {
-        return companyService.findAll()
-                .collectList()
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
+        return handleBaseGetRequest(companyService.findAll());
     }
 
 }
