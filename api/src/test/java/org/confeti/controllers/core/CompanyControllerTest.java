@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.confeti.controllers.core.StatisticControllerTestUtils.testGetListResponse;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -138,15 +139,7 @@ public class CompanyControllerTest {
 
         when(companyService.findAll()).thenReturn(Flux.fromIterable(companies));
 
-        WebTestClient
-                .bindToController(companyController)
-                .build()
-                .get()
-                .uri("/api/rest/company")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Company[].class).isEqualTo(companies.toArray(new Company[0]));
-
+        testGetListResponse(companyController, "/api/rest/company", companies, Company.class);
         verify(companyService).findAll();
     }
 
@@ -192,13 +185,6 @@ public class CompanyControllerTest {
                         .setYears(Map.of(1973, 4L, 1972, 1L, 1975, 9L))
         );
 
-        WebTestClient
-                .bindToController(companyController)
-                .build()
-                .get()
-                .uri("/api/rest/company/stat")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(CompanyStatResponse[].class).isEqualTo(statResponses.toArray(new CompanyStatResponse[0]));
+        testGetListResponse(companyController, "/api/rest/company/stat", statResponses, CompanyStatResponse.class);
     }
 }

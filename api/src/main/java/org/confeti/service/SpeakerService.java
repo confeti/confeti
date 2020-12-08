@@ -20,7 +20,7 @@ import static org.confeti.service.BaseEntityService.findMany;
 import static org.confeti.service.BaseEntityService.findOne;
 
 @Service
-public final class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker, SpeakerDao> {
+public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker, SpeakerDao> {
 
     private final SpeakerByConferenceDao speakerByConferenceDao;
     private final CompanyService companyService;

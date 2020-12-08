@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-import static org.confeti.controllers.ControllersUtils.COMPANY_URI_PARAMETER;
+import static org.confeti.controllers.ControllersUtils.COMPANY_NAME_URI_PARAMETER;
 import static org.confeti.controllers.ControllersUtils.REST_API_PATH;
 import static org.confeti.controllers.ControllersUtils.YEAR_URI_PARAMETER;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleBaseGetRequest;
@@ -33,10 +33,10 @@ public class CompanyController {
     private final ReportStatsService reportStatsService;
     private final CompanyService companyService;
 
-    @GetMapping(path = "{" + COMPANY_URI_PARAMETER + "}/stat")
+    @GetMapping(path = "{" + COMPANY_NAME_URI_PARAMETER + "}/stat")
     @ResponseBody
     public Mono<ResponseEntity<?>> handleRequestCompany(
-            @PathVariable(COMPANY_URI_PARAMETER) final String companyName) {
+            @PathVariable(COMPANY_NAME_URI_PARAMETER) final String companyName) {
         return handleSpecifiedRequest(reportStatsService.countCompanyStats(companyName),
                 ReportStatsByCompany::getYear,
                 map -> new CompanyStatResponse()
@@ -44,10 +44,10 @@ public class CompanyController {
                         .setYears(map));
     }
 
-    @GetMapping(path = "{" + COMPANY_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
+    @GetMapping(path = "{" + COMPANY_NAME_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
     @ResponseBody
     public Mono<ResponseEntity<?>> handleRequestCompanyYear(
-            @PathVariable(COMPANY_URI_PARAMETER) final String companyName,
+            @PathVariable(COMPANY_NAME_URI_PARAMETER) final String companyName,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
         return handleSpecifiedRequestWithYear(reportStatsService.countCompanyStatsForYear(companyName, year),
                 stat -> new CompanyStatResponse()
