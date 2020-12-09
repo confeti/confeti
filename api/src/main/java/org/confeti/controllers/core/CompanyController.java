@@ -22,7 +22,7 @@ import static org.confeti.controllers.ControllersUtils.YEAR_URI_PARAMETER;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleBaseGetRequest;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleForAllRequest;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequest;
-import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequestWithYear;
+import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequestWithKey;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -49,7 +49,7 @@ public class CompanyController {
     public Mono<ResponseEntity<?>> handleRequestCompanyYear(
             @PathVariable(COMPANY_NAME_URI_PARAMETER) final String companyName,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
-        return handleSpecifiedRequestWithYear(reportStatsService.countCompanyStatsForYear(companyName, year),
+        return handleSpecifiedRequestWithKey(reportStatsService.countCompanyStatsForYear(companyName, year),
                 stat -> new CompanyStatResponse()
                         .setCompanyName(companyName)
                         .setYears(Map.of(year, stat.getReportTotal())));

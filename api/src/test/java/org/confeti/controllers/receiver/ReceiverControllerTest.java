@@ -1,6 +1,7 @@
 package org.confeti.controllers.receiver;
 
 import org.confeti.config.SecurityConfig;
+import org.confeti.controllers.dto.Status;
 import org.confeti.controllers.dto.receiver.InputData;
 import org.confeti.service.ConferenceService;
 import org.confeti.service.ReportService;
@@ -19,9 +20,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
-import static org.confeti.controllers.ControllersTestsUtils.STATUS;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WebFluxTest
 @ContextConfiguration(classes = {ReceiverController.class, ReportService.class, ConferenceService.class, InputData.class, SecurityConfig.class})
@@ -67,7 +69,7 @@ public class ReceiverControllerTest {
                 .bodyValue(new InputData().setConference(conference))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(String.class).isEqualTo(STATUS);
+                .expectBody(Status.class).isEqualTo(Status.SUCCESS);
         verify(conferenceService).upsert(any());
         verify(reportService, never()).upsert(any());
     }
@@ -88,7 +90,7 @@ public class ReceiverControllerTest {
                 .bodyValue(new InputData().setConference(conference).setReports(Collections.singletonList(report)))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(String.class).isEqualTo(STATUS);
+                .expectBody(Status.class).isEqualTo(Status.SUCCESS);
         verify(reportService).upsert(any());
     }
 

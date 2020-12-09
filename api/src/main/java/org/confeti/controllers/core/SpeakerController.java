@@ -26,7 +26,7 @@ import static org.confeti.controllers.ControllersUtils.YEAR_URI_PARAMETER;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleBaseGetRequest;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleForAllRequest;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequest;
-import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequestWithYear;
+import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequestWithKey;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -46,33 +46,33 @@ public class SpeakerController {
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat/year")
     @ResponseBody
     public Mono<ResponseEntity<?>> handleRequestSpeakerYears(
-            @PathVariable(SPEAKER_ID_URI_PARAMETER) final String speakerId) {
+            @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerId) {
         return handleSpecifiedRequest(
-                reportStatsService.countSpeakerStatsForYear(UUID.fromString(speakerId)),
+                reportStatsService.countSpeakerStatsForYear(speakerId),
                 ReportStatsBySpeakerForYear::getYear,
                 map -> new SpeakerStatResponseByYear()
-                        .setId(UUID.fromString(speakerId))
+                        .setId(speakerId)
                         .setYears(map));
     }
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat/conference")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleRequestSpeakerConference(
-            @PathVariable(SPEAKER_ID_URI_PARAMETER) final String speakerId) {
+    public Mono<ResponseEntity<?>> handleRequestSpeakerConferences(
+            @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerId) {
         return handleSpecifiedRequest(
-                reportStatsService.countSpeakerStatsForConference(UUID.fromString(speakerId)),
+                reportStatsService.countSpeakerStatsForConference(speakerId),
                 ReportStatsBySpeakerForConference::getConferenceName,
                 map -> new SpeakerStatResponseByConference()
-                        .setId(UUID.fromString(speakerId))
+                        .setId(speakerId)
                         .setConferences(map));
     }
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
     @ResponseBody
     public Mono<ResponseEntity<?>> handleRequestSpeakerYear(
-            @PathVariable(SPEAKER_ID_URI_PARAMETER) final String speakerID,
+            @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerID,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
-        return handleSpecifiedRequestWithYear(reportStatsService.countSpeakerStatsForYear(UUID.fromString(speakerID), year),
+        return handleSpecifiedRequestWithKey(reportStatsService.countSpeakerStatsForYear(speakerID, year),
                 stat -> new SpeakerStatResponseByYear()
                         .setId(stat.getSpeakerId())
                         .setYears(Map.of(stat.getYear(), stat.getReportTotal())));
@@ -81,9 +81,9 @@ public class SpeakerController {
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat", params = {CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
     public Mono<ResponseEntity<?>> handleRequestSpeakerYear(
-            @PathVariable(SPEAKER_ID_URI_PARAMETER) final String speakerID,
+            @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerID,
             @RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
-        return handleSpecifiedRequestWithYear(reportStatsService.countSpeakerStatsForConference(UUID.fromString(speakerID), conferenceName),
+        return handleSpecifiedRequestWithKey(reportStatsService.countSpeakerStatsForConference(speakerID, conferenceName),
                 stat -> new SpeakerStatResponseByConference()
                         .setId(stat.getSpeakerId())
                         .setConferences(Map.of(stat.getConferenceName(), stat.getReportTotal())));
@@ -107,7 +107,8 @@ public class SpeakerController {
         return handleForAllRequest(
                 reportStatsService.countSpeakerStatsForConference(),
                 ReportStatsBySpeakerForConference::getSpeakerId,
-                groupedFlux -> groupedFlux.collectMap(ReportStatsBySpeakerForConference::getConferenceName, ReportStatsBySpeakerForConference::getReportTotal),
+                groupedFlux -> groupedFlux.collectMap(ReportStatsBySpeakerForConference::getConferenceName,
+                        ReportStatsBySpeakerForConference::getReportTotal),
                 tuple -> new SpeakerStatResponseByConference()
                         .setId(tuple.getT2())
                         .setConferences(tuple.getT1()));

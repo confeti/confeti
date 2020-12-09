@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -185,7 +184,6 @@ public final class TestUtil {
         final long num = nextSpeakerNum();
         final var name = SPEAKER_PREFIX + num;
         return Speaker.builder(name)
-                .id(UUID.randomUUID())
                 .bio(SPEAKER_BIO_PREFIX + num)
                 .avatar(SPEAKER_AVATAR_PREFIX + num)
                 .contactInfo(generateContactInfo(name, num))

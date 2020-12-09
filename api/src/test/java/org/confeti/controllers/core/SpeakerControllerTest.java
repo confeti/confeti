@@ -22,9 +22,9 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.confeti.controllers.core.StatisticControllerTestUtils.testGetListResponse;
-import static org.confeti.support.TestUtil.generateSpeaker;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,24 +51,24 @@ public class SpeakerControllerTest {
 
         when(speakerService.findAll()).thenReturn(Flux.fromIterable(speakers));
 
-        testGetListResponse(speakerController, "/api/rest/speaker", speakers, Speaker.class);
+        testGetListResponse(speakerController, "/api/rest/speaker", speakers, Speaker[].class);
         verify(speakerService).findAll();
     }
 
     @Test
     public void testGetSpeakerRequestWithYear() {
-        final Speaker speaker = generateSpeaker();
+        final UUID speakerId = UUID.randomUUID();
         final int year = 1972;
         final long amount = 5L;
 
         final SpeakerStatResponseByYear expectedResponse = new SpeakerStatResponseByYear()
-                .setId(speaker.getId())
+                .setId(speakerId)
                 .setYears(Map.of(year, amount));
 
-        when(reportStatsService.countSpeakerStatsForYear(speaker.getId(), year))
+        when(reportStatsService.countSpeakerStatsForYear(speakerId, year))
                 .thenReturn(Mono.just(
                         ReportStatsBySpeakerForYear.builder()
-                                .speakerId(speaker.getId())
+                                .speakerId(speakerId)
                                 .year(year)
                                 .reportTotal(amount)
                                 .build()));
@@ -77,7 +77,7 @@ public class SpeakerControllerTest {
                 .bindToController(speakerController)
                 .build()
                 .get()
-                .uri(String.format("/api/rest/speaker/%s/stat?year=%d", speaker.getId().toString(), year))
+                .uri(String.format("/api/rest/speaker/%s/stat?year=%d", speakerId.toString(), year))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(SpeakerStatResponseByYear.class).isEqualTo(expectedResponse);
@@ -85,18 +85,18 @@ public class SpeakerControllerTest {
 
     @Test
     public void testGetSpeakerRequestWithConference() {
-        final Speaker speaker = generateSpeaker();
+        final UUID speakerId = UUID.randomUUID();
         final String conferenceName = "test-conference";
         final long amount = 5L;
 
         final SpeakerStatResponseByConference expectedResponse = new SpeakerStatResponseByConference()
-                .setId(speaker.getId())
+                .setId(speakerId)
                 .setConferences(Map.of(conferenceName, amount));
 
-        when(reportStatsService.countSpeakerStatsForConference(speaker.getId(), conferenceName))
+        when(reportStatsService.countSpeakerStatsForConference(speakerId, conferenceName))
                 .thenReturn(Mono.just(
                         ReportStatsBySpeakerForConference.builder()
-                                .speakerId(speaker.getId())
+                                .speakerId(speakerId)
                                 .conferenceName(conferenceName)
                                 .reportTotal(amount)
                                 .build()));
@@ -105,7 +105,7 @@ public class SpeakerControllerTest {
                 .bindToController(speakerController)
                 .build()
                 .get()
-                .uri(String.format("/api/rest/speaker/%s/stat?conference_name=%s", speaker.getId().toString(), conferenceName))
+                .uri(String.format("/api/rest/speaker/%s/stat?conference_name=%s", speakerId.toString(), conferenceName))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(SpeakerStatResponseByConference.class).isEqualTo(expectedResponse);
@@ -114,7 +114,7 @@ public class SpeakerControllerTest {
 
     @Test
     public void testGetSpeakerStatRequestForAllYearsSuccess() {
-        final Speaker speaker = generateSpeaker();
+        final UUID speakerId = UUID.randomUUID();
         final int year1 = 1972;
         final long amount1 = 5L;
 
@@ -122,18 +122,18 @@ public class SpeakerControllerTest {
         final long amount2 = 15L;
 
         final SpeakerStatResponseByYear expectedResponse = new SpeakerStatResponseByYear()
-                .setId(speaker.getId())
+                .setId(speakerId)
                 .setYears(Map.of(year1, amount1, year2, amount2));
 
-        when(reportStatsService.countSpeakerStatsForYear(speaker.getId()))
+        when(reportStatsService.countSpeakerStatsForYear(speakerId))
                 .thenReturn(Flux.fromIterable(Arrays.asList(
                         ReportStatsBySpeakerForYear.builder()
-                                .speakerId(speaker.getId())
+                                .speakerId(speakerId)
                                 .year(year1)
                                 .reportTotal(amount1)
                                 .build(),
                         ReportStatsBySpeakerForYear.builder()
-                                .speakerId(speaker.getId())
+                                .speakerId(speakerId)
                                 .year(year2)
                                 .reportTotal(amount2)
                                 .build()
@@ -144,7 +144,7 @@ public class SpeakerControllerTest {
                 .bindToController(speakerController)
                 .build()
                 .get()
-                .uri(String.format("/api/rest/speaker/%s/stat/year", speaker.getId().toString()))
+                .uri(String.format("/api/rest/speaker/%s/stat/year", speakerId.toString()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(SpeakerStatResponseByYear.class).isEqualTo(expectedResponse);
@@ -152,7 +152,7 @@ public class SpeakerControllerTest {
 
     @Test
     public void testGetSpeakerStatRequestForAllConferencesSuccess() {
-        final Speaker speaker = generateSpeaker();
+        final UUID speakerId = UUID.randomUUID();
         final String conference1 = "testConference-1";
         final long amount1 = 5L;
 
@@ -160,18 +160,18 @@ public class SpeakerControllerTest {
         final long amount2 = 15L;
 
         final SpeakerStatResponseByConference expectedResponse = new SpeakerStatResponseByConference()
-                .setId(speaker.getId())
+                .setId(speakerId)
                 .setConferences(Map.of(conference1, amount1, conference2, amount2));
 
-        when(reportStatsService.countSpeakerStatsForConference(speaker.getId()))
+        when(reportStatsService.countSpeakerStatsForConference(speakerId))
                 .thenReturn(Flux.fromIterable(Arrays.asList(
                         ReportStatsBySpeakerForConference.builder()
-                                .speakerId(speaker.getId())
+                                .speakerId(speakerId)
                                 .conferenceName(conference1)
                                 .reportTotal(amount1)
                                 .build(),
                         ReportStatsBySpeakerForConference.builder()
-                                .speakerId(speaker.getId())
+                                .speakerId(speakerId)
                                 .conferenceName(conference2)
                                 .reportTotal(amount2)
                                 .build()
@@ -182,7 +182,7 @@ public class SpeakerControllerTest {
                 .bindToController(speakerController)
                 .build()
                 .get()
-                .uri(String.format("/api/rest/speaker/%s/stat/conference", speaker.getId().toString()))
+                .uri(String.format("/api/rest/speaker/%s/stat/conference", speakerId.toString()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(SpeakerStatResponseByConference.class).isEqualTo(expectedResponse);
@@ -190,33 +190,33 @@ public class SpeakerControllerTest {
 
     @Test
     public void testGetAllSpeakersStatByYearSuccess() {
-        final Speaker speaker1 = generateSpeaker();
-        final Speaker speaker2 = generateSpeaker();
+        final UUID speaker1Id = UUID.randomUUID();
+        final UUID speaker2Id = UUID.randomUUID();
 
 
         when(reportStatsService.countSpeakerStatsForYear()).thenReturn(Flux.fromIterable(Arrays.asList(
                 ReportStatsBySpeakerForYear.builder()
                         .year(1972)
-                        .speakerId(speaker1.getId())
+                        .speakerId(speaker1Id)
                         .reportTotal(2L)
                         .build(),
                 ReportStatsBySpeakerForYear.builder()
                         .year(1971)
-                        .speakerId(speaker1.getId())
+                        .speakerId(speaker1Id)
                         .reportTotal(5L)
                         .build(),
                 ReportStatsBySpeakerForYear.builder()
-                        .speakerId(speaker2.getId())
+                        .speakerId(speaker2Id)
                         .year(1973)
                         .reportTotal(4L)
                         .build(),
                 ReportStatsBySpeakerForYear.builder()
-                        .speakerId(speaker2.getId())
+                        .speakerId(speaker2Id)
                         .year(1972)
                         .reportTotal(1L)
                         .build(),
                 ReportStatsBySpeakerForYear.builder()
-                        .speakerId(speaker2.getId())
+                        .speakerId(speaker2Id)
                         .year(1975)
                         .reportTotal(9L)
                         .build()
@@ -224,45 +224,45 @@ public class SpeakerControllerTest {
 
         List<SpeakerStatResponseByYear> statResponses = Arrays.asList(
                 new SpeakerStatResponseByYear()
-                        .setId(speaker1.getId())
+                        .setId(speaker1Id)
                         .setYears(Map.of(1971, 5L, 1972, 2L)),
                 new SpeakerStatResponseByYear()
-                        .setId(speaker2.getId())
+                        .setId(speaker2Id)
                         .setYears(Map.of(1973, 4L, 1972, 1L, 1975, 9L))
         );
 
-        testGetListResponse(speakerController, "/api/rest/speaker/stat/year", statResponses, SpeakerStatResponseByYear.class);
+        testGetListResponse(speakerController, "/api/rest/speaker/stat/year", statResponses, SpeakerStatResponseByYear[].class);
     }
 
     @Test
     public void testGetAllSpeakersStatByConferenceSuccess() {
-        final Speaker speaker1 = generateSpeaker();
-        final Speaker speaker2 = generateSpeaker();
+        final UUID speaker1Id = UUID.randomUUID();
+        final UUID speaker2Id = UUID.randomUUID();
 
 
         when(reportStatsService.countSpeakerStatsForConference()).thenReturn(Flux.fromIterable(Arrays.asList(
                 ReportStatsBySpeakerForConference.builder()
                         .conferenceName("conference1")
-                        .speakerId(speaker1.getId())
+                        .speakerId(speaker1Id)
                         .reportTotal(2L)
                         .build(),
                 ReportStatsBySpeakerForConference.builder()
                         .conferenceName("1971")
-                        .speakerId(speaker1.getId())
+                        .speakerId(speaker1Id)
                         .reportTotal(5L)
                         .build(),
                 ReportStatsBySpeakerForConference.builder()
-                        .speakerId(speaker2.getId())
+                        .speakerId(speaker2Id)
                         .conferenceName("test-1973")
                         .reportTotal(4L)
                         .build(),
                 ReportStatsBySpeakerForConference.builder()
-                        .speakerId(speaker2.getId())
+                        .speakerId(speaker2Id)
                         .conferenceName("conference1")
                         .reportTotal(1L)
                         .build(),
                 ReportStatsBySpeakerForConference.builder()
-                        .speakerId(speaker2.getId())
+                        .speakerId(speaker2Id)
                         .conferenceName("conference2")
                         .reportTotal(9L)
                         .build()
@@ -270,12 +270,12 @@ public class SpeakerControllerTest {
 
         List<SpeakerStatResponseByConference> statResponses = Arrays.asList(
                 new SpeakerStatResponseByConference()
-                        .setId(speaker1.getId())
+                        .setId(speaker1Id)
                         .setConferences(Map.of("1971", 5L, "conference1", 2L)),
                 new SpeakerStatResponseByConference()
-                        .setId(speaker2.getId())
+                        .setId(speaker2Id)
                         .setConferences(Map.of("test-1973", 4L, "conference1", 1L, "conference2", 9L))
         );
-        testGetListResponse(speakerController, "/api/rest/speaker/stat/conference", statResponses, SpeakerStatResponseByConference.class);
+        testGetListResponse(speakerController, "/api/rest/speaker/stat/conference", statResponses, SpeakerStatResponseByConference[].class);
     }
 }

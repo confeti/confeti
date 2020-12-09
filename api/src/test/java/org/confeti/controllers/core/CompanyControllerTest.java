@@ -139,7 +139,7 @@ public class CompanyControllerTest {
 
         when(companyService.findAll()).thenReturn(Flux.fromIterable(companies));
 
-        testGetListResponse(companyController, "/api/rest/company", companies, Company.class);
+        testGetListResponse(companyController, "/api/rest/company", companies, Company[].class);
         verify(companyService).findAll();
     }
 
@@ -185,6 +185,6 @@ public class CompanyControllerTest {
                         .setYears(Map.of(1973, 4L, 1972, 1L, 1975, 9L))
         );
 
-        testGetListResponse(companyController, "/api/rest/company/stat", statResponses, CompanyStatResponse.class);
+        testGetListResponse(companyController, "/api/rest/company/stat", statResponses, CompanyStatResponse[].class);
     }
 }
