@@ -1,4 +1,4 @@
-package org.confeti.controllers.dto.receiver;
+package org.confeti.controllers.dto.core;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

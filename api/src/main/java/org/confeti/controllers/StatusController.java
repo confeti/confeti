@@ -19,7 +19,7 @@ public class StatusController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Mono<Status> statusRoute() {
+    public Mono<Status> status() {
         return Mono.just(Status.SUCCESS);
     }
 }

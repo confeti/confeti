@@ -19,13 +19,6 @@ public final class StatisticControllerUtils {
         throw new AssertionError();
     }
 
-    public static Mono<ResponseEntity<?>> handleBaseGetRequest(final Flux<?> flux) {
-        return flux
-                .collectList()
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
-    }
-
     public static <T extends ReportStats, K> Mono<ResponseEntity<?>> handleSpecifiedRequest(
             final Flux<T> elements,
             final Function<T, K> keyMapper,
