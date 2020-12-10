@@ -135,10 +135,10 @@ public final class TestUtil {
     public static Speaker.ContactInfo.SpeakerCompany generateSpeakerCompany() {
         final var company = generateCompany();
         return Speaker.ContactInfo.SpeakerCompany.builder()
-               .addedDate(Instant.ofEpochMilli(Instant.now().toEpochMilli()))
-               .name(company.getName())
-               .year(generateYear())
-               .build();
+                .addedDate(Instant.ofEpochMilli(Instant.now().toEpochMilli()))
+                .name(company.getName())
+                .year(generateYear())
+                .build();
     }
 
     @NotNull
