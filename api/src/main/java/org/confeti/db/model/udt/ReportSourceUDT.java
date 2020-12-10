@@ -30,6 +30,8 @@ public class ReportSourceUDT implements Serializable {
     public static final String REPORT_SOURCE_ATT_PRES_URL = "presentation_url";
     public static final String REPORT_SOURCE_ATT_REPO_URL = "repo_url";
     public static final String REPORT_SOURCE_ATT_VIDEO_URL = "video_url";
+    public static final String REPORT_SOURCE_ATT_TALK_URL = "talk_url";
+    public static final String REPORT_SOURCE_ATT_ARTICLE_URL = "article_url";
 
     @CqlName(REPORT_SOURCE_ATT_PRES_URL)
     private String presentationUrl;
@@ -40,12 +42,20 @@ public class ReportSourceUDT implements Serializable {
     @CqlName(REPORT_SOURCE_ATT_VIDEO_URL)
     private String videoUrl;
 
+    @CqlName(REPORT_SOURCE_ATT_TALK_URL)
+    private String talkUrl;
+
+    @CqlName(REPORT_SOURCE_ATT_ARTICLE_URL)
+    private String articleUrl;
+
     @NotNull
     public static ReportSourceUDT from(@NotNull final ReportSource source) {
         return ReportSourceUDT.builder()
                 .presentationUrl(source.getPresentation())
                 .videoUrl(source.getVideo())
                 .repoUrl(source.getRepo())
+                .talkUrl(source.getTalk())
+                .articleUrl(source.getArticle())
                 .build();
     }
 
@@ -55,6 +65,8 @@ public class ReportSourceUDT implements Serializable {
                 .presentationUrl(source.getPresentationUrl())
                 .videoUrl(source.getVideoUrl())
                 .repoUrl(source.getRepoUrl())
+                .talkUrl(source.getTalkUrl())
+                .articleUrl(source.getArticleUrl())
                 .build();
     }
 }

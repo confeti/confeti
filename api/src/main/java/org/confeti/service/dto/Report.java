@@ -196,12 +196,18 @@ public class Report implements Serializable {
 
         String video;
 
+        String talk;
+
+        String article;
+
         @NotNull
         public static ReportSource from(@NotNull final ReportSourceUDT source) {
             return ReportSource.builder()
                     .presentation(source.getPresentationUrl())
                     .video(source.getVideoUrl())
                     .repo(source.getRepoUrl())
+                    .talk(source.getTalkUrl())
+                    .article(source.getArticleUrl())
                     .build();
         }
 
@@ -211,6 +217,8 @@ public class Report implements Serializable {
                     .presentation(source.getPresentation())
                     .video(source.getVideo())
                     .repo(source.getRepo())
+                    .talk(source.getTalk())
+                    .article(source.getArticle())
                     .build();
         }
     }

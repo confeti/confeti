@@ -30,6 +30,8 @@ CREATE TYPE IF NOT EXISTS report_source (
     presentation_url text,
     repo_url text,
     video_url text,
+    talk_url text,
+    article_url text
 );
 
 CREATE TYPE IF NOT EXISTS conference_short_info (
