@@ -14,6 +14,9 @@ import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_BIO;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_CONTACT_INFO;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_ID;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_NAME;
+import static org.confeti.db.model.udt.ComplexityUDT.COMPLEXITY_UDT;
+import static org.confeti.db.model.udt.ComplexityUDT.COMPLEXITY_UDT_ATT_DESCRIPTION;
+import static org.confeti.db.model.udt.ComplexityUDT.COMPLEXITY_UDT_ATT_VALUE;
 import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONF_SHORT_INFO_UDT;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_COMPANIES;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_EMAIL;
@@ -153,6 +156,23 @@ public interface BaseMapper {
                 .withField(SPEAKER_ATT_BIO, DataTypes.TEXT)
                 .withField(SPEAKER_ATT_CONTACT_INFO, udt(CONTACT_INFO_UDT, true))
                 .withField(SPEAKER_ATT_NAME, DataTypes.TEXT)
+                .build());
+    }
+
+    /**
+     * Create the <i>complexity</i> UDT.
+     *
+     * <pre>
+     * CREATE TYPE IF NOT EXISTS complexity (
+     *     value int,
+     *     description text,
+     * );
+     * </pre>
+     */
+    default void createComplexityUDT(@NotNull final CqlSession cqlSession) {
+        cqlSession.execute(createType(COMPLEXITY_UDT).ifNotExists()
+                .withField(COMPLEXITY_UDT_ATT_VALUE, DataTypes.INT)
+                .withField(COMPLEXITY_UDT_ATT_DESCRIPTION, DataTypes.TEXT)
                 .build());
     }
 }

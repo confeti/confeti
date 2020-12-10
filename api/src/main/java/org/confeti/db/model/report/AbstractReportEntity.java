@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.db.model.udt.ComplexityUDT;
 import org.confeti.db.model.udt.ReportSourceUDT;
 
 import java.io.Serializable;
@@ -32,7 +33,7 @@ public abstract class AbstractReportEntity implements Serializable {
     protected String title;
 
     @CqlName(REPORT_ATT_COMPLEXITY)
-    protected Integer complexity;
+    protected ComplexityUDT complexity;
 
     /**
      * An ISO 639 alpha-2 or alpha-3 language code.
