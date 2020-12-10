@@ -1,16 +1,16 @@
 {
-  "version": "0.0.2.2",
+  "version": "0.0.3",
   "availability_api_uri_endpoint": "/api/rest/status",
   "release_uri": "https://api.github.com/repos/confeti/confeti/releases/latest",
   "check_time": 900,
   "docker_images": [
     {
       "image": "confeti/api",
-      "tag": "latest"
+      "tag": "v0.0.3"
     },
     {
       "image": "confeti/web",
-      "tag": "latest"
+      "tag": "v0.0.3"
     }
   ]
 }
