@@ -40,6 +40,7 @@ import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_SPEAKERS;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_TAGS;
 import static org.confeti.db.model.report.ReportEntity.REPORT_TABLE;
 import static org.confeti.db.model.report.ReportEntity.REPORT_TITLE_INDEX;
+import static org.confeti.db.model.udt.ComplexityUDT.COMPLEXITY_UDT;
 import static org.confeti.db.model.udt.ConferenceShortInfoUDT.CONF_SHORT_INFO_UDT;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_UDT;
 import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_UDT;
@@ -69,7 +70,7 @@ public interface ReportDaoMapper extends BaseMapper {
      * <pre>
      * CREATE TABLE IF NOT EXISTS report (
      *     id uuid,
-     *     complexity int,
+     *     complexity frozen&lt;complexity&gt,
      *     conferences set&lt;frozen&lt;conference_short_info&gt;&gt;,
      *     description text,
      *     language text,
@@ -85,9 +86,10 @@ public interface ReportDaoMapper extends BaseMapper {
         createConferenceShortInfoUDT(cqlSession);
         createReportSourceUDT(cqlSession);
         createSpeakerFullInfoUDT(cqlSession);
+        createComplexityUDT(cqlSession);
         cqlSession.execute(createTable(REPORT_TABLE).ifNotExists()
                 .withPartitionKey(REPORT_ATT_ID, DataTypes.UUID)
-                .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
+                .withColumn(REPORT_ATT_COMPLEXITY, udt(COMPLEXITY_UDT, true))
                 .withColumn(REPORT_ATT_CONFERENCES, DataTypes.setOf(udt(CONF_SHORT_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_DESCRIPTION, DataTypes.TEXT)
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
@@ -112,7 +114,7 @@ public interface ReportDaoMapper extends BaseMapper {
      *     year int,
      *     title text,
      *     id uuid,
-     *     complexity int,
+     *     complexity frozen&lt;complexity&gt;,
      *     language text,
      *     source frozen&lt;report_source&gt;,
      *     speakers set&lt;frozen&lt;speaker_short_info&gt;&gt;,
@@ -124,12 +126,13 @@ public interface ReportDaoMapper extends BaseMapper {
     default void createReportByConferenceTable(@NotNull final CqlSession cqlSession) {
         createReportSourceUDT(cqlSession);
         createSpeakerShortInfoUDT(cqlSession);
+        createComplexityUDT(cqlSession);
         cqlSession.execute(createTable(REPORT_BY_CONF_TABLE).ifNotExists()
                 .withPartitionKey(REPORT_BY_CONF_ATT_CONF_NAME, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_BY_CONF_ATT_YEAR, DataTypes.INT)
                 .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_ATT_ID, DataTypes.UUID)
-                .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
+                .withColumn(REPORT_ATT_COMPLEXITY, udt(COMPLEXITY_UDT, true))
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
                 .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))
                 .withColumn(REPORT_ATT_SPEAKERS, DataTypes.setOf(udt(SPEAKER_SHORT_INFO_UDT, true)))
@@ -149,7 +152,7 @@ public interface ReportDaoMapper extends BaseMapper {
      *     year int,
      *     title text,
      *     id uuid,
-     *     complexity int,
+     *     complexity frozen&lt;complexity&gt,
      *     conferences set&lt;frozen&lt;conference_short_info&gt;&gt;,
      *     description text,
      *     language text,
@@ -162,12 +165,13 @@ public interface ReportDaoMapper extends BaseMapper {
     default void createReportBySpeakerTable(@NotNull final CqlSession cqlSession) {
         createConferenceShortInfoUDT(cqlSession);
         createReportSourceUDT(cqlSession);
+        createComplexityUDT(cqlSession);
         cqlSession.execute(createTable(REPORT_BY_SPEAKER_TABLE).ifNotExists()
                 .withPartitionKey(REPORT_BY_SPEAKER_ATT_SPEAKER_ID, DataTypes.UUID)
                 .withClusteringColumn(REPORT_BY_SPEAKER_ATT_YEAR, DataTypes.INT)
                 .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_ATT_ID, DataTypes.UUID)
-                .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
+                .withColumn(REPORT_ATT_COMPLEXITY, udt(COMPLEXITY_UDT, true))
                 .withColumn(REPORT_ATT_CONFERENCES, DataTypes.setOf(udt(CONF_SHORT_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_DESCRIPTION, DataTypes.TEXT)
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
@@ -187,7 +191,7 @@ public interface ReportDaoMapper extends BaseMapper {
      *     tag_name text,
      *     title text,
      *     id uuid,
-     *     complexity int,
+     *     complexity frozen&lt;complexity&gt,
      *     conferences set&lt;frozen&lt;conference_short_info&gt;&gt;,
      *     language text,
      *     source frozen&lt;report_source&gt;,
@@ -200,11 +204,12 @@ public interface ReportDaoMapper extends BaseMapper {
         createConferenceShortInfoUDT(cqlSession);
         createReportSourceUDT(cqlSession);
         createSpeakerShortInfoUDT(cqlSession);
+        createComplexityUDT(cqlSession);
         cqlSession.execute(createTable(REPORT_BY_TAG_TABLE).ifNotExists()
                 .withPartitionKey(REPORT_BY_TAG_ATT_TAG_NAME, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_ATT_ID, DataTypes.UUID)
-                .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
+                .withColumn(REPORT_ATT_COMPLEXITY, udt(COMPLEXITY_UDT, true))
                 .withColumn(REPORT_ATT_CONFERENCES, DataTypes.setOf(udt(CONF_SHORT_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
                 .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))
@@ -221,7 +226,7 @@ public interface ReportDaoMapper extends BaseMapper {
      *     year int,
      *     title text,
      *     id uuid,
-     *     complexity int,
+     *     complexity frozen&lt;complexity&gt,
      *     conferences set&lt;frozen&lt;conference_short_info&gt;&gt;,
      *     language text,
      *     source frozen&lt;report_source&gt;,
@@ -235,12 +240,13 @@ public interface ReportDaoMapper extends BaseMapper {
         createConferenceShortInfoUDT(cqlSession);
         createReportSourceUDT(cqlSession);
         createSpeakerShortInfoUDT(cqlSession);
+        createComplexityUDT(cqlSession);
         cqlSession.execute(createTable(REPORT_BY_COMPANY_TABLE).ifNotExists()
                 .withPartitionKey(REPORT_BY_COMPANY_ATT_COMPANY_NAME, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_BY_COMPANY_ATT_YEAR, DataTypes.INT)
                 .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
                 .withClusteringColumn(REPORT_ATT_ID, DataTypes.UUID)
-                .withColumn(REPORT_ATT_COMPLEXITY, DataTypes.INT)
+                .withColumn(REPORT_ATT_COMPLEXITY, udt(COMPLEXITY_UDT, true))
                 .withColumn(REPORT_ATT_CONFERENCES, DataTypes.setOf(udt(CONF_SHORT_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_LANGUAGE, DataTypes.TEXT)
                 .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))

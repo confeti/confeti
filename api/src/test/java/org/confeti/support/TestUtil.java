@@ -42,7 +42,6 @@ public final class TestUtil {
     private static final String REPORT_TAG_PREFIX = "tag";
 
     private static final List<String> LANGUAGES = List.of("ru", "en");
-    private static final List<Report.Complexity> COMPLEXITIES = List.of(Report.Complexity.values());
 
     private static final int minYear = 2013;
     private static final int maxYear = 2020;
@@ -104,12 +103,18 @@ public final class TestUtil {
 
     @NotNull
     public static Report.Complexity generateComplexity() {
-        return COMPLEXITIES.get(ThreadLocalRandom.current().nextInt(COMPLEXITIES.size()));
+        return Report.Complexity.builder()
+                .value(ThreadLocalRandom.current().nextInt(0, 5))
+                .description(RandomStringUtils.randomAlphabetic(5))
+                .build();
     }
 
     @NotNull
     public static Report.Complexity updateComplexity(@NotNull final Report.Complexity complexity) {
-        return COMPLEXITIES.get((COMPLEXITIES.indexOf(complexity) + 1) % COMPLEXITIES.size());
+        return Report.Complexity.builder()
+                .value(complexity.getValue() - 1)
+                .description(complexity.getDescription() + RandomStringUtils.randomAlphabetic(5))
+                .build();
     }
 
     @NotNull

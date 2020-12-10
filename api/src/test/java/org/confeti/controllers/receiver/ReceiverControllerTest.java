@@ -6,6 +6,7 @@ import org.confeti.service.ConferenceService;
 import org.confeti.service.ReportService;
 import org.confeti.service.dto.Conference;
 import org.confeti.service.dto.Report;
+import org.confeti.support.TestUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.testcontainers.shaded.com.google.common.collect.Sets;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -75,7 +77,8 @@ public class ReceiverControllerTest {
     @Test
     public void testPostRouterOkResponseOnConferenceAndReportsBody() {
         Conference conference = Conference.builder("aaa", 1970).build();
-        Report report = Report.builder("").build();
+        Report report = TestUtil.generateReport(1, 1, 1);
+        report.setConferences(Sets.newHashSet(conference));
         when(reportService.upsert(any())).thenReturn(Mono.just(report));
         when(conferenceService.upsert(any())).thenReturn(Mono.just(conference));
 

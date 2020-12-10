@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.confeti.db.model.udt.ComplexityUDT;
 import org.confeti.db.model.udt.ConferenceShortInfoUDT;
 import org.confeti.db.model.udt.ReportSourceUDT;
 import org.confeti.db.model.udt.SpeakerShortInfoUDT;
@@ -31,6 +32,7 @@ import static org.confeti.util.EntityUtil.updateValue;
 @Entity
 @CqlName(ReportByCompanyEntity.REPORT_BY_COMPANY_TABLE)
 public class ReportByCompanyEntity extends AbstractReportEntity {
+
     private static final long serialVersionUID = 1L;
 
     public static final String REPORT_BY_COMPANY_TABLE = "report_by_company";
@@ -75,7 +77,7 @@ public class ReportByCompanyEntity extends AbstractReportEntity {
                 .year(year)
                 .id(report.getId())
                 .title(report.getTitle())
-                .complexity(report.getComplexity().getValue())
+                .complexity(updateValue(report.getComplexity(), ComplexityUDT::from))
                 .language(report.getLanguage())
                 .source(updateValue(report.getSource(), ReportSourceUDT::from))
                 .conferences(updateValue(

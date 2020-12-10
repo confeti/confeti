@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS report_stats_by_speaker_for_year;
 DROP TABLE IF EXISTS report_stats_by_speaker_for_conference;
 DROP TABLE IF EXISTS report_stats_by_company;
 DROP TYPE IF EXISTS speaker_company;
+DROP TYPE IF EXISTS complexity;
 DROP TYPE IF EXISTS report_source;
 DROP TYPE IF EXISTS conference_short_info;
 DROP TYPE IF EXISTS contact_info;
@@ -58,6 +59,11 @@ CREATE TYPE IF NOT EXISTS speaker_full_info (
     name text
 );
 
+CREATE TYPE IF NOT EXISTS complexity (
+    value int,
+    description text,
+);
+
 CREATE TABLE IF NOT EXISTS conference (
     name text,
     year int,
@@ -82,7 +88,7 @@ CREATE INDEX IF NOT EXISTS report_title_idx ON report(title);
 
 CREATE TABLE IF NOT EXISTS report (
     id uuid,
-    complexity int,
+    complexity frozen<complexity>,
     conferences set<frozen<conference_short_info>>,
     description text,
     language text,
@@ -123,7 +129,7 @@ CREATE TABLE IF NOT EXISTS report_by_tag (
     tag_name text,
     title text,
     id uuid,
-    complexity int,
+    complexity frozen<complexity>,
     conferences set<frozen<conference_short_info>>,
     language text,
     source frozen<report_source>,
@@ -136,7 +142,7 @@ CREATE TABLE IF NOT EXISTS report_by_conference (
     year int,
     title text,
     id uuid,
-    complexity int,
+    complexity frozen<complexity>,
     language text,
     source frozen<report_source>,
     speakers set<frozen<speaker_short_info>>,
@@ -149,7 +155,7 @@ CREATE TABLE IF NOT EXISTS report_by_speaker (
     year int,
     title text,
     id uuid,
-    complexity int,
+    complexity frozen<complexity>,
     conferences set<frozen<conference_short_info>>,
     description text,
     language text,
@@ -163,7 +169,7 @@ CREATE TABLE IF NOT EXISTS report_by_company (
     year int,
     title text,
     id uuid,
-    complexity int,
+    complexity frozen<complexity>,
     conferences set<frozen<conference_short_info>>,
     language text,
     source frozen<report_source>,

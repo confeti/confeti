@@ -1,7 +1,6 @@
 package org.confeti.service.dto;
 
 import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,6 +15,7 @@ import org.confeti.db.model.report.ReportByConferenceEntity;
 import org.confeti.db.model.report.ReportBySpeakerEntity;
 import org.confeti.db.model.report.ReportByTagEntity;
 import org.confeti.db.model.report.ReportEntity;
+import org.confeti.db.model.udt.ComplexityUDT;
 import org.confeti.db.model.udt.ReportSourceUDT;
 import org.jetbrains.annotations.NotNull;
 
@@ -175,7 +175,7 @@ public class Report implements Serializable {
     @NotNull
     private static ReportBuilder fillCommonFields(@NotNull final AbstractReportEntity report) {
         return Report.builder(report.getId(), report.getTitle())
-                .complexity(updateValue(report.getComplexity(), Complexity::valueOf))
+                .complexity(updateValue(report.getComplexity(), Complexity::from))
                 .language(report.getLanguage())
                 .source(updateValue(report.getSource(), ReportSource::from));
 
@@ -215,46 +215,33 @@ public class Report implements Serializable {
         }
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum Complexity {
-        INTRODUCTION_TO_TECHNOLOGY(0, "Introduction to technology"),
-        FOR_PRACTICING_ENGINEERS(1, "For practicing engineers"),
-        HARDCORE(2, "Hardcore"),
-        ACADEMIC_TALK(3, "Academic talk");
+    @Accessors(chain = true)
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static final class Complexity implements Serializable {
 
-        private final int value;
+        private static final long serialVersionUID = 1L;
 
-        @NotNull
-        private final String description;
+        private int value;
 
-        Complexity(final int value,
-                   @NotNull final String description) {
-            this.value = value;
-            this.description = description;
-        }
-
-        public int getValue() {
-            return value;
-        }
+        private String description;
 
         @NotNull
-        public String getDescription() {
-            return description;
+        public static Complexity from(@NotNull final ComplexityUDT complexity) {
+            return Complexity.builder()
+                    .value(complexity.getValue())
+                    .description(complexity.getDescription())
+                    .build();
         }
 
-        public static Complexity valueOf(final int value) {
-            switch (value) {
-                case 0:
-                    return INTRODUCTION_TO_TECHNOLOGY;
-                case 1:
-                    return FOR_PRACTICING_ENGINEERS;
-                case 2:
-                    return HARDCORE;
-                case 3:
-                    return ACADEMIC_TALK;
-                default:
-                    throw new IllegalArgumentException("Unexpected value: " + value);
-            }
+        @NotNull
+        public static Complexity from(@NotNull final Complexity complexity) {
+            return Complexity.builder()
+                    .value(complexity.getValue())
+                    .description(complexity.getDescription())
+                    .build();
         }
     }
 }
