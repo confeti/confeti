@@ -72,7 +72,7 @@ public class ConferenceController {
 
     @GetMapping(path = "/stat")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequest() {
+    public Flux<ConferenceStatResponse> handleStatRequest() {
         return handleForAllRequest(reportStatsService.countConferenceStats(),
                 ReportStatsByConference::getConferenceName,
                 groupedFlux -> groupedFlux.collectMap(ReportStatsByConference::getYear, ReportStatsByConference::getReportTotal),
@@ -83,7 +83,7 @@ public class ConferenceController {
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Mono<ResponseEntity<Status>> handlePost(@RequestBody final InputData inputData) {
+    public Mono<ResponseEntity<Status>> handleSaveConference(@RequestBody final InputData inputData) {
         return Mono.justOrEmpty(inputData.getConference())
                 .switchIfEmpty(Mono.error(new RuntimeException("Conference couldn't be empty")))
                 .flatMapIterable(ign -> Objects.requireNonNullElse(inputData.getReports(), Collections.emptyList()))
@@ -94,5 +94,4 @@ public class ConferenceController {
                 .thenReturn(ResponseEntity.ok(Status.SUCCESS))
                 .onErrorReturn(ResponseEntity.badRequest().body(Status.FAIL));
     }
-
 }

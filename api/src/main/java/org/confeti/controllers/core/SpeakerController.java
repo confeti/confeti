@@ -92,7 +92,7 @@ public class SpeakerController {
 
     @GetMapping(path = "/stat/year")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestYears() {
+    public Flux<SpeakerStatResponseByYear> handleStatRequestYears() {
         return handleForAllRequest(
                 reportStatsService.countSpeakerStatsForYear(),
                 ReportStatsBySpeakerForYear::getSpeakerId,
@@ -104,7 +104,7 @@ public class SpeakerController {
 
     @GetMapping(path = "/stat/conference")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestConference() {
+    public Flux<SpeakerStatResponseByConference> handleStatRequestConference() {
         return handleForAllRequest(
                 reportStatsService.countSpeakerStatsForConference(),
                 ReportStatsBySpeakerForConference::getSpeakerId,

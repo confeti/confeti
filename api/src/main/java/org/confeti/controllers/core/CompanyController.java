@@ -58,7 +58,7 @@ public class CompanyController {
 
     @GetMapping(path = "/stat")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequest() {
+    public Flux<CompanyStatResponse> handleStatRequest() {
         return handleForAllRequest(reportStatsService.countCompanyStats(),
                 ReportStatsByCompany::getCompanyName,
                 groupedFlux -> groupedFlux.collectMap(ReportStatsByCompany::getYear, ReportStatsByCompany::getReportTotal),
