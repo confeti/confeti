@@ -45,11 +45,15 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
     @NotNull
     protected <T> Mono<D> upsert(@NotNull final Mono<D> savedEntityDto,
                                  @NotNull final Function<D, Mono<T>> getEntityBy,
-                                 @NotNull final BaseDao<T> entityByDao) {
+                                 @NotNull final BaseDao<T> entityByDao,
+                                 @NotNull final Function<D, Mono<T>> findEntityBy) {
         return Mono.from(savedEntityDto)
                 .flatMap(dto -> getEntityBy.apply(dto).zipWith(Mono.just(dto)))
                 .flatMap(TupleUtils.function((entityBy, dto) ->
-                        Mono.from(entityByDao.upsert(entityBy))
+                        Mono.from(findEntityBy.apply(dto)).hasElement()
+                                .flatMap(isEntityByDaoExist -> isEntityByDaoExist
+                                        ? Mono.from(entityByDao.upsert(entityBy))
+                                        : Mono.from(entityByDao.insert(entityBy)))
                                 .then(Mono.just(dto))));
     }
 
@@ -62,8 +66,7 @@ public abstract class AbstractEntityService<E extends BaseEntity<E>, D, R extend
     @NotNull
     protected static <T> Mono<Set<T>> upsertMany(@NotNull final Set<T> entities,
                                                  @NotNull final Function<T, Mono<T>> upsert) {
-        return Mono.just(entities)
-                .flatMapMany(Flux::fromIterable)
+        return Flux.fromIterable(entities)
                 .flatMap(upsert)
                 .collectList()
                 .map(Sets::newHashSet);

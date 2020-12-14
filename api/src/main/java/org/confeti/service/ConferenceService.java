@@ -51,7 +51,8 @@ public class ConferenceService extends AbstractEntityService<ConferenceEntity, C
                 upsert(conference),
                 sp -> speakerService.findBy(speakerId)
                         .map(speaker -> ConferenceBySpeakerEntity.from(speaker.getId(), conference)),
-                conferenceBySpeakerDao);
+                conferenceBySpeakerDao,
+                conf -> Mono.from(conferenceBySpeakerDao.findBySpeakerIdForYear(speakerId, conf.getYear())));
     }
 
     @NotNull
@@ -61,7 +62,8 @@ public class ConferenceService extends AbstractEntityService<ConferenceEntity, C
                 upsert(conference).map(Conference::from),
                 sp -> speakerService.findBy(speakerId)
                         .map(speaker -> ConferenceBySpeakerEntity.from(speaker.getId(), conference)),
-                conferenceBySpeakerDao);
+                conferenceBySpeakerDao,
+                conf -> Mono.from(conferenceBySpeakerDao.findBySpeakerIdForYear(speakerId, conf.getYear())));
     }
 
     @NotNull

@@ -68,7 +68,8 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
                 upsert(speaker),
                 sp -> conferenceService.findBy(conferenceName, year)
                         .map(conference -> SpeakerByConferenceEntity.from(conference.getName(), year, sp)),
-                speakerByConferenceDao);
+                speakerByConferenceDao,
+                sp -> Mono.from(speakerByConferenceDao.findById(conferenceName, year, sp.getName(), sp.getId())));
     }
 
     @NotNull
@@ -79,14 +80,15 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
                 upsert(speaker).map(Speaker::from),
                 sp -> conferenceService.findBy(conferenceName, year)
                         .map(conference -> SpeakerByConferenceEntity.from(conference.getName(), year, sp)),
-                speakerByConferenceDao);
+                speakerByConferenceDao,
+                sp -> Mono.from(speakerByConferenceDao.findById(conferenceName, year, sp.getName(), sp.getId())));
     }
 
     @NotNull
     private Mono<Speaker> upsertCompany(@NotNull final Speaker speaker) {
         final var companyName = speaker.getContactInfo() == null || speaker.getContactInfo().getCompany() == null
-                ? Optional.<String>empty()
-                : Optional.ofNullable(speaker.getContactInfo().getCompany().getName());
+                ? null
+                : speaker.getContactInfo().getCompany().getName();
         return Mono.justOrEmpty(companyName)
                 .flatMap(company -> companyService.upsert(Company.builder(company).build()))
                 .then(Mono.just(speaker));

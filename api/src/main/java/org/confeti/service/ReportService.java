@@ -90,7 +90,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
                 upsert(report),
                 rep -> conferenceService.findBy(conferenceName, year)
                         .map(conf -> ReportByConferenceEntity.from(conf.getName(), conf.getYear(), rep)),
-                reportByConferenceDao);
+                reportByConferenceDao,
+                rep -> Mono.from(reportByConferenceDao.findById(conferenceName, year, rep.getTitle(), rep.getId())));
     }
 
     @NotNull
@@ -101,7 +102,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
                 upsert(report).map(Report::from),
                 rep -> conferenceService.findBy(conferenceName, year)
                         .map(conf -> ReportByConferenceEntity.from(conf.getName(), conf.getYear(), rep)),
-                reportByConferenceDao);
+                reportByConferenceDao,
+                rep -> Mono.from(reportByConferenceDao.findById(conferenceName, year, rep.getTitle(), rep.getId())));
     }
 
     @NotNull
@@ -112,7 +114,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
                 upsert(report),
                 rep -> speakerService.findBy(speakerId)
                         .map(speaker -> ReportBySpeakerEntity.from(speaker.getId(), year, rep)),
-                reportBySpeakerDao);
+                reportBySpeakerDao,
+                rep -> Mono.from(reportBySpeakerDao.findById(speakerId, year, rep.getTitle(), rep.getId())));
     }
 
     @NotNull
@@ -123,7 +126,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
                 upsert(report).map(Report::from),
                 rep -> speakerService.findBy(speakerId)
                         .map(speaker -> ReportBySpeakerEntity.from(speaker.getId(), year, rep)),
-                reportBySpeakerDao);
+                reportBySpeakerDao,
+                rep -> Mono.from(reportBySpeakerDao.findById(speakerId, year, rep.getTitle(), rep.getId())));
     }
 
     @NotNull
@@ -132,7 +136,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
         return upsert(
                 upsert(report),
                 rep -> Mono.just(ReportByTagEntity.from(tagName, rep)),
-                reportByTagDao);
+                reportByTagDao,
+                rep -> Mono.from(reportByTagDao.findById(tagName, rep.getTitle(), rep.getId())));
     }
 
     @NotNull
@@ -141,7 +146,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
         return upsert(
                 upsert(report).map(Report::from),
                 rep -> Mono.just(ReportByTagEntity.from(tagName, rep)),
-                reportByTagDao);
+                reportByTagDao,
+                rep -> Mono.from(reportByTagDao.findById(tagName, rep.getTitle(), rep.getId())));
     }
 
     @NotNull
@@ -151,7 +157,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
         return upsert(
                 upsert(report),
                 rep -> Mono.just(ReportByCompanyEntity.from(companyName, year, rep)),
-                reportByCompanyDao);
+                reportByCompanyDao,
+                rep -> Mono.from(reportByCompanyDao.findById(companyName, year, rep.getTitle(), rep.getId())));
     }
 
     @NotNull
@@ -161,7 +168,8 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
         return upsert(
                 upsert(report).map(Report::from),
                 rep -> Mono.just(ReportByCompanyEntity.from(companyName, year, rep)),
-                reportByCompanyDao);
+                reportByCompanyDao,
+                rep -> Mono.from(reportByCompanyDao.findById(companyName, year, rep.getTitle(), rep.getId())));
     }
 
     @NotNull
@@ -169,9 +177,9 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
         return findByTitle(report.getTitle())
                 .filter(report::compareBySpeakers)
                 .collectList()
-                .map(foundSpeakers -> {
-                    if (!foundSpeakers.isEmpty()) {
-                        report.setId(foundSpeakers.get(0).getId());
+                .map(filteredReports -> {
+                    if (!filteredReports.isEmpty()) {
+                        report.setId(filteredReports.get(0).getId());
                     }
                     return report;
                 });
