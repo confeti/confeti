@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetElement.UDT;
-import static org.confeti.util.EntityUtil.updateValue;
+import static org.confeti.util.EntityUtil.convertValue;
 
 @Data
 @NoArgsConstructor
@@ -38,8 +38,9 @@ public class ContactInfoUDT implements Serializable {
     public static final String CONTACT_INFO_ATT_LOCATION = "location";
     public static final String CONTACT_INFO_ATT_TWITTER = "twitter_username";
 
+    @Builder.Default
     @CqlName(CONTACT_INFO_ATT_COMPANIES)
-    private Set<SpeakerCompanyUDT> companies;
+    private Set<SpeakerCompanyUDT> companies = Sets.newHashSet();
 
     @CqlName(CONTACT_INFO_ATT_EMAIL)
     private String email;
@@ -54,11 +55,7 @@ public class ContactInfoUDT implements Serializable {
         final var newCompanies = companiesUDT.stream()
                 .map(SpeakerCompanyUDT::from)
                 .collect(Collectors.toSet());
-        if (companies == null) {
-            companies = Sets.newHashSet(newCompanies);
-        } else {
-            companies.addAll(newCompanies);
-        }
+        companies.addAll(newCompanies);
     }
 
     @NotNull
@@ -68,7 +65,10 @@ public class ContactInfoUDT implements Serializable {
                 .email(contactInfo.getEmail())
                 .location(contactInfo.getLocation())
                 .twitterUsername(contactInfo.getTwitterUsername())
-                .companies(updateValue(company, c -> Sets.newHashSet(SpeakerCompanyUDT.from(c))))
+                .companies(convertValue(
+                        company,
+                        Sets.newHashSet(),
+                        c -> Sets.newHashSet(SpeakerCompanyUDT.from(c))))
                 .build();
     }
 
@@ -78,11 +78,9 @@ public class ContactInfoUDT implements Serializable {
                 .email(contactInfo.getEmail())
                 .location(contactInfo.getLocation())
                 .twitterUsername(contactInfo.getTwitterUsername())
-                .companies(updateValue(
-                        contactInfo.getCompanies(),
-                        companies -> companies.stream()
-                                .map(SpeakerCompanyUDT::from)
-                                .collect(Collectors.toSet())))
+                .companies(contactInfo.getCompanies().stream()
+                        .map(SpeakerCompanyUDT::from)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 

@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.confeti.db.model.udt.ContactInfoUDT;
 import org.confeti.service.dto.Speaker;
-import org.confeti.util.EntityUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+
+import static org.confeti.util.EntityUtil.convertValue;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -63,7 +64,7 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
                 .id(speaker.getId())
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
-                .location(EntityUtil.updateValue(speaker.getContactInfo(), Speaker.ContactInfo::getLocation))
+                .location(convertValue(speaker.getContactInfo(), Speaker.ContactInfo::getLocation))
                 .build();
     }
 
@@ -89,7 +90,7 @@ public class SpeakerByConferenceEntity extends AbstractSpeakerEntity {
                 .avatar(speaker.getAvatar())
                 .conferenceName(conferenceName)
                 .year(year)
-                .location(EntityUtil.updateValue(speaker.getContactInfo(), ContactInfoUDT::getLocation))
+                .location(convertValue(speaker.getContactInfo(), ContactInfoUDT::getLocation))
                 .build();
     }
 }

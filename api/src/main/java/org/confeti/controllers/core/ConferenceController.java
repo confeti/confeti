@@ -1,6 +1,7 @@
 package org.confeti.controllers.core;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.confeti.controllers.dto.Status;
 import org.confeti.controllers.dto.core.ConferenceStatResponse;
 import org.confeti.controllers.dto.core.InputData;
@@ -37,6 +38,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(value = REST_API_PATH + "/conference", produces = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 public class ConferenceController {
     private final ConferenceService conferenceService;
     private final ReportStatsService reportStatsService;
@@ -86,12 +88,14 @@ public class ConferenceController {
     public Mono<ResponseEntity<Status>> handleSaveConference(@RequestBody final InputData inputData) {
         return Mono.justOrEmpty(inputData.getConference())
                 .switchIfEmpty(Mono.error(new RuntimeException("Conference couldn't be empty")))
-                .flatMapIterable(ign -> Objects.requireNonNullElse(inputData.getReports(), Collections.emptyList()))
+                .flatMap(conferenceService::upsert)
+                .thenMany(Flux.fromIterable(Objects.requireNonNullElse(inputData.getReports(), Collections.emptyList())))
                 .map(report -> report.setConferences(Set.of(inputData.getConference())))
-                .flatMap(reportService::upsert)
-                .hasElements()
-                .flatMap(has -> has ? Mono.empty() : conferenceService.upsert(inputData.getConference()))
-                .thenReturn(ResponseEntity.ok(Status.SUCCESS))
-                .onErrorReturn(ResponseEntity.badRequest().body(Status.FAIL));
+                .concatMap(reportService::upsert)
+                .then(Mono.just(ResponseEntity.ok(Status.SUCCESS)))
+                .onErrorResume(e -> {
+                    log.error(e.getMessage(), e);
+                    return Mono.just(ResponseEntity.badRequest().body(Status.FAIL));
+                });
     }
 }

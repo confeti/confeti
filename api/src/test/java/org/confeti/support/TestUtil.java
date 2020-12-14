@@ -39,6 +39,8 @@ public final class TestUtil {
     private static final String REPORT_SOURCE_PRESENTATION_PREFIX = URL_PREFIX + "presentation/";
     private static final String REPORT_SOURCE_VIDEO_PREFIX = URL_PREFIX + "video/";
     private static final String REPORT_SOURCE_REPO_PREFIX = URL_PREFIX + "repo/";
+    private static final String REPORT_SOURCE_TALK_PREFIX = URL_PREFIX + "talk/";
+    private static final String REPORT_SOURCE_ARTICLE_PREFIX = URL_PREFIX + "article/";
     private static final String REPORT_TAG_PREFIX = "tag";
 
     private static final List<String> LANGUAGES = List.of("ru", "en");
@@ -123,6 +125,8 @@ public final class TestUtil {
                 .presentation(REPORT_SOURCE_PRESENTATION_PREFIX + reportTitle)
                 .video(REPORT_SOURCE_VIDEO_PREFIX + reportTitle)
                 .repo(REPORT_SOURCE_REPO_PREFIX + reportTitle)
+                .talk(REPORT_SOURCE_TALK_PREFIX + reportTitle)
+                .article(REPORT_SOURCE_ARTICLE_PREFIX + reportTitle)
                 .build();
     }
 
@@ -133,6 +137,8 @@ public final class TestUtil {
                 .presentation(source.getPresentation() + randomString)
                 .video(source.getVideo() + randomString)
                 .repo(source.getRepo() + randomString)
+                .talk(source.getTalk() + randomString)
+                .article(source.getArticle() + randomString)
                 .build();
     }
 
@@ -193,6 +199,11 @@ public final class TestUtil {
                 .avatar(SPEAKER_AVATAR_PREFIX + num)
                 .contactInfo(generateContactInfo(name, num))
                 .build();
+    }
+
+    @NotNull
+    public static Speaker generateShortSpeaker() {
+        return Speaker.builder(SPEAKER_PREFIX + nextSpeakerNum()).build();
     }
 
     @NotNull
@@ -275,6 +286,11 @@ public final class TestUtil {
                         .limit(speakerNum)
                         .collect(Collectors.toSet()))
                 .build();
+    }
+
+    @NotNull
+    public static Report generateShortReport() {
+        return Report.builder(REPORT_PREFIX + nextReportNum()).build();
     }
 
     @NotNull

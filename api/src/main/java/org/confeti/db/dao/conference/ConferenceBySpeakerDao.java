@@ -16,4 +16,7 @@ public interface ConferenceBySpeakerDao extends BaseDao<ConferenceBySpeakerEntit
 
     @Select
     MappedReactiveResultSet<ConferenceBySpeakerEntity> findBySpeakerIdForYear(UUID speakerId, Integer year);
+
+    @Select
+    MappedReactiveResultSet<ConferenceBySpeakerEntity> findByName(UUID speakerId, Integer year, String name);
 }

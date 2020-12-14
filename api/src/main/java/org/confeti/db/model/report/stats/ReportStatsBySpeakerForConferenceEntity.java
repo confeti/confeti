@@ -21,7 +21,7 @@ public class ReportStatsBySpeakerForConferenceEntity extends AbstractReportStats
 
     private static final long serialVersionUID = 1L;
 
-    public static final String STATS_BY_SPEAKER_FOR_CONF_TABLE = "report_stats_by_speaker_for_conf";
+    public static final String STATS_BY_SPEAKER_FOR_CONF_TABLE = "report_stats_by_speaker_for_conference";
     public static final String STATS_BY_SPEAKER_FOR_CONF_ATT_SPEAKER_ID = "speaker_id";
     public static final String STATS_BY_SPEAKER_FOR_CONF_ATT_CONF_NAME = "conference_name";
 

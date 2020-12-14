@@ -23,8 +23,10 @@ import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_EMAIL;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_LOCATION;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_ATT_TWITTER;
 import static org.confeti.db.model.udt.ContactInfoUDT.CONTACT_INFO_UDT;
+import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_ARTICLE_URL;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_PRES_URL;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_REPO_URL;
+import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_TALK_URL;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_ATT_VIDEO_URL;
 import static org.confeti.db.model.udt.ReportSourceUDT.REPORT_SOURCE_UDT;
 import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_ATT_ADDED_DATE;
@@ -34,6 +36,7 @@ import static org.confeti.db.model.udt.SpeakerCompanyUDT.SPEAKER_COMPANY_UDT;
 import static org.confeti.db.model.udt.SpeakerFullInfoUDT.SPEAKER_FULL_INFO_UDT;
 import static org.confeti.db.model.udt.SpeakerShortInfoUDT.SPEAKER_SHORT_INFO_UDT;
 
+@SuppressWarnings({"PMD.TooManyStaticImports"})
 public interface BaseMapper {
 
     /**
@@ -63,6 +66,8 @@ public interface BaseMapper {
      *     presentation_url text,
      *     repo_url text,
      *     repo_url text,
+     *     talk_url text,
+     *     article_url text
      * );
      * </pre>
      */
@@ -71,6 +76,8 @@ public interface BaseMapper {
                 .withField(REPORT_SOURCE_ATT_PRES_URL, DataTypes.TEXT)
                 .withField(REPORT_SOURCE_ATT_REPO_URL, DataTypes.TEXT)
                 .withField(REPORT_SOURCE_ATT_VIDEO_URL, DataTypes.TEXT)
+                .withField(REPORT_SOURCE_ATT_TALK_URL, DataTypes.TEXT)
+                .withField(REPORT_SOURCE_ATT_ARTICLE_URL, DataTypes.TEXT)
                 .build());
     }
 

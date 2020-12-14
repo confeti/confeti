@@ -17,8 +17,8 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
-      - API_URL=http://localhost:8080
-      - WEB_URL=http://localhost:3000
+      - API_URL=http://46.101.194.178/
+      - WEB_URL=http://46.101.194.178/
       - CASSANDRA_SESSION_NAME=confeti_session
       - CASSANDRA_KEYSPACE_NAME=confeti
       - CASSANDRA_RF=1

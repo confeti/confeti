@@ -5,6 +5,7 @@ import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_CONFERENCES;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_DESCRIPTION;
 import static org.confeti.db.model.report.ReportEntity.REPORT_ATT_TAGS;
-import static org.confeti.util.EntityUtil.updateValue;
+import static org.confeti.util.EntityUtil.convertValue;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -46,14 +47,16 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
     @CqlName(REPORT_BY_SPEAKER_ATT_YEAR)
     private Integer year;
 
+    @Builder.Default
     @CqlName(REPORT_ATT_CONFERENCES)
-    private Set<ConferenceShortInfoUDT> conferences;
+    private Set<ConferenceShortInfoUDT> conferences = Sets.newHashSet();
 
     @CqlName(REPORT_ATT_DESCRIPTION)
     private String description;
 
+    @Builder.Default
     @CqlName(REPORT_ATT_TAGS)
-    private Set<String> tags;
+    private Set<String> tags = Sets.newHashSet();
 
     @ClusteringColumn(2)
     @Override
@@ -76,16 +79,14 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .year(year)
                 .id(report.getId())
                 .title(report.getTitle())
-                .complexity(updateValue(report.getComplexity(), ComplexityUDT::from))
+                .complexity(convertValue(report.getComplexity(), ComplexityUDT::from))
                 .language(report.getLanguage())
-                .source(updateValue(report.getSource(), ReportSourceUDT::from))
+                .source(convertValue(report.getSource(), ReportSourceUDT::from))
                 .description(report.getDescription())
-                .conferences(updateValue(
-                        report.getConferences(),
-                        conferences -> conferences.stream()
-                                .map(ConferenceShortInfoUDT::from)
-                                .collect(Collectors.toSet())))
-                .tags(updateValue(report.getTags(), Sets::newHashSet))
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 
@@ -98,16 +99,14 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .title(report.getTitle())
                 .complexity(report.getComplexity())
                 .language(report.getLanguage())
-                .source(updateValue(report.getSource(), ReportSourceUDT::from))
+                .source(convertValue(report.getSource(), ReportSourceUDT::from))
                 .speakerId(speakerId)
                 .year(year)
                 .description(report.getDescription())
-                .conferences(updateValue(
-                        report.getConferences(),
-                        conferences -> conferences.stream()
-                                .map(ConferenceShortInfoUDT::from)
-                                .collect(Collectors.toSet())))
-                .tags(updateValue(report.getTags(), Sets::newHashSet))
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 
@@ -118,16 +117,14 @@ public class ReportBySpeakerEntity extends AbstractReportEntity {
                 .title(report.getTitle())
                 .complexity(report.getComplexity())
                 .language(report.getLanguage())
-                .source(updateValue(report.getSource(), ReportSourceUDT::from))
+                .source(convertValue(report.getSource(), ReportSourceUDT::from))
                 .speakerId(report.getSpeakerId())
                 .year(report.getYear())
                 .description(report.getDescription())
-                .conferences(updateValue(
-                        report.getConferences(),
-                        conferences -> conferences.stream()
-                                .map(ConferenceShortInfoUDT::from)
-                                .collect(Collectors.toSet())))
-                .tags(updateValue(report.getTags(), Sets::newHashSet))
+                .conferences(report.getConferences().stream()
+                        .map(ConferenceShortInfoUDT::from)
+                        .collect(Collectors.toSet()))
+                .tags(Sets.newHashSet(report.getTags()))
                 .build();
     }
 }

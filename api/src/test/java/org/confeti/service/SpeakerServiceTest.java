@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import reactor.test.StepVerifier;
 
 import static org.confeti.support.TestUtil.generateConference;
+import static org.confeti.support.TestUtil.generateShortSpeaker;
 import static org.confeti.support.TestUtil.generateSpeaker;
 import static org.confeti.support.TestUtil.updateSpeaker;
 
@@ -31,8 +32,31 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testInsertSpeakerWithOnlyRequiredFields() {
+        final var speaker = generateShortSpeaker();
+
+        StepVerifier.create(speakerService.upsert(speaker))
+                .expectNext(speaker)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
     public void testInsertSpeakerWhenInsertSpeakerByConference() {
         final var speaker = generateSpeaker();
+        final var conference = generateConference();
+        conferenceService.upsert(conference).block();
+        speakerService.upsert(speaker, conference.getName(), conference.getYear()).block();
+
+        StepVerifier.create(speakerService.findBy(speaker.getId()))
+                .expectNext(speaker)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testInsertSpeakerWithOnlyRequiredFieldsWhenInsertSpeakerByConference() {
+        final var speaker = generateShortSpeaker();
         final var conference = generateConference();
         conferenceService.upsert(conference).block();
         speakerService.upsert(speaker, conference.getName(), conference.getYear()).block();
@@ -254,6 +278,51 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
                 .expectComplete()
                 .verify();
     }
+
+    @Test
+    public void testUpdateSpeakerWhenSpeakersDontHaveContactInfo() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        speaker.setContactInfo(null);
+        updatedSpeaker.setContactInfo(null);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNext(updatedSpeaker)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testNotUpdateSpeakerWhenNewSpeakerDoesntHaveContactInfo() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        updatedSpeaker.setContactInfo(null);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(updatedSpeaker))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(updatedSpeaker))
+                .expectComplete()
+                .verify();
+    }
+    @Test
+    public void testNotUpdateSpeakerWhenOldSpeakerDoesntHaveContactInfo() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        speaker.setContactInfo(null);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(updatedSpeaker))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(updatedSpeaker))
+                .expectComplete()
+                .verify();
+    }
+
 
     @Test
     public void testFindSpeakersByName() {

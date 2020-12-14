@@ -1,6 +1,5 @@
 package org.confeti.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -34,9 +33,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsWebFilter corsWebFilter(@Value("${confeti.cluster.webUrl}") final String webUrl) {
+    public CorsWebFilter corsWebFilter() {
         final var corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(Collections.singletonList(webUrl));
+        corsConfig.setAllowedOrigins(Collections.singletonList(CorsConfiguration.ALL));
         corsConfig.addAllowedMethod(CorsConfiguration.ALL);
         corsConfig.addAllowedHeader(CorsConfiguration.ALL);
         corsConfig.setAllowCredentials(true);

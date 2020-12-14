@@ -1,5 +1,8 @@
 package org.confeti.service;
 
+import lombok.SneakyThrows;
+import org.confeti.controllers.dto.Status;
+import org.confeti.controllers.dto.core.InputData;
 import org.confeti.db.model.conference.ConferenceBySpeakerEntity;
 import org.confeti.db.model.report.ReportByCompanyEntity;
 import org.confeti.db.model.report.ReportByConferenceEntity;
@@ -20,14 +23,23 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
 import static org.confeti.support.TestUtil.generateReport;
+import static org.confeti.support.TestUtil.generateShortReport;
+import static org.confeti.support.TestUtil.generateShortSpeaker;
 import static org.confeti.support.TestUtil.generateSpeaker;
 import static org.confeti.support.TestUtil.updateReport;
 
@@ -72,6 +84,16 @@ public class ReportServiceTest extends AbstractIntegrationTest {
     @Test
     public void testInsertReportWhenInsertReportByCompany() {
         testInsertReportWhen(this::insertReportByCompany);
+    }
+
+    @Test
+    public void testInsertReportWithOnlyRequiredFields() {
+        testInsertReportWithOnlyRequiredFieldsWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertReportWithOnlyRequiredFieldsAndWithSpeakerWithoutCompany() {
+        testInsertReportWithOnlyRequiredFieldsAndWithSpeakerWithoutCompanyWhen(this::insertReport);
     }
 
     @Test
@@ -127,6 +149,11 @@ public class ReportServiceTest extends AbstractIntegrationTest {
     @Test
     public void testInsertSpeakersWhenInsertReport() {
         testInsertSpeakersWhen(this::insertReport);
+    }
+
+    @Test
+    public void testInsertSpeakersWithOnlyRequiredFieldsWhenInsertReport() {
+        testInsertSpeakersWithOnlyRequiredFieldsWhen(this::insertReport);
     }
 
     @Test
@@ -613,6 +640,33 @@ public class ReportServiceTest extends AbstractIntegrationTest {
                 .verify();
     }
 
+    private void testInsertReportWithOnlyRequiredFieldsWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateShortReport();
+        final var savedReport = upsertReport.apply(report);
+
+        final var expectedReport = Report.from(ReportEntity.from(savedReport));
+
+        StepVerifier.create(reportService.findById(savedReport.getId()))
+                .expectNext(expectedReport)
+                .expectComplete()
+                .verify();
+    }
+
+    private void testInsertReportWithOnlyRequiredFieldsAndWithSpeakerWithoutCompanyWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateShortReport();
+        report.setSpeakers(Sets.newSet(generateShortSpeaker()));
+        final var savedReport = upsertReport.apply(report);
+
+        final var expectedReport = Report.from(ReportEntity.from(savedReport));
+
+        StepVerifier.create(reportService.findById(savedReport.getId()))
+                .expectNext(expectedReport)
+                .expectComplete()
+                .verify();
+    }
+
     private void testUpdateReportIfExistReportWithSameTitleAndSameSpeakersWhen(
             @NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(1, 2, 1);
@@ -768,6 +822,26 @@ public class ReportServiceTest extends AbstractIntegrationTest {
 
     private void testInsertSpeakersWhen(@NotNull final Function<Report, Report> upsertReport) {
         final var report = generateReport(1, 2, 1);
+        final var savedReport = upsertReport.apply(report);
+        final var speakerIterator = savedReport.getSpeakers().iterator();
+        final var speaker1 = speakerIterator.next();
+        final var speaker2 = speakerIterator.next();
+
+        StepVerifier.create(speakerService.findBy(speaker1.getId()))
+                .expectNext(speaker1)
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(speakerService.findBy(speaker2.getId()))
+                .expectNext(speaker2)
+                .expectComplete()
+                .verify();
+    }
+
+    private void testInsertSpeakersWithOnlyRequiredFieldsWhen(
+            @NotNull final Function<Report, Report> upsertReport) {
+        final var report = generateReport(1, 2, 1);
+        report.setSpeakers(Sets.newSet(generateShortSpeaker(), generateShortSpeaker()));
         final var savedReport = upsertReport.apply(report);
         final var speakerIterator = savedReport.getSpeakers().iterator();
         final var speaker1 = speakerIterator.next();

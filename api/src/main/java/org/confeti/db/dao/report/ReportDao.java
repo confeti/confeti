@@ -14,7 +14,10 @@ import static org.confeti.db.model.report.AbstractReportEntity.REPORT_ATT_TITLE;
 public interface ReportDao extends BaseEntityDao<ReportEntity> {
 
     @Select
-    MappedReactiveResultSet<ReportEntity> findById(UUID speakerId);
+    MappedReactiveResultSet<ReportEntity> findById(UUID id);
+
+    @Select
+    MappedReactiveResultSet<ReportEntity> findByTitle(UUID id, String title);
 
     @Select(customWhereClause = REPORT_ATT_TITLE + "= :title", allowFiltering = true)
     MappedReactiveResultSet<ReportEntity> findByTitle(String title);

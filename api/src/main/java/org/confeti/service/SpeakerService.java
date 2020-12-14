@@ -13,7 +13,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.function.TupleUtils;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.confeti.service.BaseEntityService.findMany;
@@ -68,7 +67,8 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
                 upsert(speaker),
                 sp -> conferenceService.findBy(conferenceName, year)
                         .map(conference -> SpeakerByConferenceEntity.from(conference.getName(), year, sp)),
-                speakerByConferenceDao);
+                speakerByConferenceDao,
+                sp -> Mono.from(speakerByConferenceDao.findById(conferenceName, year, sp.getName(), sp.getId())));
     }
 
     @NotNull
@@ -79,14 +79,15 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
                 upsert(speaker).map(Speaker::from),
                 sp -> conferenceService.findBy(conferenceName, year)
                         .map(conference -> SpeakerByConferenceEntity.from(conference.getName(), year, sp)),
-                speakerByConferenceDao);
+                speakerByConferenceDao,
+                sp -> Mono.from(speakerByConferenceDao.findById(conferenceName, year, sp.getName(), sp.getId())));
     }
 
     @NotNull
     private Mono<Speaker> upsertCompany(@NotNull final Speaker speaker) {
         final var companyName = speaker.getContactInfo() == null || speaker.getContactInfo().getCompany() == null
-                ? Optional.<String>empty()
-                : Optional.ofNullable(speaker.getContactInfo().getCompany().getName());
+                ? null
+                : speaker.getContactInfo().getCompany().getName();
         return Mono.justOrEmpty(companyName)
                 .flatMap(company -> companyService.upsert(Company.builder(company).build()))
                 .then(Mono.just(speaker));
@@ -95,6 +96,12 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
     @NotNull
     public Flux<Speaker> findByName(@NotNull final String name) {
         return findMany(dao.findByName(name), Speaker::from);
+    }
+
+    @NotNull
+    public Flux<Speaker> findByName(@NotNull final UUID id,
+                                    @NotNull final String name) {
+        return findMany(dao.findByName(id, name), Speaker::from);
     }
 
     @NotNull
@@ -114,6 +121,25 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
                                 @NotNull final Integer year) {
         return findMany(
                 speakerByConferenceDao.findByConferenceNameForYear(conferenceName, year),
+                Speaker::from);
+    }
+
+    @NotNull
+    public Mono<Speaker> findBy(@NotNull final String conferenceName,
+                                @NotNull final Integer year,
+                                @NotNull final String name) {
+        return findOne(
+                speakerByConferenceDao.findByName(conferenceName, year, name),
+                Speaker::from);
+    }
+
+    @NotNull
+    public Mono<Speaker> findBy(@NotNull final String conferenceName,
+                                @NotNull final Integer year,
+                                @NotNull final String name,
+                                @NotNull final UUID id) {
+        return findOne(
+                speakerByConferenceDao.findById(conferenceName, year, name, id),
                 Speaker::from);
     }
 

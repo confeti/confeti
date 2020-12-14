@@ -6,6 +6,8 @@ import com.datastax.oss.driver.api.mapper.annotations.Select;
 import org.confeti.db.dao.BaseDao;
 import org.confeti.db.model.speaker.SpeakerByConferenceEntity;
 
+import java.util.UUID;
+
 @Dao
 public interface SpeakerByConferenceDao extends BaseDao<SpeakerByConferenceEntity> {
 
@@ -14,4 +16,10 @@ public interface SpeakerByConferenceDao extends BaseDao<SpeakerByConferenceEntit
 
     @Select
     MappedReactiveResultSet<SpeakerByConferenceEntity> findByConferenceNameForYear(String conferenceName, Integer year);
+
+    @Select
+    MappedReactiveResultSet<SpeakerByConferenceEntity> findByName(String conferenceName, Integer year, String name);
+
+    @Select
+    MappedReactiveResultSet<SpeakerByConferenceEntity> findById(String conferenceName, Integer year, String name, UUID id);
 }

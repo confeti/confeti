@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetElement.UDT;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_AVATAR;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_BIO;
-import static org.confeti.util.EntityUtil.updateValue;
+import static org.confeti.util.EntityUtil.convertValue;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -44,7 +44,7 @@ public class SpeakerFullInfoUDT extends SpeakerShortInfoUDT {
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speaker.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -53,7 +53,7 @@ public class SpeakerFullInfoUDT extends SpeakerShortInfoUDT {
         return SpeakerFullInfoUDT.builder()
                 .id(speakerUDT.getId())
                 .name(speakerUDT.getName())
-                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -64,7 +64,7 @@ public class SpeakerFullInfoUDT extends SpeakerShortInfoUDT {
                 .name(speakerUDT.getName())
                 .avatar(speakerUDT.getAvatar())
                 .bio(speakerUDT.getBio())
-                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 }
