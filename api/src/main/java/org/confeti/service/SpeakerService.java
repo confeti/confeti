@@ -13,7 +13,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.function.TupleUtils;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.confeti.service.BaseEntityService.findMany;
@@ -100,6 +99,12 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
     }
 
     @NotNull
+    public Flux<Speaker> findByName(@NotNull final UUID id,
+                                    @NotNull final String name) {
+        return findMany(dao.findByName(id, name), Speaker::from);
+    }
+
+    @NotNull
     public Mono<Speaker> findBy(@NotNull final UUID id) {
         return findOne(dao.findById(id), Speaker::from);
     }
@@ -116,6 +121,25 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
                                 @NotNull final Integer year) {
         return findMany(
                 speakerByConferenceDao.findByConferenceNameForYear(conferenceName, year),
+                Speaker::from);
+    }
+
+    @NotNull
+    public Mono<Speaker> findBy(@NotNull final String conferenceName,
+                                @NotNull final Integer year,
+                                @NotNull final String name) {
+        return findOne(
+                speakerByConferenceDao.findByName(conferenceName, year, name),
+                Speaker::from);
+    }
+
+    @NotNull
+    public Mono<Speaker> findBy(@NotNull final String conferenceName,
+                                @NotNull final Integer year,
+                                @NotNull final String name,
+                                @NotNull final UUID id) {
+        return findOne(
+                speakerByConferenceDao.findById(conferenceName, year, name, id),
                 Speaker::from);
     }
 

@@ -460,8 +460,16 @@ public class ConferenceServiceTest extends AbstractIntegrationTest {
         final var expectedConference1 = Conference.from(
                 ConferenceBySpeakerEntity.from(speaker.getId(), conference1));
 
+        final var expectedConference2 = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference2));
+
         StepVerifier.create(conferenceService.findBy(speaker.getId(), conference1.getYear()))
                 .expectNext(expectedConference1)
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference2.getYear()))
+                .expectNext(expectedConference2)
                 .expectComplete()
                 .verify();
     }
@@ -513,6 +521,124 @@ public class ConferenceServiceTest extends AbstractIntegrationTest {
                 .verify();
 
         StepVerifier.create(conferenceService.findBy(speaker.getId(), conference2.getYear()))
+                .expectNext(expectedConference2)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testFindConferenceBySpeakerIdAndYearAndName() {
+        final var conference = generateConference();
+        final var speaker = generateSpeaker();
+
+        speakerService.upsert(speaker).block();
+        conferenceService.upsert(conference, speaker.getId()).block();
+
+        final var expectedConference = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference));
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference.getYear(), conference.getName()))
+                .expectNext(expectedConference)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testFindConferencesWithSameNameAndSameYearBySpeakerIdAndYearAndName() {
+        final var conference1 = generateConference();
+        final var conference2 = Conference.from(conference1);
+        final var speaker = generateSpeaker();
+
+        speakerService.upsert(speaker).block();
+        conferenceService.upsert(conference1, speaker.getId()).block();
+        conferenceService.upsert(conference2, speaker.getId()).block();
+
+        final var expectedConference1 = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference1));
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference1.getYear(), conference1.getName()))
+                .expectNext(expectedConference1)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testFindConferencesWithSameNameAndDiffYearsBySpeakerIdAndYearAndName() {
+        final var conference1 = generateConference();
+        final var conference2 = Conference.from(conference1);
+        conference2.setYear(conference1.getYear() + 1);
+        final var speaker = generateSpeaker();
+
+        speakerService.upsert(speaker).block();
+        conferenceService.upsert(conference1, speaker.getId()).block();
+        conferenceService.upsert(conference2, speaker.getId()).block();
+
+        final var expectedConference1 = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference1));
+
+        final var expectedConference2 = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference2));
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference1.getYear(), conference1.getName()))
+                .expectNext(expectedConference1)
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference2.getYear(), conference1.getName()))
+                .expectNext(expectedConference2)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testFindConferencesWithDiffNamesAndSameYearBySpeakerIdAndYearAndName() {
+        final var conference1 = generateConference();
+        final var conference2 = generateConference();
+        conference2.setYear(conference1.getYear());
+        final var speaker = generateSpeaker();
+
+        speakerService.upsert(speaker).block();
+        conferenceService.upsert(conference1, speaker.getId()).block();
+        conferenceService.upsert(conference2, speaker.getId()).block();
+
+        final var expectedConference1 = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference1));
+        final var expectedConference2 = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference2));
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference1.getYear(), conference1.getName()))
+                .expectNext(expectedConference1)
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference1.getYear(), conference2.getName()))
+                .expectNext(expectedConference2)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testFindConferencesWithDiffNamesAndDiffYearsBySpeakerIdAndYearAndName() {
+        final var conference1 = generateConference();
+        final var conference2 = generateConference();
+        conference2.setYear(conference1.getYear() + 1);
+        final var speaker = generateSpeaker();
+
+        speakerService.upsert(speaker).block();
+        conferenceService.upsert(conference1, speaker.getId()).block();
+        conferenceService.upsert(conference2, speaker.getId()).block();
+
+        final var expectedConference1 = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference1));
+        final var expectedConference2 = Conference.from(
+                ConferenceBySpeakerEntity.from(speaker.getId(), conference2));
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference1.getYear(), conference1.getName()))
+                .expectNext(expectedConference1)
+                .expectComplete()
+                .verify();
+
+        StepVerifier.create(conferenceService.findBy(speaker.getId(), conference2.getYear(), conference2.getName()))
                 .expectNext(expectedConference2)
                 .expectComplete()
                 .verify();

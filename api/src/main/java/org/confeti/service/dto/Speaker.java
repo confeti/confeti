@@ -148,15 +148,19 @@ public class Speaker implements Serializable {
             final var newContactInfo = newSpeaker.getContactInfo();
             if (newContactInfo != null) {
                 final var newEmail = newContactInfo.getEmail();
-                final var newTwitter =newContactInfo.getTwitterUsername();
+                final var newTwitter = newContactInfo.getTwitterUsername();
                 final var canUpdateEmail = oldSpeaker.canBeUpdatedEmail(newEmail, newTwitter);
                 final var canUpdateTwitter = oldSpeaker.canBeUpdatedTwitterUsername(newEmail, newTwitter);
                 return speakerBuilder
                         .contactInfo(ContactInfo.builder()
                                 .company(newContactInfo.getCompany())
                                 .location(newContactInfo.getLocation())
-                                .email(canUpdateEmail ? newEmail : convertValue(oldSpeaker.getContactInfo(), ContactInfo::getEmail))
-                                .twitterUsername(canUpdateTwitter ? newTwitter : convertValue(oldSpeaker.getContactInfo(), ContactInfo::getTwitterUsername))
+                                .email(canUpdateEmail
+                                        ? newEmail
+                                        : convertValue(oldSpeaker.getContactInfo(), ContactInfo::getEmail))
+                                .twitterUsername(canUpdateTwitter
+                                        ? newTwitter
+                                        : convertValue(oldSpeaker.getContactInfo(), ContactInfo::getTwitterUsername))
                                 .build())
                         .build();
             }

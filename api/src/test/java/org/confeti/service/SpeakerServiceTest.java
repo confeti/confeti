@@ -280,6 +280,51 @@ public class SpeakerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testUpdateSpeakerWhenSpeakersDontHaveContactInfo() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        speaker.setContactInfo(null);
+        updatedSpeaker.setContactInfo(null);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNext(updatedSpeaker)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testNotUpdateSpeakerWhenNewSpeakerDoesntHaveContactInfo() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        updatedSpeaker.setContactInfo(null);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(updatedSpeaker))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(updatedSpeaker))
+                .expectComplete()
+                .verify();
+    }
+    @Test
+    public void testNotUpdateSpeakerWhenOldSpeakerDoesntHaveContactInfo() {
+        final var speaker = generateSpeaker();
+        final var updatedSpeaker = updateSpeaker(speaker);
+        speaker.setContactInfo(null);
+        speakerService.upsert(speaker).block();
+        speakerService.upsert(updatedSpeaker).block();
+
+        StepVerifier.create(speakerService.findByName(speaker.getName()))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(updatedSpeaker))
+                .expectNextMatches(sp -> sp.equals(speaker) || sp.equals(updatedSpeaker))
+                .expectComplete()
+                .verify();
+    }
+
+
+    @Test
     public void testFindSpeakersByName() {
         final var speaker1 = generateSpeaker();
         final var speaker2 = updateSpeaker(speaker1, true, true);

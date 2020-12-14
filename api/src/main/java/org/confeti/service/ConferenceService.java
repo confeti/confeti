@@ -97,6 +97,15 @@ public class ConferenceService extends AbstractEntityService<ConferenceEntity, C
     }
 
     @NotNull
+    public Mono<Conference> findBy(@NotNull final UUID speakerId,
+                                   @NotNull final Integer year,
+                                   @NotNull final String name) {
+        return findOne(
+                conferenceBySpeakerDao.findByName(speakerId, year, name),
+                Conference::from);
+    }
+
+    @NotNull
     public Flux<Conference> findAll() {
         return findMany(dao.findAll(), Conference::from);
     }
