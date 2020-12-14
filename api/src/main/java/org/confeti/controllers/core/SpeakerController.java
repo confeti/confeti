@@ -5,6 +5,7 @@ import org.confeti.controllers.dto.core.SpeakerStatResponseByConference;
 import org.confeti.controllers.dto.core.SpeakerStatResponseByYear;
 import org.confeti.service.ReportStatsService;
 import org.confeti.service.SpeakerService;
+import org.confeti.service.dto.Speaker;
 import org.confeti.service.dto.stats.ReportStatsBySpeakerForConference;
 import org.confeti.service.dto.stats.ReportStatsBySpeakerForYear;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -23,7 +25,6 @@ import static org.confeti.controllers.ControllersUtils.CONFERENCE_NAME_URI_PARAM
 import static org.confeti.controllers.ControllersUtils.REST_API_PATH;
 import static org.confeti.controllers.ControllersUtils.SPEAKER_ID_URI_PARAMETER;
 import static org.confeti.controllers.ControllersUtils.YEAR_URI_PARAMETER;
-import static org.confeti.controllers.core.StatisticControllerUtils.handleBaseGetRequest;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleForAllRequest;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequest;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequestWithKey;
@@ -39,13 +40,13 @@ public class SpeakerController {
 
     @GetMapping
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleSpeakersRequest() {
-        return handleBaseGetRequest(speakerService.findAll());
+    public Flux<Speaker> handleSpeakersRequest() {
+        return speakerService.findAll();
     }
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat/year")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleRequestSpeakerYears(
+    public Mono<ResponseEntity<?>> handleStatRequestSpeakerYears(
             @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerId) {
         return handleSpecifiedRequest(
                 reportStatsService.countSpeakerStatsForYear(speakerId),
@@ -57,7 +58,7 @@ public class SpeakerController {
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat/conference")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleRequestSpeakerConferences(
+    public Mono<ResponseEntity<?>> handleStatRequestSpeakerConferences(
             @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerId) {
         return handleSpecifiedRequest(
                 reportStatsService.countSpeakerStatsForConference(speakerId),
@@ -69,7 +70,7 @@ public class SpeakerController {
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleRequestSpeakerYear(
+    public Mono<ResponseEntity<?>> handleStatRequestSpeakerYear(
             @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerID,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
         return handleSpecifiedRequestWithKey(reportStatsService.countSpeakerStatsForYear(speakerID, year),
@@ -80,7 +81,7 @@ public class SpeakerController {
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat", params = {CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleRequestSpeakerYear(
+    public Mono<ResponseEntity<?>> handleStatRequestSpeakerYear(
             @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerID,
             @RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleSpecifiedRequestWithKey(reportStatsService.countSpeakerStatsForConference(speakerID, conferenceName),
@@ -91,7 +92,7 @@ public class SpeakerController {
 
     @GetMapping(path = "/stat/year")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestYears() {
+    public Flux<SpeakerStatResponseByYear> handleStatRequestYears() {
         return handleForAllRequest(
                 reportStatsService.countSpeakerStatsForYear(),
                 ReportStatsBySpeakerForYear::getSpeakerId,
@@ -103,7 +104,7 @@ public class SpeakerController {
 
     @GetMapping(path = "/stat/conference")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestConference() {
+    public Flux<SpeakerStatResponseByConference> handleStatRequestConference() {
         return handleForAllRequest(
                 reportStatsService.countSpeakerStatsForConference(),
                 ReportStatsBySpeakerForConference::getSpeakerId,

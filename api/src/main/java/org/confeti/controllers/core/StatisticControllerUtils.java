@@ -19,13 +19,6 @@ public final class StatisticControllerUtils {
         throw new AssertionError();
     }
 
-    public static Mono<ResponseEntity<?>> handleBaseGetRequest(final Flux<?> flux) {
-        return flux
-                .collectList()
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
-    }
-
     public static <T extends ReportStats, K> Mono<ResponseEntity<?>> handleSpecifiedRequest(
             final Flux<T> elements,
             final Function<T, K> keyMapper,
@@ -46,19 +39,16 @@ public final class StatisticControllerUtils {
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
 
-    public static <T extends ReportStats, K, S> Mono<ResponseEntity<?>> handleForAllRequest(
+    public static <T extends ReportStats, K, S, R> Flux<R> handleForAllRequest(
             final Flux<T> elements,
             final Function<? super T, ? extends K> groupMapper,
             final Function<GroupedFlux<? extends K, T>, Mono<S>> groupModifier,
-            final Function<Tuple2<S, ? extends K>, ?> responseConverter) {
+            final Function<Tuple2<S, ? extends K>, R> responseConverter) {
         return elements
                 .groupBy(groupMapper)
                 .flatMap(group -> groupModifier.apply(group)
                         .zipWith(Mono.just(Objects.requireNonNull(group.key()))))
-                .map(responseConverter)
-                .collectList()
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
+                .map(responseConverter);
 
     }
 
