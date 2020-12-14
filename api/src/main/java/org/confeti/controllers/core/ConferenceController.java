@@ -91,7 +91,7 @@ public class ConferenceController {
                 .flatMap(conferenceService::upsert)
                 .thenMany(Flux.fromIterable(Objects.requireNonNullElse(inputData.getReports(), Collections.emptyList())))
                 .map(report -> report.setConferences(Set.of(inputData.getConference())))
-                .flatMap(reportService::upsert)
+                .concatMap(reportService::upsert)
                 .then(Mono.just(ResponseEntity.ok(Status.SUCCESS)))
                 .onErrorResume(e -> {
                     log.error(e.getMessage(), e);

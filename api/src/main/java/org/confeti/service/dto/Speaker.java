@@ -46,7 +46,7 @@ public class Speaker implements Serializable {
     private ContactInfo contactInfo;
 
     public boolean canBeUpdatedTo(@NotNull final Speaker speaker) {
-        if (name != null && !name.equals(speaker.getName()) || contactInfo != null && speaker.getContactInfo() != null) {
+        if (name != null && name.equals(speaker.getName()) && contactInfo != null && speaker.getContactInfo() != null) {
             final boolean canUpdateEmail = canBeUpdatedEmail(
                     speaker.getContactInfo().getEmail(), speaker.getContactInfo().getTwitterUsername());
             final boolean canUpdateTwitter = canBeUpdatedTwitterUsername(
@@ -54,7 +54,8 @@ public class Speaker implements Serializable {
             final boolean emailAndTwitterEqualPastValues = !canUpdateEmail && !canUpdateTwitter;
             return canUpdateEmail ^ canUpdateTwitter || emailAndTwitterEqualPastValues;
         }
-        return false;
+
+        return name != null && name.equals(speaker.getName()) && contactInfo == null && speaker.getContactInfo() == null;
     }
 
     boolean canBeUpdatedEmail(@NotNull final String newEmail,
@@ -141,20 +142,25 @@ public class Speaker implements Serializable {
     public static Speaker updateOrNew(@NotNull final Speaker oldSpeaker,
                                       @NotNull final Speaker newSpeaker) {
         if (oldSpeaker.canBeUpdatedTo(newSpeaker)) {
-            final var newEmail = newSpeaker.getContactInfo().getEmail();
-            final var newTwitter = newSpeaker.getContactInfo().getTwitterUsername();
-            final var canUpdateEmail = oldSpeaker.canBeUpdatedEmail(newEmail, newTwitter);
-            final var canUpdateTwitter = oldSpeaker.canBeUpdatedTwitterUsername(newEmail, newTwitter);
-            return Speaker.builder(oldSpeaker.getId(), oldSpeaker.getName())
+            final var speakerBuilder = Speaker.builder(oldSpeaker.getId(), oldSpeaker.getName())
                     .avatar(newSpeaker.getAvatar())
-                    .bio(newSpeaker.getBio())
-                    .contactInfo(ContactInfo.builder()
-                            .company(newSpeaker.getContactInfo().getCompany())
-                            .location(newSpeaker.getContactInfo().getLocation())
-                            .email(canUpdateEmail ? newEmail : oldSpeaker.getContactInfo().getEmail())
-                            .twitterUsername(canUpdateTwitter ? newTwitter : oldSpeaker.getContactInfo().getTwitterUsername())
-                            .build())
-                    .build();
+                    .bio(newSpeaker.getBio());
+            final var newContactInfo = newSpeaker.getContactInfo();
+            if (newContactInfo != null) {
+                final var newEmail = newContactInfo.getEmail();
+                final var newTwitter =newContactInfo.getTwitterUsername();
+                final var canUpdateEmail = oldSpeaker.canBeUpdatedEmail(newEmail, newTwitter);
+                final var canUpdateTwitter = oldSpeaker.canBeUpdatedTwitterUsername(newEmail, newTwitter);
+                return speakerBuilder
+                        .contactInfo(ContactInfo.builder()
+                                .company(newContactInfo.getCompany())
+                                .location(newContactInfo.getLocation())
+                                .email(canUpdateEmail ? newEmail : convertValue(oldSpeaker.getContactInfo(), ContactInfo::getEmail))
+                                .twitterUsername(canUpdateTwitter ? newTwitter : convertValue(oldSpeaker.getContactInfo(), ContactInfo::getTwitterUsername))
+                                .build())
+                        .build();
+            }
+            return speakerBuilder.contactInfo(oldSpeaker.getContactInfo()).build();
         }
         newSpeaker.setId(UUID.randomUUID());
         return newSpeaker;
