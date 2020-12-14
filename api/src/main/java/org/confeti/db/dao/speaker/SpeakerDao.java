@@ -16,6 +16,9 @@ public interface SpeakerDao extends BaseEntityDao<SpeakerEntity> {
     @Select
     MappedReactiveResultSet<SpeakerEntity> findById(UUID speakerId);
 
+    @Select
+    MappedReactiveResultSet<SpeakerEntity> findByName(UUID speakerId, String name);
+
     @Select(customWhereClause = SPEAKER_ATT_NAME + "= :name", allowFiltering = true)
     MappedReactiveResultSet<SpeakerEntity> findByName(String name);
 }

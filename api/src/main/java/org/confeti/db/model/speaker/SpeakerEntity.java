@@ -1,5 +1,6 @@
 package org.confeti.db.model.speaker;
 
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
+import static org.confeti.util.EntityUtil.convertValue;
 import static org.confeti.util.EntityUtil.updateValue;
 
 @Data
@@ -46,6 +48,12 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
         return id;
     }
 
+    @ClusteringColumn
+    @Override
+    public String getName() {
+        return name;
+    }
+
     @Override
     public void updateFrom(@NotNull final SpeakerEntity speaker) {
         final var newContactInfo = speaker.getContactInfo() == null
@@ -73,7 +81,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speaker.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -84,7 +92,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
                 .name(speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speaker.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -104,7 +112,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
                 .name(speakerUDT.getName())
                 .avatar(speakerUDT.getAvatar())
                 .bio(speakerUDT.getBio())
-                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -113,7 +121,7 @@ public class SpeakerEntity extends AbstractSpeakerEntity implements BaseEntity<S
         return SpeakerEntity.builder()
                 .id(speakerUDT.getId())
                 .name(speakerUDT.getName())
-                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 }

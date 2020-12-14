@@ -45,11 +45,11 @@ public interface SpeakerDaoMapper extends BaseMapper {
      *
      * CREATE TABLE IF NOT EXISTS speaker (
      *     id uuid,
+     *     name text,
      *     avatar text,
      *     bio text,
      *     contact_info frozen&lt;contact_info&gt;,
-     *     name text,
-     *     PRIMARY KEY (id)
+     *     PRIMARY KEY (id, name)
      * );
      * </pre>
      */
@@ -57,10 +57,10 @@ public interface SpeakerDaoMapper extends BaseMapper {
         createContactInfoUDT(cqlSession);
         cqlSession.execute(createTable(SPEAKER_TABLE).ifNotExists()
                 .withPartitionKey(SPEAKER_ATT_ID, DataTypes.UUID)
+                .withClusteringColumn(SPEAKER_ATT_NAME, DataTypes.TEXT)
                 .withColumn(SPEAKER_ATT_AVATAR, DataTypes.TEXT)
                 .withColumn(SPEAKER_ATT_BIO, DataTypes.TEXT)
                 .withColumn(SPEAKER_ATT_CONTACT_INFO, udt(CONTACT_INFO_UDT, true))
-                .withColumn(SPEAKER_ATT_NAME, DataTypes.TEXT)
                 .build());
 
         cqlSession.execute(createIndex(SPEAKER_NAME_INDEX).ifNotExists()

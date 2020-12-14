@@ -18,7 +18,7 @@ import static com.datastax.oss.driver.api.mapper.annotations.SchemaHint.TargetEl
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_CONTACT_INFO;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_ID;
 import static org.confeti.db.model.speaker.SpeakerEntity.SPEAKER_ATT_NAME;
-import static org.confeti.util.EntityUtil.updateValue;
+import static org.confeti.util.EntityUtil.convertValue;
 
 @Data
 @NoArgsConstructor
@@ -47,7 +47,7 @@ public class SpeakerShortInfoUDT implements Serializable {
         return SpeakerShortInfoUDT.builder()
                 .id(speaker.getId())
                 .name(speaker.getName())
-                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speaker.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -56,7 +56,7 @@ public class SpeakerShortInfoUDT implements Serializable {
         return SpeakerShortInfoUDT.builder()
                 .id(speakerUDT.getId())
                 .name(speakerUDT.getName())
-                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 
@@ -65,7 +65,7 @@ public class SpeakerShortInfoUDT implements Serializable {
         return SpeakerShortInfoUDT.builder()
                 .id(speakerUDT.getId())
                 .name(speakerUDT.getName())
-                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
+                .contactInfo(convertValue(speakerUDT.getContactInfo(), ContactInfoUDT::from))
                 .build();
     }
 }

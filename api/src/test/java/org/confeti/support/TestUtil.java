@@ -202,6 +202,11 @@ public final class TestUtil {
     }
 
     @NotNull
+    public static Speaker generateShortSpeaker() {
+        return Speaker.builder(SPEAKER_PREFIX + nextSpeakerNum()).build();
+    }
+
+    @NotNull
     public static Speaker updateSpeaker(@NotNull final Speaker speaker) {
         final var randomString = RandomStringUtils.randomAlphabetic(5);
         return Speaker.builder(speaker.getId(), speaker.getName())
@@ -281,6 +286,11 @@ public final class TestUtil {
                         .limit(speakerNum)
                         .collect(Collectors.toSet()))
                 .build();
+    }
+
+    @NotNull
+    public static Report generateShortReport() {
+        return Report.builder(REPORT_PREFIX + nextReportNum()).build();
     }
 
     @NotNull

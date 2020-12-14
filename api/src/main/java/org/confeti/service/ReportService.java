@@ -178,15 +178,14 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     }
 
     @NotNull
-    private Mono<?> spreadReport(@NotNull final ReportEntity report,
-                                 @NotNull final Conference conference) {
+    private Mono<Report> spreadReport(@NotNull final ReportEntity report,
+                                      @NotNull final Conference conference) {
         return Flux.fromIterable(report.getSpeakers())
                 .map(Speaker::from)
                 .flatMap(speaker -> updateReportStatsBySpeaker(conference, speaker, report)
                         .then(Mono.just(speaker)))
-                .concatMap(speaker -> updateReportStatsByCompany(
-                            speaker.getContactInfo().getCompany().getName(), conference.getYear(), report)
-                        .then(upsertByCompany(report, speaker.getContactInfo().getCompany().getName(), conference.getYear()))
+                .concatMap(speaker -> updateReportStatsByCompany(speaker, conference.getYear(), report)
+                        .flatMap(companyName -> upsertByCompany(report, companyName, conference.getYear()))
                         .then(Mono.just(speaker)))
                 .flatMap(speaker -> upsertBySpeaker(report, speaker.getId(), conference.getYear())
                         .then(Mono.just(speaker)))
@@ -227,15 +226,26 @@ public class ReportService extends AbstractEntityService<ReportEntity, Report, R
     }
 
     @NotNull
-    private Mono<String> updateReportStatsByCompany(@NotNull final String company,
+    private Mono<String> updateReportStatsByCompany(@NotNull final Speaker speaker,
                                                     @NotNull final Integer year,
                                                     @NotNull final ReportEntity report) {
-        return findByCompany(company, year, report.getTitle(), report.getId())
+        return Mono.justOrEmpty(speaker.getContactInfo())
+                .flatMap(contactInfo -> Mono.justOrEmpty(contactInfo.getCompany()))
                 .hasElement()
-                .flatMap(isReportByConfExist -> updateReportStatsIf(
-                        !isReportByConfExist,
-                        company,
-                        reportStatsService.updateReportStatsByCompany(year, company)));
+                .flatMap(isCompanyExist -> isCompanyExist
+                        ? findByCompany(speaker.getContactInfo().getCompany().getName(), year, report.getTitle(), report.getId())
+                        .hasElement()
+                        .flatMap(isReportByConfExist -> updateReportStatsIf(
+                                !isReportByConfExist,
+                                speaker.getContactInfo().getCompany().getName(),
+                                reportStatsService.updateReportStatsByCompany(year, speaker.getContactInfo().getCompany().getName())))
+                        : Mono.empty());
+    }
+
+    @NotNull
+    public Flux<Report> findByTitle(@NotNull final UUID id,
+                                    @NotNull final String title) {
+        return findMany(dao.findByTitle(id, title), Report::from);
     }
 
     @NotNull

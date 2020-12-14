@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.confeti.util.EntityUtil.updateValue;
+import static org.confeti.util.EntityUtil.convertValue;
 
 @Accessors(chain = true)
 @Data
@@ -98,7 +98,7 @@ public class Speaker implements Serializable {
         return Speaker.builder(speaker.getId(), speaker.getName())
                 .avatar(speaker.getAvatar())
                 .bio(speaker.getBio())
-                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfo::from))
+                .contactInfo(convertValue(speaker.getContactInfo(), ContactInfo::from))
                 .build();
     }
 
@@ -106,7 +106,7 @@ public class Speaker implements Serializable {
     public static Speaker from(@NotNull final SpeakerEntity speaker) {
         return fillCommonFields(speaker)
                 .bio(speaker.getBio())
-                .contactInfo(updateValue(speaker.getContactInfo(), ContactInfo::from))
+                .contactInfo(convertValue(speaker.getContactInfo(), ContactInfo::from))
                 .build();
     }
 
@@ -120,14 +120,14 @@ public class Speaker implements Serializable {
         return Speaker.builder(speakerUDT.getId(), speakerUDT.getName())
                 .avatar(speakerUDT.getAvatar())
                 .bio(speakerUDT.getBio())
-                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfo::from))
+                .contactInfo(convertValue(speakerUDT.getContactInfo(), ContactInfo::from))
                 .build();
     }
 
     @NotNull
     public static Speaker from(@NotNull final SpeakerShortInfoUDT speakerUDT) {
         return Speaker.builder(speakerUDT.getId(), speakerUDT.getName())
-                .contactInfo(updateValue(speakerUDT.getContactInfo(), ContactInfo::from))
+                .contactInfo(convertValue(speakerUDT.getContactInfo(), ContactInfo::from))
                 .build();
     }
 
@@ -184,7 +184,7 @@ public class Speaker implements Serializable {
                     .email(contactInfoUDT.getEmail())
                     .location(contactInfoUDT.getLocation())
                     .twitterUsername(contactInfoUDT.getTwitterUsername())
-                    .company(updateValue(company, SpeakerCompany::from))
+                    .company(convertValue(company, SpeakerCompany::from))
                     .build();
         }
 
@@ -194,12 +194,13 @@ public class Speaker implements Serializable {
                     .email(contactInfo.getEmail())
                     .location(contactInfo.getLocation())
                     .twitterUsername(contactInfo.getTwitterUsername())
-                    .company(updateValue(contactInfo.getCompany(), SpeakerCompany::from))
+                    .company(convertValue(contactInfo.getCompany(), SpeakerCompany::from))
                     .build();
         }
 
         @Accessors(chain = true)
         @Data
+        @EqualsAndHashCode(exclude = {"addedDate"})
         @NoArgsConstructor
         @AllArgsConstructor
         @Builder

@@ -79,17 +79,18 @@ CREATE INDEX IF NOT EXISTS speaker_name_idx ON speaker(name);
 
 CREATE TABLE IF NOT EXISTS speaker (
     id uuid,
+    name text,
     avatar text,
     bio text,
     contact_info frozen<contact_info>,
-    name text,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id, name)
 );
 
 CREATE INDEX IF NOT EXISTS report_title_idx ON report(title);
 
 CREATE TABLE IF NOT EXISTS report (
     id uuid,
+    title text,
     complexity frozen<complexity>,
     conferences set<frozen<conference_short_info>>,
     description text,
@@ -97,8 +98,7 @@ CREATE TABLE IF NOT EXISTS report (
     source frozen<report_source>,
     speakers set<frozen<speaker_full_info>>,
     tags set<text>,
-    title text,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id, title)
 );
 
 CREATE TABLE IF NOT EXISTS company (

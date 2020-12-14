@@ -92,6 +92,9 @@ public class ConferenceController {
                 .hasElements()
                 .flatMap(has -> has ? Mono.empty() : conferenceService.upsert(inputData.getConference()))
                 .thenReturn(ResponseEntity.ok(Status.SUCCESS))
-                .onErrorReturn(ResponseEntity.badRequest().body(Status.FAIL));
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    return Mono.just(ResponseEntity.badRequest().body(Status.FAIL));
+                });
     }
 }

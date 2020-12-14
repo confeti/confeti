@@ -70,6 +70,7 @@ public interface ReportDaoMapper extends BaseMapper {
      * <pre>
      * CREATE TABLE IF NOT EXISTS report (
      *     id uuid,
+     *     title text,
      *     complexity frozen&lt;complexity&gt,
      *     conferences set&lt;frozen&lt;conference_short_info&gt;&gt;,
      *     description text,
@@ -77,8 +78,7 @@ public interface ReportDaoMapper extends BaseMapper {
      *     source frozen&lt;report_source&gt;,
      *     speakers set&lt;frozen&lt;speaker_full_info&gt;&gt;,
      *     tags set&lt;text&gt;,
-     *     title text,
-     *     PRIMARY KEY (id)
+     *     PRIMARY KEY (id, title)
      * );
      * </pre>
      */
@@ -89,6 +89,7 @@ public interface ReportDaoMapper extends BaseMapper {
         createComplexityUDT(cqlSession);
         cqlSession.execute(createTable(REPORT_TABLE).ifNotExists()
                 .withPartitionKey(REPORT_ATT_ID, DataTypes.UUID)
+                .withClusteringColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
                 .withColumn(REPORT_ATT_COMPLEXITY, udt(COMPLEXITY_UDT, true))
                 .withColumn(REPORT_ATT_CONFERENCES, DataTypes.setOf(udt(CONF_SHORT_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_DESCRIPTION, DataTypes.TEXT)
@@ -96,7 +97,6 @@ public interface ReportDaoMapper extends BaseMapper {
                 .withColumn(REPORT_ATT_SOURCE, udt(REPORT_SOURCE_UDT, true))
                 .withColumn(REPORT_ATT_SPEAKERS, DataTypes.setOf(udt(SPEAKER_FULL_INFO_UDT, true)))
                 .withColumn(REPORT_ATT_TAGS, DataTypes.setOf(DataTypes.TEXT))
-                .withColumn(REPORT_ATT_TITLE, DataTypes.TEXT)
                 .build());
 
         cqlSession.execute(createIndex(REPORT_TITLE_INDEX).ifNotExists()

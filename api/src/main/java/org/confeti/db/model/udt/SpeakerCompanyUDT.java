@@ -51,8 +51,11 @@ public class SpeakerCompanyUDT implements Serializable {
 
     @NotNull
     public static SpeakerCompanyUDT from(@NotNull final SpeakerCompany company) {
+        final var addedDate = company.getAddedDate() == null
+                ? Instant.ofEpochMilli(Instant.now().toEpochMilli())
+                : company.getAddedDate();
         return SpeakerCompanyUDT.builder()
-                .addedDate(company.getAddedDate())
+                .addedDate(addedDate)
                 .year(company.getYear())
                 .name(company.getName())
                 .build();
