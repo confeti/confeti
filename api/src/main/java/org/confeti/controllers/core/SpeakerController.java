@@ -61,13 +61,12 @@ public class SpeakerController {
 
     @GetMapping(params = {CONFERENCE_NAME_URI_PARAMETER, YEAR_URI_PARAMETER, SPEAKER_NAME_URI_PARAMETER})
     @ResponseBody
-    public Mono<Speaker> handleSpeakerByNameConferenceYear(
+    public Flux<Speaker> handleSpeakerByNameConferenceYear(
             @RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName,
             @RequestParam(YEAR_URI_PARAMETER) final int year,
             @RequestParam(SPEAKER_NAME_URI_PARAMETER) final String speakerName) {
         return speakerService.findBy(conferenceName, year, speakerName);
     }
-
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}")
     @ResponseBody
