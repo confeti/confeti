@@ -48,7 +48,7 @@ public class ReportControllerTest {
                                 .build()
                 )));
         testGetReportInfoRequestWithConferenceName(
-                String.format("/api/rest/report/tag?year=%d&conference_name=%s", year, conferenceName),
+                String.format("/api/rest/report/stat/tag?year=%d&conference_name=%s", year, conferenceName),
                 response);
     }
 
@@ -76,7 +76,7 @@ public class ReportControllerTest {
                                 .conferences(Set.of(conference2))
                                 .build()
                 )));
-        testGetReportInfoRequestWithConferenceName(String.format("/api/rest/report/tag?conference_name=%s", conference1.getName()), response);
+        testGetReportInfoRequestWithConferenceName(String.format("/api/rest/report/stat/tag?conference_name=%s", conference1.getName()), response);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class ReportControllerTest {
                                 .conferences(Set.of(conference2))
                                 .build()
                 )));
-        testGetReportInfoRequest(String.format("/api/rest/report/tag?year=%d", conferenceYear));
+        testGetReportInfoRequest(String.format("/api/rest/report/stat/tag?year=%d", conferenceYear));
     }
 
     @Test
@@ -130,7 +130,7 @@ public class ReportControllerTest {
                                 .build()
                 )));
 
-        testGetReportInfoRequest("/api/rest/report/tag");
+        testGetReportInfoRequest("/api/rest/report/stat/tag");
     }
 
     @Test
@@ -158,7 +158,7 @@ public class ReportControllerTest {
                                 .build()
                 )));
         testGetReportInfoRequestWithConferenceName(
-                String.format("/api/rest/report/language?year=%d&conference_name=%s", year, conferenceName),
+                String.format("/api/rest/report/stat/language?year=%d&conference_name=%s", year, conferenceName),
                 response);
     }
 
@@ -189,7 +189,7 @@ public class ReportControllerTest {
                                 .conferences(Set.of(conference2))
                                 .build()
                 )));
-        testGetReportInfoRequestWithConferenceName(String.format("/api/rest/report/language?conference_name=%s", conference1.getName()), response);
+        testGetReportInfoRequestWithConferenceName(String.format("/api/rest/report/stat/language?conference_name=%s", conference1.getName()), response);
     }
 
     @Test
@@ -213,7 +213,7 @@ public class ReportControllerTest {
                                 .conferences(Set.of(conference3))
                                 .build()
                 )));
-        testGetReportInfoRequest(String.format("/api/rest/report/language?year=%d", conferenceYear));
+        testGetReportInfoRequest(String.format("/api/rest/report/stat/language?year=%d", conferenceYear));
     }
 
     @Test
@@ -243,7 +243,7 @@ public class ReportControllerTest {
                                 .build()
                 )));
 
-        testGetReportInfoRequest("/api/rest/report/language");
+        testGetReportInfoRequest("/api/rest/report/stat/language");
     }
 
     private void testGetReportInfoRequestWithConferenceName(final String uri, final ReportResponse expectedResponse) {

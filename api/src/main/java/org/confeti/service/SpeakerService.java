@@ -125,10 +125,10 @@ public class SpeakerService extends AbstractEntityService<SpeakerEntity, Speaker
     }
 
     @NotNull
-    public Mono<Speaker> findBy(@NotNull final String conferenceName,
+    public Flux<Speaker> findBy(@NotNull final String conferenceName,
                                 @NotNull final Integer year,
                                 @NotNull final String name) {
-        return findOne(
+        return findMany(
                 speakerByConferenceDao.findByName(conferenceName, year, name),
                 Speaker::from);
     }
