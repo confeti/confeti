@@ -36,40 +36,40 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    @GetMapping(path = "/tag", params = {YEAR_URI_PARAMETER, CONFERENCE_NAME_URI_PARAMETER})
+    @GetMapping(path = "/stat/tag", params = {YEAR_URI_PARAMETER, CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
     public Mono<ResponseEntity<?>> handleTagRequest(@RequestParam(YEAR_URI_PARAMETER) final int year,
                                                     @RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleRequest(year, conferenceName, Report::getTags);
     }
 
-    @GetMapping(path = "/tag", params = {CONFERENCE_NAME_URI_PARAMETER})
+    @GetMapping(path = "/stat/tag", params = {CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
     public Mono<ResponseEntity<?>> handleTagRequest(@RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleRequest(conferenceName, Report::getTags);
     }
 
-    @GetMapping(path = "/tag")
+    @GetMapping(path = "/stat/tag")
     @ResponseBody
     public Mono<ResponseEntity<?>> handleTagRequest(
             @RequestParam(value = YEAR_URI_PARAMETER, required = false) final Optional<Integer> year) {
         return handleRequest(year, Report::getTags);
     }
 
-    @GetMapping(path = "/language", params = {YEAR_URI_PARAMETER, CONFERENCE_NAME_URI_PARAMETER})
+    @GetMapping(path = "/stat/language", params = {YEAR_URI_PARAMETER, CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
     public Mono<ResponseEntity<?>> handleLanguageRequest(@RequestParam(YEAR_URI_PARAMETER) final int year,
                                                          @RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleRequest(year, conferenceName, this::languageToSetConverter);
     }
 
-    @GetMapping(path = "/language", params = {CONFERENCE_NAME_URI_PARAMETER})
+    @GetMapping(path = "/stat/language", params = {CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
     public Mono<ResponseEntity<?>> handleLanguageRequest(@RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleRequest(conferenceName, this::languageToSetConverter);
     }
 
-    @GetMapping(path = "/language")
+    @GetMapping(path = "/stat/language")
     @ResponseBody
     public Mono<ResponseEntity<?>> handleLanguageRequest(
             @RequestParam(value = YEAR_URI_PARAMETER, required = false) final Optional<Integer> year) {

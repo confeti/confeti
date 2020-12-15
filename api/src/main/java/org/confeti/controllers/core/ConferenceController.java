@@ -26,9 +26,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.confeti.controllers.ControllersUtils.CONFERENCE_NAME_URI_PARAMETER;
 import static org.confeti.controllers.ControllersUtils.REST_API_PATH;
+import static org.confeti.controllers.ControllersUtils.SPEAKER_ID_URI_PARAMETER;
 import static org.confeti.controllers.ControllersUtils.YEAR_URI_PARAMETER;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleForAllRequest;
 import static org.confeti.controllers.core.StatisticControllerUtils.handleSpecifiedRequest;
@@ -48,6 +50,43 @@ public class ConferenceController {
     @ResponseBody
     public Flux<Conference> handleConferenceRequest() {
         return conferenceService.findAll();
+    }
+
+    @GetMapping(params = {SPEAKER_ID_URI_PARAMETER})
+    @ResponseBody
+    public Flux<Conference> handleConferenceBySpeakerRequest(@RequestParam(SPEAKER_ID_URI_PARAMETER) final UUID speakerId) {
+        return conferenceService.findBy(speakerId);
+    }
+
+    @GetMapping(params = {SPEAKER_ID_URI_PARAMETER, YEAR_URI_PARAMETER})
+    @ResponseBody
+    public Flux<Conference> handleConferenceBySpeakerYearRequest(
+            @RequestParam(SPEAKER_ID_URI_PARAMETER) final UUID speakerId,
+            @RequestParam(YEAR_URI_PARAMETER) final int year) {
+        return conferenceService.findBy(speakerId, year);
+    }
+
+    @GetMapping(path = "{" + CONFERENCE_NAME_URI_PARAMETER + "}")
+    @ResponseBody
+    public Flux<Conference> handleConferenceByNameRequest(@PathVariable(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
+        return conferenceService.findBy(conferenceName);
+    }
+
+    @GetMapping(path = "{" + CONFERENCE_NAME_URI_PARAMETER + "}", params = {YEAR_URI_PARAMETER})
+    @ResponseBody
+    public Mono<Conference> handleConferenceByNameYearRequest(
+            @PathVariable(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName,
+            @RequestParam(YEAR_URI_PARAMETER) final int year) {
+        return conferenceService.findBy(conferenceName, year);
+    }
+
+    @GetMapping(path = "{" + CONFERENCE_NAME_URI_PARAMETER + "}", params = {YEAR_URI_PARAMETER, SPEAKER_ID_URI_PARAMETER})
+    @ResponseBody
+    public Mono<Conference> handleConferenceByNameSpeakerYearRequest(
+            @PathVariable(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName,
+            @RequestParam(SPEAKER_ID_URI_PARAMETER) final UUID speakerId,
+            @RequestParam(YEAR_URI_PARAMETER) final int year) {
+        return conferenceService.findBy(speakerId, year, conferenceName); //TODO: check is it conferenceName
     }
 
     @GetMapping(path = "{" + CONFERENCE_NAME_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})

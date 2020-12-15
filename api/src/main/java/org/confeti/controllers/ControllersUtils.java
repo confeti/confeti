@@ -6,6 +6,7 @@ public final class ControllersUtils {
     public static final String YEAR_URI_PARAMETER = "year";
     public static final String COMPANY_NAME_URI_PARAMETER = "company_name";
     public static final String SPEAKER_ID_URI_PARAMETER = "speaker_id";
+    public static final String SPEAKER_NAME_URI_PARAMETER = "speaker_name";
 
     // Not instantiable
     private ControllersUtils() {
