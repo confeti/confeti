@@ -1,4 +1,3 @@
-import { Years } from './types'
 import { ComponentType } from 'react'
 
 export interface IColors {
@@ -8,6 +7,8 @@ export interface IColors {
   primaryDark: string
   secondaryLight: string
   secondaryDark: string
+  textDark: string
+  textLight: string
 }
 
 export type ThemeMode = 'dark' | 'light'
@@ -21,6 +22,7 @@ export interface IRouteInfo {
 
 export interface ISettings {
   themeMode: ThemeMode
+  isTopLinearProgressShowing: boolean
 }
 
 export type Years = Record<string, number> | Record<string, Record<string, number>>
@@ -106,4 +108,26 @@ export interface IReport {
 export interface IReportStat {
   conferenceName: string
   years: Years
+}
+
+export interface IPieChartData {
+  id: string
+  label: string
+  value: number
+}
+
+export interface IPieChart {
+  data: IPieChartData[]
+}
+
+export interface IBarChart {
+  indexBy: string
+  legendX?: string
+  legendY?: string
+  data: Record<string, string | number>[]
+}
+
+export enum ChartType {
+  BAR,
+  PIE
 }

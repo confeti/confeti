@@ -4,16 +4,18 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { Link } from 'react-router-dom'
 import { ReactComponent as Logo } from 'images/logo.svg'
+import { LinearProgress } from '@material-ui/core'
+import { AppState } from 'store'
+import { connect, ConnectedProps } from 'react-redux'
 import { IconsBar } from './IconsBar'
 import { useStyles } from './styles'
 
-interface NavBarProps {
+interface NavBarProps extends PropsFromRedux {
   setTheme: () => void
 }
 
-const NavBar: React.FC<NavBarProps> = ({ setTheme }: NavBarProps) => {
+const NavBar = ({ setTheme, isTopLinearProgressShowing }: NavBarProps) => {
   const classes = useStyles()
-
   return (
     <div>
       <AppBar color="default">
@@ -28,9 +30,20 @@ const NavBar: React.FC<NavBarProps> = ({ setTheme }: NavBarProps) => {
           </Typography>
           <IconsBar setTheme={setTheme} />
         </Toolbar>
+        {isTopLinearProgressShowing && <LinearProgress color="secondary" />}
       </AppBar>
     </div>
   )
 }
 
-export default NavBar
+const mapStateToProps = (state: AppState) => ({
+  isTopLinearProgressShowing: state.settings.settings.isTopLinearProgressShowing
+})
+
+const mapDispatchToProps = () => ({})
+
+const connector = connect(mapStateToProps, mapDispatchToProps)
+
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+export default connector(NavBar)

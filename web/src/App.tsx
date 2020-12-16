@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { Route, Switch } from 'react-router-dom'
+import { Redirect, Route, Switch } from 'react-router-dom'
 import { bindActionCreators } from 'redux'
 import { routes } from 'routes'
 import { useTheme } from 'hooks'
@@ -15,7 +15,8 @@ import { NavBar } from 'components/NavBar'
 const useStyles = makeStyles(() =>
   createStyles({
     content: {
-      height: '100vh'
+      height: '100vh',
+      padding: '128px 64px'
     }
   })
 )
@@ -69,6 +70,7 @@ const App = ({ settings, changeSettings }: AppProps) => {
                   exact={route.exact}
                 />
               ))}
+              <Redirect to="/statistic" path="/" exact />
             </Switch>
           </main>
         </SnackbarProvider>

@@ -1,14 +1,21 @@
 import { ThemeOptions } from '@material-ui/core/styles/createMuiTheme'
 import { IColors } from './types'
 
-// TODO: choose colors
 export const colors = {
-  bgLight: '#FFFFFF',
-  bgDark: '#000000',
-  primaryLight: '#FFFFFF',
-  primaryDark: '#000000',
-  secondaryLight: '#FFFFFF',
-  secondaryDark: '#000000'
+  // bgLight: '#fff6da',
+  // bgDark: '#262525',
+  // primaryLight: '#fc6b3f',
+  // primaryDark: '#262525',
+  // secondaryLight: '#84f2d6',
+  // secondaryDark: '#84f2d6'
+  bgLight: '#f9f9f9',
+  bgDark: '#262525',
+  primaryLight: '#113a5d',
+  primaryDark: '#062743',
+  secondaryLight: '#ff7a8a',
+  secondaryDark: '#ff7a8a',
+  textLight: '#333333',
+  textDark: '#8d9cab'
 } as IColors
 
 const customTheme: ThemeOptions = {
