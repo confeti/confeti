@@ -1,5 +1,5 @@
 {
-  "version": "0.0.5",
+  "version": "0.0.5.1",
   "availability_api_uri_endpoint": "/api/rest/status",
   "release_uri": "https://api.github.com/repos/confeti/confeti/releases/latest",
   "check_time": 900,
