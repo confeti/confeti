@@ -7,6 +7,7 @@ import { useStyles } from './styles'
 import { TagStatistics } from './components/TagStatistics'
 import { CompanyStatistics } from './components/CompanyStatistics'
 import { SpeakerStatistics } from './components/SpeakerStatistics'
+import { ConferenceStatistics } from './components/ConferenceStatistics'
 
 interface StatisticProps {}
 
@@ -14,7 +15,8 @@ enum StatisticName {
   LANGUAGE_STATISTICS = 'Language statistics',
   TAG_STATISTICS = 'Tag statistics',
   COMPANY_STATISTICS = 'Company statistics',
-  SPEAKER_STATISTICS = 'Speaker Statistics'
+  SPEAKER_STATISTICS = 'Speaker statistics',
+  CONFERENCE_STATISTICS = 'Conference statistics'
 }
 
 const statisticOptions = [
@@ -32,6 +34,10 @@ const statisticOptions = [
   },
   {
     name: StatisticName.SPEAKER_STATISTICS,
+    chartType: ChartType.LINE
+  },
+  {
+    name: StatisticName.CONFERENCE_STATISTICS,
     chartType: ChartType.LINE
   }
 ] as IStatisticOption[]
@@ -80,6 +86,9 @@ const Statistic = () => {
         )}
         {statisticOption.name === StatisticName.SPEAKER_STATISTICS && (
           <SpeakerStatistics defaultChartType={statisticOption.chartType} />
+        )}
+        {statisticOption.name === StatisticName.CONFERENCE_STATISTICS && (
+          <ConferenceStatistics defaultChartType={statisticOption.chartType} />
         )}
       </Box>
     </Box>

@@ -6,57 +6,57 @@ import { BackdropType, LoadingType } from 'components/LoadingWrapper/LoadingWrap
 import { Field, Form, Formik } from 'formik'
 import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
-import { getCompanies, getCompanyStat } from 'store/company/services'
+import { getConferences, getConferenceStat } from 'store/conference/services'
 import { Wrapper } from 'store/wrapper'
-import { ChartType, IChart, ICompany, ICompanyStat, ILineData } from 'types'
+import { ChartType, IChart, IConference, IConferenceStat, ILineData } from 'types'
 import { StatisticBox } from '../StatisticBox'
 import { useStyles } from './styles'
 
-interface CompanyStatisticsProps {
+interface ConferenceStatisticsProps {
   defaultChartType?: ChartType
 }
 
-const CompanyStatistics = ({ defaultChartType }: CompanyStatisticsProps) => {
+const ConferenceStatistics = ({ defaultChartType }: ConferenceStatisticsProps) => {
   const classes = useStyles()
   const snackbarContext = useSnackbar()
-  const [companiesOptions, setCompaniesOptions] = useState<Wrapper<ICompany[]>>({
+  const [conferencesOptions, setConferencesOptions] = useState<Wrapper<IConference[]>>({
     isFetching: false,
     value: []
   })
 
-  const getAllCompanies = async () => {
-    setCompaniesOptions({ ...companiesOptions, isFetching: true })
+  const getAllConferences = async () => {
+    setConferencesOptions({ ...conferencesOptions, isFetching: true })
     try {
-      const response = await getCompanies()
-      setCompaniesOptions({ isFetching: false, value: response })
+      const response = await getConferences()
+      setConferencesOptions({ isFetching: false, value: response })
     } catch (err) {
-      setCompaniesOptions({ ...companiesOptions, isFetching: false })
+      setConferencesOptions({ ...conferencesOptions, isFetching: false })
       getNotifier('error', snackbarContext)(err.message)
     }
   }
 
   useEffect(() => {
-    getAllCompanies()
+    getAllConferences()
     // eslint-disable-next-line
   }, [])
 
   const handleSubmit = (
-    companies: ICompany[],
+    conferences: IConference[],
     chartType: ChartType,
     setChartData: React.Dispatch<React.SetStateAction<IChart>>,
     setChartType: React.Dispatch<React.SetStateAction<ChartType>>
   ) => {
-    if (companies.length === 1) {
+    if (conferences.length === 1) {
       if (chartType !== ChartType.LINE) {
         setChartData(undefined)
         setChartType(ChartType.LINE)
       }
-      getCompanyStat(companies[0].name).then(stat => {
+      getConferenceStat(conferences[0].name).then(stat => {
         setChartData({
           legendX: 'years',
           data: [
             {
-              id: companies[0].name,
+              id: conferences[0].name,
               data: Object.entries(stat.years).map(v => {
                 const [y, count] = v
                 return { x: y, y: count } as ILineData
@@ -65,19 +65,19 @@ const CompanyStatistics = ({ defaultChartType }: CompanyStatisticsProps) => {
           ]
         })
       })
-    } else if (companies.length > 1) {
+    } else if (conferences.length > 1) {
       if (chartType !== ChartType.BAR) {
         setChartData(undefined)
         setChartType(ChartType.BAR)
       }
-      const promises = [] as Promise<ICompanyStat>[]
-      companies.forEach(company => {
-        promises.push(getCompanyStat(company.name))
+      const promises = [] as Promise<IConferenceStat>[]
+      conferences.forEach(conf => {
+        promises.push(getConferenceStat(conf.name))
       })
 
       Promise.all(promises).then(stats => {
-        const data = stats.map(stat => ({ company: stat.companyName, ...stat.years }))
-        setChartData({ indexBy: 'company', legendY: 'count', data })
+        const data = stats.map(stat => ({ conference: stat.conferenceName, ...stat.years }))
+        setChartData({ indexBy: 'conference', legendY: 'count', data })
       })
     }
   }
@@ -85,7 +85,7 @@ const CompanyStatistics = ({ defaultChartType }: CompanyStatisticsProps) => {
   return (
     <LoadingWrapper
       type={LoadingType.LINEAR}
-      deps={[companiesOptions]}
+      deps={[conferencesOptions]}
       backdrop={BackdropType.GLOBAL}
     >
       <StatisticBox defaultChartType={defaultChartType}>
@@ -93,28 +93,30 @@ const CompanyStatistics = ({ defaultChartType }: CompanyStatisticsProps) => {
           <Box>
             <Formik
               initialValues={{
-                companies: []
+                conferences: []
               }}
-              onSubmit={({ companies }) =>
-                handleSubmit(companies, chartType, setChartData, setChartType)
+              onSubmit={({ conferences }) =>
+                handleSubmit(conferences, chartType, setChartData, setChartType)
               }
             >
               {({ values, setFieldValue }) => (
                 <Form>
                   <Box className={classes.formField}>
                     <Field
-                      name="companies"
+                      name="conferences"
                       component={Autocomplete}
                       multiple
                       limitTags={5}
-                      id="companies-select"
-                      options={companiesOptions.value}
-                      getOptionLabel={(option: ICompany) => option.name}
+                      id="conferences-select"
+                      options={conferencesOptions.value.filter(
+                        (conf, i, arr) => arr.findIndex(c => c.name === conf.name) === i
+                      )}
+                      getOptionLabel={(option: IConference) => option.name}
                       filterSelectedOptions
                       disableCloseOnSelect
-                      onChange={(_, value: ICompany[]) => setFieldValue('companies', value)}
-                      getOptionDisabled={() => values.companies.length >= 5}
-                      renderTags={(value: ICompany[], getTagProps: any) =>
+                      onChange={(_, value: IConference[]) => setFieldValue('conferences', value)}
+                      getOptionDisabled={() => values.conferences.length >= 5}
+                      renderTags={(value: IConference[], getTagProps: any) =>
                         value.map((option, index) => (
                           <Chip
                             className={classes.chip}
@@ -140,9 +142,9 @@ const CompanyStatistics = ({ defaultChartType }: CompanyStatisticsProps) => {
                         <TextField
                           {...params}
                           variant="outlined"
-                          label="Companies"
+                          label="Conferences"
                           color="secondary"
-                          placeholder="Choose up to 5 companies"
+                          placeholder="Choose up to 5 conferences"
                         />
                       )}
                     />
@@ -152,9 +154,9 @@ const CompanyStatistics = ({ defaultChartType }: CompanyStatisticsProps) => {
                     <Button
                       color="secondary"
                       variant="contained"
-                      disabled={values.companies.length === 0}
+                      disabled={values.conferences.length === 0}
                       onClick={() =>
-                        handleSubmit(values.companies, chartType, setChartData, setChartType)
+                        handleSubmit(values.conferences, chartType, setChartData, setChartType)
                       }
                     >
                       Apply
@@ -170,4 +172,4 @@ const CompanyStatistics = ({ defaultChartType }: CompanyStatisticsProps) => {
   )
 }
 
-export default CompanyStatistics
+export default ConferenceStatistics
