@@ -2,7 +2,7 @@ import React from 'react'
 import { useTheme } from '@material-ui/core'
 import { Wrapper } from 'store/wrapper'
 import { colors } from 'theme'
-import { ChartType, IBarChart, IPieChart } from 'types'
+import { ChartType, IBarChart, IChart, IPieChart } from 'types'
 import { BarChartOutlined } from '@material-ui/icons'
 import LoadingWrapper, { BackdropType, LoadingType } from 'components/LoadingWrapper/LoadingWrapper'
 import { EmptyContent } from 'components/EmptyContent'
@@ -10,7 +10,7 @@ import BarChart from './BarChart'
 import PieChart from './PieChart'
 
 interface ChartProps {
-  chartData: Wrapper<IPieChart | IBarChart>
+  chartData: Wrapper<IChart>
   chartType: ChartType
 }
 

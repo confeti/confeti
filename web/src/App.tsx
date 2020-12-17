@@ -4,7 +4,13 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 import { bindActionCreators } from 'redux'
 import { routes } from 'routes'
 import { useTheme } from 'hooks'
-import { createMuiTheme, createStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles'
+import {
+  createMuiTheme,
+  createStyles,
+  makeStyles,
+  Theme,
+  ThemeProvider
+} from '@material-ui/core/styles'
 import { CssBaseline, IconButton } from '@material-ui/core'
 import { ProviderContext, SnackbarProvider, VariantType } from 'notistack'
 import { AppDispatch, AppState } from 'store'
@@ -12,11 +18,14 @@ import { CloseRounded } from '@material-ui/icons'
 import { changeSettingsAction } from 'store/settings/actions'
 import { NavBar } from 'components/NavBar'
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     content: {
       height: '100vh',
-      padding: '128px 64px'
+      padding: '128px 64px',
+      [theme.breakpoints.down('xs')]: {
+        padding: '128px 8px'
+      }
     }
   })
 )

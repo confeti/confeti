@@ -26,6 +26,7 @@ interface LoadingWrapperProps extends PropsFromRedux {
   showError?: boolean
   backdrop?: BackdropType
   children?: React.ReactNode
+  className?: string
 }
 
 const LoadingWrapper = ({
@@ -35,6 +36,7 @@ const LoadingWrapper = ({
   settings,
   changeSettings,
   backdrop,
+  className,
   children
 }: LoadingWrapperProps) => {
   const classes = useStyles()
@@ -43,7 +45,7 @@ const LoadingWrapper = ({
   const [errors, setErrors] = useState<string[]>()
 
   useEffect(() => {
-    const fetching = deps.some(v => v.isFetching || v.value === undefined)
+    const fetching = deps.some(v => v.isFetching)
     if (type === LoadingType.LINEAR && settings.isTopLinearProgressShowing !== fetching) {
       changeSettings({
         ...settings,
@@ -64,7 +66,7 @@ const LoadingWrapper = ({
   }
 
   return (
-    <Box className={classes.root}>
+    <Box className={clsx(className, classes.root)}>
       {children}
       <Backdrop
         className={clsx(classes.backdrop, {
