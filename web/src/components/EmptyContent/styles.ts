@@ -11,7 +11,7 @@ export const useStyles = makeStyles(() => ({
   },
   image: {
     width: '172px',
-    height: '236px',
+    height: '230px',
     fill: colors.secondaryLight
   },
   info: {

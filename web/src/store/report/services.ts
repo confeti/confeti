@@ -1,10 +1,10 @@
 import { IReportStat } from 'types'
 import { API_URL, request } from 'utils'
 
-const REPORT_URI = `${API_URL}/api/rest/company`
+const REPORT_URI = `${API_URL}/api/rest/report`
 
 const getReportStatForConfBy = async (conferenceName: string, by: string): Promise<IReportStat> => {
-  return request(`${REPORT_URI}/stat/${by}?conference_name=${conferenceName}`).then(
+  return request(`${REPORT_URI}/${by}?conference_name=${conferenceName}`).then(
     data => data as IReportStat
   )
 }
@@ -14,13 +14,13 @@ const getReportStatForConfAndYearBy = async (
   year: number,
   by: string
 ): Promise<IReportStat> => {
-  return request(`${REPORT_URI}/stat/${by}?conference_name=${conferenceName}&year=${year}`).then(
+  return request(`${REPORT_URI}/${by}?conference_name=${conferenceName}&year=${year}`).then(
     data => data as IReportStat
   )
 }
 
 export const getReportStatByTags = async (year?: number): Promise<IReportStat[]> => {
-  return request(`${REPORT_URI}/stat/tag${year ? `?year=${year}` : ''}`).then(
+  return request(`${REPORT_URI}/tag${year ? `?year=${year}` : ''}`).then(
     data => data as IReportStat[]
   )
 }
@@ -34,7 +34,7 @@ export const getReportStatForConfAndYearByTags = async (
 ): Promise<IReportStat> => getReportStatForConfAndYearBy(conferenceName, year, 'tag')
 
 export const getReportStatByLanguages = async (year?: number): Promise<IReportStat[]> => {
-  return request(`${REPORT_URI}/stat/language${year ? `?year=${year}` : ''}`).then(
+  return request(`${REPORT_URI}/language${year ? `?year=${year}` : ''}`).then(
     data => data as IReportStat[]
   )
 }

@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Chip, TextField } from '@material-ui/core'
+import { Box, Button, Chip, TextField } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete'
 import { getNotifier } from 'App'
 import { LoadingWrapper } from 'components/LoadingWrapper'
@@ -7,8 +7,9 @@ import { Field, Form, Formik } from 'formik'
 import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
 import { getConferences } from 'store/conference/services'
+import { getReportStatForConfAndYearByLanguage } from 'store/report/services'
 import { Wrapper } from 'store/wrapper'
-import { ChartType, IConference } from 'types'
+import { ChartType, IChart, IConference, IPieChartData, IReportStat } from 'types'
 import { StatisticBox } from '../StatisticBox'
 import { useStyles } from './styles'
 
@@ -57,14 +58,50 @@ const LanguageStatistics = ({ chartType }: LanguageStatisticsProps) => {
     setYearsOptions(years.map(String))
   }
 
-  // Todo: process data to create chart
   const handleSubmit = (
     conferences: IConference[],
     year: number,
-    setChartData: any,
-    setChartType: any
+    setChartData: React.Dispatch<React.SetStateAction<Wrapper<IChart>>>,
+    setChartType: React.Dispatch<React.SetStateAction<ChartType>>
   ) => {
-    console.log(conferences, year)
+    setChartData({ isFetching: true })
+    if (conferences.length === 1) {
+      setChartType(ChartType.PIE)
+      getReportStatForConfAndYearByLanguage(conferences[0].name, year).then(stat => {
+        Object.entries(stat.years).forEach(value => {
+          const [, languages] = value
+          setChartData({
+            isFetching: false,
+            value: {
+              data: Object.entries(languages).map(v => {
+                const [lang, count] = v
+                return { id: lang, label: lang, value: count } as IPieChartData
+              })
+            }
+          })
+        })
+      })
+    } else {
+      setChartType(ChartType.BAR)
+      const promises = [] as Promise<IReportStat>[]
+      conferences.forEach(conf => {
+        promises.push(getReportStatForConfAndYearByLanguage(conf.name, year))
+      })
+      Promise.all(promises).then(stats => {
+        const data = stats.map(stat => {
+          let obj = { conference: stat.conferenceName }
+          Object.entries(stat.years).forEach(value => {
+            const [, languages] = value
+            obj = { ...obj, ...languages }
+          })
+          return obj
+        })
+        setChartData({
+          isFetching: false,
+          value: { indexBy: 'conference', legendY: 'count', data }
+        })
+      })
+    }
   }
 
   return (
@@ -116,23 +153,23 @@ const LanguageStatistics = ({ chartType }: LanguageStatisticsProps) => {
                           <Chip
                             className={classes.chip}
                             key={option.name}
-                            avatar={<Avatar alt={option.name} src={option.logo} />}
+                            // avatar={<Avatar alt={option.name} src={option.logo} />}
                             label={`${option.name}`}
                             color="secondary"
                             {...getTagProps({ index })}
                           />
                         ))
                       }
-                      renderOption={(option: IConference) => (
-                        <div className={classes.option}>
-                          <Avatar
-                            className={classes.avatarOption}
-                            alt={option.name}
-                            src={option.logo}
-                          />
-                          <span className={classes.optionText}>{option.name}</span>
-                        </div>
-                      )}
+                      // renderOption={(option: IConference) => (
+                      //   <div className={classes.option}>
+                      //     <Avatar
+                      //       className={classes.avatarOption}
+                      //       alt={option.name}
+                      //       src={option.logo}
+                      //     />
+                      //     <span className={classes.optionText}>{option.name}</span>
+                      //   </div>
+                      // )}
                       renderInput={params => (
                         <TextField
                           {...params}
