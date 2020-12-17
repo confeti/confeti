@@ -1,6 +1,6 @@
 import { History } from 'history'
 
-export const API_URL = process.env.REACT_APP_API_URL
+export const { POSITION_STACK_API_ACCESS_KEY, API_URL } = process.env
 
 export const historyPush = (history: History, pathname: string) => {
   history.push(pathname, {

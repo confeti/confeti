@@ -4,7 +4,7 @@ import { IRouteInfo } from 'types'
 
 export const routes: IRouteInfo[] = [
   {
-    path: '/home',
+    path: '/',
     name: 'Home',
     component: Home
   },

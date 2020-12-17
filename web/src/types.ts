@@ -47,6 +47,35 @@ export interface ISpeaker {
   contactInfo: IcContactInfo
 }
 
+export interface ISpeakerLocation {
+  location: string
+  name: string
+  longitude: number
+  latitude: number
+}
+
+export interface IPositionStackData {
+  latitude: number
+  longitude: number
+  country: string
+  country_code: string
+  region: string
+  region_code: string
+  label: string
+  map_url: string
+  name: string
+  type: string
+  number: string
+  street: string
+  postal_code: string
+  neighbourhood: string
+  administrative_area: string
+}
+
+export interface IPositionStack {
+  data: IPositionStackData[]
+}
+
 export interface ISpeakerStatByYears {
   id: string
   years: Years

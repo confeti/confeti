@@ -7,6 +7,15 @@ export const getSpeakers = async (): Promise<ISpeaker[]> => {
   return request(SPEAKER_URI).then(data => data as ISpeaker[])
 }
 
+export const getSpeakersByConference = async (
+  conferenceName: string,
+  year: number
+): Promise<ISpeaker[]> => {
+  return request(`${SPEAKER_URI}?conference_name=${conferenceName}&year=${year}`).then(
+    data => data as ISpeaker[]
+  )
+}
+
 export const getSpeakersStatByYears = async (): Promise<ISpeakerStatByYears[]> => {
   return request(`${SPEAKER_URI}/stat/year`).then(data => data as ISpeakerStatByYears[])
 }
