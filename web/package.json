@@ -1,11 +1,15 @@
 {
   "name": "confeti-web",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "@nivo/bar": "^0.67.0",
+    "@nivo/core": "^0.67.0",
+    "@nivo/line": "^0.67.0",
+    "@nivo/pie": "^0.67.0",
     "@types/node": "14.14.0",
     "@types/react": "16.9.35",
     "@types/react-dom": "16.9.8",
