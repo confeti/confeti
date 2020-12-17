@@ -1,21 +1,21 @@
 import React from 'react'
-import { useTheme } from '@material-ui/core'
-import { Wrapper } from 'store/wrapper'
+import { Box, useTheme } from '@material-ui/core'
 import { colors } from 'theme'
 import { ChartType, IBarChart, IChart, IPieChart } from 'types'
 import { BarChartOutlined } from '@material-ui/icons'
-import LoadingWrapper, { BackdropType, LoadingType } from 'components/LoadingWrapper/LoadingWrapper'
 import { EmptyContent } from 'components/EmptyContent'
 import BarChart from './BarChart'
 import PieChart from './PieChart'
+import { useStyles } from './styles'
 
 interface ChartProps {
-  chartData: Wrapper<IChart>
+  chartData: IChart
   chartType: ChartType
 }
 
 const Chart = ({ chartData, chartType }: ChartProps) => {
   const theme = useTheme()
+  const classes = useStyles()
 
   const chartTheme = {
     textColor: theme.palette.type === 'dark' ? colors.textDark : colors.textLight,
@@ -27,19 +27,19 @@ const Chart = ({ chartData, chartType }: ChartProps) => {
   }
 
   return (
-    <LoadingWrapper type={LoadingType.LINEAR} deps={[chartData]} backdrop={BackdropType.GLOBAL}>
-      {chartData.value && chartData.value.data.length > 0 ? (
+    <Box className={classes.root}>
+      {chartData && chartData.data.length > 0 ? (
         <>
           {chartType === ChartType.BAR ? (
-            <BarChart chartData={chartData.value as IBarChart} theme={chartTheme} />
+            <BarChart chartData={chartData as IBarChart} theme={chartTheme} />
           ) : (
-            <PieChart chartData={chartData.value as IPieChart} theme={chartTheme} />
+            <PieChart chartData={chartData as IPieChart} theme={chartTheme} />
           )}
         </>
       ) : (
         <EmptyContent Icon={BarChartOutlined} info="No chart" />
       )}
-    </LoadingWrapper>
+    </Box>
   )
 }
 

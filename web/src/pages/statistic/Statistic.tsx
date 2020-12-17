@@ -4,16 +4,22 @@ import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete'
 import { ChartType, IStatisticOption } from 'types'
 import { LanguageStatistics } from './components/LanguageStatistics'
 import { useStyles } from './styles'
+import { TagStatistics } from './components/TagStatistics'
 
 interface StatisticProps {}
 
 enum StatisticName {
-  LANGUAGE_STATISTICS = 'Language statistics'
+  LANGUAGE_STATISTICS = 'Language statistics',
+  TAG_STATISTICS = 'Tag statistics'
 }
 
 const statisticOptions = [
   {
     name: StatisticName.LANGUAGE_STATISTICS,
+    chartType: ChartType.PIE
+  },
+  {
+    name: StatisticName.TAG_STATISTICS,
     chartType: ChartType.PIE
   }
 ] as IStatisticOption[]
@@ -51,7 +57,12 @@ const Statistic = () => {
             />
           )}
         />
-        {statisticOption.name === StatisticName.LANGUAGE_STATISTICS && <LanguageStatistics />}
+        {statisticOption.name === StatisticName.LANGUAGE_STATISTICS && (
+          <LanguageStatistics defaultChartType={statisticOption.chartType} />
+        )}
+        {statisticOption.name === StatisticName.TAG_STATISTICS && (
+          <TagStatistics defaultChartType={statisticOption.chartType} />
+        )}
       </Box>
     </Box>
   )

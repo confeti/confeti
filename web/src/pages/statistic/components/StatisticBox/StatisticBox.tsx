@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Box } from '@material-ui/core'
-import { Wrapper } from 'store/wrapper'
 import { ChartType, IChart } from 'types'
 import { useStyles } from './styles'
 import { Chart } from '../Chart'
@@ -10,7 +9,9 @@ interface StatisticBoxProps {
   children?(
     data:
       | {
-          setChartData: React.Dispatch<React.SetStateAction<Wrapper<IChart>>>
+          chartData: IChart
+          chartType: ChartType
+          setChartData: React.Dispatch<React.SetStateAction<IChart>>
           setChartType: React.Dispatch<React.SetStateAction<ChartType>>
         }
       | undefined
@@ -19,12 +20,12 @@ interface StatisticBoxProps {
 
 const StatisticBox = ({ defaultChartType, children }: StatisticBoxProps) => {
   const classes = useStyles()
-  const [chartData, setChartData] = useState<Wrapper<IChart>>({ isFetching: false })
+  const [chartData, setChartData] = useState<IChart>()
   const [chartType, setChartType] = useState<ChartType>(
     defaultChartType !== undefined ? defaultChartType : ChartType.BAR
   )
 
-  const childrenToolsData = { setChartData, setChartType }
+  const childrenToolsData = { chartData, chartType, setChartData, setChartType }
 
   return (
     <Box>

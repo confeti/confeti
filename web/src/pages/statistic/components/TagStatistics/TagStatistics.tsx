@@ -7,17 +7,17 @@ import { Field, Form, Formik } from 'formik'
 import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
 import { getConferences } from 'store/conference/services'
-import { getReportStatForConfAndYearByLanguage } from 'store/report/services'
+import { getReportStatForConfAndYearByTags } from 'store/report/services'
 import { Wrapper } from 'store/wrapper'
-import { ChartType, IChart, IConference, IPieChartData, IReportStat } from 'types'
+import { ChartType, IChart, IConference, IPieChartData } from 'types'
 import { StatisticBox } from '../StatisticBox'
 import { useStyles } from './styles'
 
-interface LanguageStatisticsProps {
+interface TagStatisticsProps {
   defaultChartType?: ChartType
 }
 
-const LanguageStatistics = ({ defaultChartType }: LanguageStatisticsProps) => {
+const TagStatistics = ({ defaultChartType }: TagStatisticsProps) => {
   const classes = useStyles()
   const snackbarContext = useSnackbar()
   const [conferencesOptions, setConferencesOptions] = useState<Wrapper<IConference[]>>({
@@ -42,81 +42,42 @@ const LanguageStatistics = ({ defaultChartType }: LanguageStatisticsProps) => {
     // eslint-disable-next-line
   }, [])
 
-  const handleSetYearsOptions = (conferences: IConference[]) => {
-    const years =
-      conferences.length === 1
-        ? conferencesOptions.value
-            .filter(conf => conf.name === conferences[0].name)
-            .map(conf => conf.year)
-        : conferencesOptions.value
-            .filter(conf => conferences.findIndex(c => c.name === conf.name) !== -1)
-            .map((conf: IConference) => conf.year)
-            .filter(
-              (year: number, i: number, arr: number[]) =>
-                arr.indexOf(year) === i && arr.lastIndexOf(year) !== i
-            )
-    setYearsOptions(years.map(String))
+  const handleSetYearsOptions = (conference: IConference) => {
+    if (conference) {
+      const years = conferencesOptions.value
+        .filter(conf => conf.name === conference.name)
+        .map(conf => conf.year)
+      setYearsOptions(years.map(String))
+    } else {
+      setYearsOptions([])
+    }
   }
 
   const handleSubmit = (
-    conferences: IConference[],
+    conference: IConference,
     year: number,
-    chartType: ChartType,
     setChartData: React.Dispatch<React.SetStateAction<IChart>>,
     setChartType: React.Dispatch<React.SetStateAction<ChartType>>
   ) => {
-    if (conferences.length === 1) {
-      if (chartType !== ChartType.PIE) {
-        setChartData(undefined)
-        setChartType(ChartType.PIE)
-      }
-      getReportStatForConfAndYearByLanguage(conferences[0].name, year).then(stat => {
-        Object.entries(stat.years).forEach(value => {
-          const [, languages] = value
-          setChartData({
-            data: Object.entries(languages)
-              .sort((v1, v2) => {
-                const [, count1] = v1
-                const [, count2] = v2
-                return (count2 as number) - (count1 as number)
-              })
-              .slice(0, Math.min(Object.keys(languages).length, 5))
-              .map(v => {
-                const [lang, count] = v
-                return { id: lang, label: lang, value: count } as IPieChartData
-              })
-          })
+    setChartType(ChartType.PIE)
+    getReportStatForConfAndYearByTags(conference.name, year).then(stat => {
+      Object.entries(stat.years).forEach(value => {
+        const [, tags] = value
+        setChartData({
+          data: Object.entries(tags)
+            .sort((v1, v2) => {
+              const [, count1] = v1
+              const [, count2] = v2
+              return (count2 as number) - (count1 as number)
+            })
+            .slice(0, 5)
+            .map(v => {
+              const [lang, count] = v
+              return { id: lang, label: lang, value: count } as IPieChartData
+            })
         })
       })
-    } else if (conferences.length > 1) {
-      if (chartType !== ChartType.BAR) {
-        setChartData(undefined)
-        setChartType(ChartType.BAR)
-      }
-      const promises = [] as Promise<IReportStat>[]
-      conferences.forEach(conf => {
-        promises.push(getReportStatForConfAndYearByLanguage(conf.name, year))
-      })
-      Promise.all(promises).then(stats => {
-        const data = stats.map(stat => {
-          let obj = { conference: stat.conferenceName }
-          Object.entries(stat.years).forEach(value => {
-            const [, languages] = value
-            const topLang = Object.entries(languages)
-              .sort((v1, v2) => {
-                const [, count1] = v1
-                const [, count2] = v2
-                return (count2 as number) - (count1 as number)
-              })
-              .slice(0, Math.min(Object.keys(languages).length, 5))
-              .reduce((r, [k, v]) => ({ ...r, [k]: v }), {})
-            obj = { ...obj, ...topLang }
-          })
-          return obj
-        })
-        setChartData({ indexBy: 'conference', legendY: 'count', data })
-      })
-    }
+    })
   }
 
   return (
@@ -126,43 +87,37 @@ const LanguageStatistics = ({ defaultChartType }: LanguageStatisticsProps) => {
       backdrop={BackdropType.GLOBAL}
     >
       <StatisticBox defaultChartType={defaultChartType}>
-        {({ chartType, setChartData, setChartType }) => (
+        {({ setChartData, setChartType }) => (
           <Box>
             <Formik
               initialValues={{
-                conferences: [],
+                conference: undefined,
                 year: undefined
               }}
-              onSubmit={({ conferences, year }) =>
-                handleSubmit(conferences, year, chartType, setChartData, setChartType)
+              onSubmit={({ conference, year }) =>
+                handleSubmit(conference, year, setChartData, setChartType)
               }
             >
               {({ values, setFieldValue }) => (
                 <Form>
                   <Box className={classes.formField}>
                     <Field
-                      name="conferences"
+                      name="conference"
                       component={Autocomplete}
-                      multiple
-                      limitTags={5}
-                      id="conferences-select"
+                      id="conference-select"
                       options={conferencesOptions.value.filter(
                         (conf, i, arr) => arr.findIndex(c => c.name === conf.name) === i
                       )}
                       getOptionLabel={(option: IConference) => option.name}
                       filterSelectedOptions
-                      disableCloseOnSelect
-                      onChange={(_, value: IConference[], reason) => {
-                        setFieldValue('conferences', value)
-
+                      onChange={(_, value: IConference, reason) => {
+                        setFieldValue('conference', value)
+                        handleSetYearsOptions(value)
                         // Todo: it is better to get years when field is closed
                         if (reason === 'remove-option' || reason === 'clear') {
-                          handleSetYearsOptions(value)
                           setFieldValue('year', '')
                         }
                       }}
-                      getOptionDisabled={() => values.conferences.length >= 5}
-                      onClose={() => handleSetYearsOptions(values.conferences)}
                       renderTags={(value: IConference[], getTagProps: any) =>
                         value.map((option, index) => (
                           <Chip
@@ -189,9 +144,9 @@ const LanguageStatistics = ({ defaultChartType }: LanguageStatisticsProps) => {
                         <TextField
                           {...params}
                           variant="outlined"
-                          label="Conferences"
+                          label="Conference"
                           color="secondary"
-                          placeholder="Choose at least 5 conferences"
+                          placeholder="Choose conference"
                         />
                       )}
                     />
@@ -223,15 +178,9 @@ const LanguageStatistics = ({ defaultChartType }: LanguageStatisticsProps) => {
                     <Button
                       color="secondary"
                       variant="contained"
-                      disabled={values.conferences.length === 0 || !values.year}
+                      disabled={!values.conference || !values.year}
                       onClick={() =>
-                        handleSubmit(
-                          values.conferences,
-                          values.year,
-                          chartType,
-                          setChartData,
-                          setChartType
-                        )
+                        handleSubmit(values.conference, values.year, setChartData, setChartType)
                       }
                     >
                       Apply
@@ -247,4 +196,4 @@ const LanguageStatistics = ({ defaultChartType }: LanguageStatisticsProps) => {
   )
 }
 
-export default LanguageStatistics
+export default TagStatistics
