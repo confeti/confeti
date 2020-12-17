@@ -113,7 +113,9 @@ public class Speaker implements Serializable {
 
     @NotNull
     public static Speaker from(@NotNull final SpeakerByConferenceEntity speaker) {
-        return fillCommonFields(speaker).build();
+        return fillCommonFields(speaker)
+                .contactInfo(convertValue(speaker.getLocation(), location -> ContactInfo.builder().location(location).build()))
+                .build();
     }
 
     @NotNull
