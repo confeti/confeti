@@ -127,11 +127,28 @@ export interface IBarChart {
   data: Record<string, string | number>[]
 }
 
-export type IChart = IPieChart | IBarChart
+export interface ILineData {
+  x: string
+  y: string
+}
+
+export interface ILineChartData {
+  id: string
+  data: ILineData[]
+}
+
+export interface ILineChart {
+  data: ILineChartData[]
+  legendX: string
+  legendY?: string
+}
+
+export type IChart = IPieChart | IBarChart | ILineChart
 
 export enum ChartType {
   BAR,
-  PIE
+  PIE,
+  LINE
 }
 
 export interface IStatisticOption {

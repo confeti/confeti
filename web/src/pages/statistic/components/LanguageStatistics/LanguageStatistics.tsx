@@ -191,7 +191,7 @@ const LanguageStatistics = ({ defaultChartType }: LanguageStatisticsProps) => {
                           variant="outlined"
                           label="Conferences"
                           color="secondary"
-                          placeholder="Choose at least 5 conferences"
+                          placeholder="Choose up to 5 conferences"
                         />
                       )}
                     />

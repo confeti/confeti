@@ -5,12 +5,14 @@ import { ChartType, IStatisticOption } from 'types'
 import { LanguageStatistics } from './components/LanguageStatistics'
 import { useStyles } from './styles'
 import { TagStatistics } from './components/TagStatistics'
+import { CompanyStatistics } from './components/CompanyStatistics'
 
 interface StatisticProps {}
 
 enum StatisticName {
   LANGUAGE_STATISTICS = 'Language statistics',
-  TAG_STATISTICS = 'Tag statistics'
+  TAG_STATISTICS = 'Tag statistics',
+  COMPANY_STATISTICS = 'Company statistics'
 }
 
 const statisticOptions = [
@@ -21,6 +23,10 @@ const statisticOptions = [
   {
     name: StatisticName.TAG_STATISTICS,
     chartType: ChartType.PIE
+  },
+  {
+    name: StatisticName.COMPANY_STATISTICS,
+    chartType: ChartType.LINE
   }
 ] as IStatisticOption[]
 
@@ -62,6 +68,9 @@ const Statistic = () => {
         )}
         {statisticOption.name === StatisticName.TAG_STATISTICS && (
           <TagStatistics defaultChartType={statisticOption.chartType} />
+        )}
+        {statisticOption.name === StatisticName.COMPANY_STATISTICS && (
+          <CompanyStatistics defaultChartType={statisticOption.chartType} />
         )}
       </Box>
     </Box>
