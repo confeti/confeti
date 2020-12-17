@@ -28,7 +28,7 @@ const StatisticBox = ({ defaultChartType, children }: StatisticBoxProps) => {
   const childrenToolsData = { chartData, chartType, setChartData, setChartType }
 
   return (
-    <Box>
+    <Box className={classes.root}>
       <Box className={classes.tools}>{children(childrenToolsData)}</Box>
       <Box className={classes.chart}>
         <Chart chartData={chartData} chartType={chartType} />

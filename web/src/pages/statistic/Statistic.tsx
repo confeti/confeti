@@ -6,13 +6,15 @@ import { LanguageStatistics } from './components/LanguageStatistics'
 import { useStyles } from './styles'
 import { TagStatistics } from './components/TagStatistics'
 import { CompanyStatistics } from './components/CompanyStatistics'
+import { SpeakerStatistics } from './components/SpeakerStatistics'
 
 interface StatisticProps {}
 
 enum StatisticName {
   LANGUAGE_STATISTICS = 'Language statistics',
   TAG_STATISTICS = 'Tag statistics',
-  COMPANY_STATISTICS = 'Company statistics'
+  COMPANY_STATISTICS = 'Company statistics',
+  SPEAKER_STATISTICS = 'Speaker Statistics'
 }
 
 const statisticOptions = [
@@ -26,6 +28,10 @@ const statisticOptions = [
   },
   {
     name: StatisticName.COMPANY_STATISTICS,
+    chartType: ChartType.LINE
+  },
+  {
+    name: StatisticName.SPEAKER_STATISTICS,
     chartType: ChartType.LINE
   }
 ] as IStatisticOption[]
@@ -71,6 +77,9 @@ const Statistic = () => {
         )}
         {statisticOption.name === StatisticName.COMPANY_STATISTICS && (
           <CompanyStatistics defaultChartType={statisticOption.chartType} />
+        )}
+        {statisticOption.name === StatisticName.SPEAKER_STATISTICS && (
+          <SpeakerStatistics defaultChartType={statisticOption.chartType} />
         )}
       </Box>
     </Box>

@@ -15,23 +15,28 @@ export const getSpeakersStatByConferences = async (): Promise<ISpeakerStatByConf
   return request(`${SPEAKER_URI}/stat/conference`).then(data => data as ISpeakerStatByConferences[])
 }
 
-export const getStatByYears = async (id: string): Promise<ISpeakerStatByYears> => {
+export const getSpeakerStatByYears = async (id: string): Promise<ISpeakerStatByYears> => {
   return request(`${SPEAKER_URI}/${id}/stat/year`).then(data => data as ISpeakerStatByYears)
 }
 
-export const getStatByYear = async (id: string, year: number): Promise<ISpeakerStatByYears> => {
+export const getSpeakerStatByYear = async (
+  id: string,
+  year: number
+): Promise<ISpeakerStatByYears> => {
   return request(`${SPEAKER_URI}/${id}/stat/?year=${year}`).then(
     data => data as ISpeakerStatByYears
   )
 }
 
-export const getStatByConferences = async (id: string): Promise<ISpeakerStatByConferences> => {
+export const getSpeakerStatByConferences = async (
+  id: string
+): Promise<ISpeakerStatByConferences> => {
   return request(`${SPEAKER_URI}/${id}/stat/conference`).then(
     data => data as ISpeakerStatByConferences
   )
 }
 
-export const getStatByConference = async (
+export const getSpeakerStatByConference = async (
   id: string,
   conferenceName: string
 ): Promise<ISpeakerStatByConferences> => {

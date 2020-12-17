@@ -1,6 +1,9 @@
 import { makeStyles, Theme } from '@material-ui/core'
 
 export const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    marginBottom: 40
+  },
   tools: {
     minHeight: 550,
     display: 'flex',
