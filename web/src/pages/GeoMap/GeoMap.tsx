@@ -1,17 +1,17 @@
-import { TextField, Button } from '@material-ui/core'
-import Box from '@material-ui/core/Box'
+import React, { useEffect, useState } from 'react'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getNotifier } from 'App'
 import { LoadingWrapper } from 'components/LoadingWrapper'
 import { LoadingType, BackdropType } from 'components/LoadingWrapper/LoadingWrapper'
 import { Formik, Form, Field } from 'formik'
 import { useSnackbar } from 'notistack'
-import React, { useEffect, useState } from 'react'
 import { getConferences } from 'store/conference/services'
 import { getDataForMapOfSpeakers } from 'store/location/services'
+import { GoogleMap, useLoadScript, Marker, InfoWindow } from '@react-google-maps/api'
 import { Wrapper } from 'store/wrapper'
+import { TextField, Box, Button, Avatar } from '@material-ui/core'
+import { LocationOnRounded } from '@material-ui/icons'
 import { IConference } from 'types'
-import { saveAsJson } from 'utils'
 import { useStyles } from './styles'
 
 interface GeoMapProps {}
@@ -23,12 +23,12 @@ const GeoMap = () => {
     isFetching: false,
     value: []
   })
-  const [isFetching, setFetching] = useState<Wrapper<any>>({
-    isFetching: false,
-    value: []
-  })
-
   const [yearsOptions, setYearsOptions] = useState<string[]>([])
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: 'AIzaSyA7O1NRZ-sAjk5qWeIjaF3z-iEmSdXa-B0'
+  })
+  const [markers, setMarkers] = useState<Wrapper<any[]>>({ isFetching: false, value: [] })
+  const [selected, setSelected] = useState(null)
 
   const getAllConferences = async () => {
     setConferencesOptions({ ...conferencesOptions, isFetching: true })
@@ -54,21 +54,22 @@ const GeoMap = () => {
   }
 
   const handleSubmit = async (conference: IConference, year: number) => {
-    setFetching({ isFetching: true })
+    setMarkers({ ...markers, isFetching: true })
     const data = await getDataForMapOfSpeakers(conference.name, year)
-    saveAsJson(data, `${conference.name}_${year}`)
-    setFetching({ isFetching: false })
-    getNotifier('info', snackbarContext)('Use this json in kepler.gl')
+    setMarkers({
+      isFetching: false,
+      value: data.map(d => ({ ...d, lat: d.latitude, lng: d.longitude }))
+    })
   }
 
   return (
     <Box className={classes.root}>
       <LoadingWrapper
         type={LoadingType.LINEAR}
-        deps={[conferencesOptions, isFetching]}
+        deps={[conferencesOptions, markers]}
         backdrop={BackdropType.GLOBAL}
       >
-        <Box>
+        <Box className={classes.tools}>
           <Formik
             initialValues={{
               conference: null,
@@ -137,26 +138,59 @@ const GeoMap = () => {
                       disabled={values.conference === null || values.year === null}
                       onClick={() => handleSubmit(values.conference, values.year)}
                     >
-                      Generate
+                      Apply
                     </Button>
-                  </Box>
-                  <Box className={classes.keplerBtn}>
-                    <a
-                      href="https://kepler.gl/demo"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={classes.keplerBtnLink}
-                    >
-                      <Button color="secondary" variant="contained">
-                        kepler.gl
-                      </Button>
-                    </a>
                   </Box>
                 </Box>
               </Form>
             )}
           </Formik>
         </Box>
+        {isLoaded && (
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '100%', marginBottom: '20px' }}
+            center={{
+              lat: 59.9375,
+              lng: 30.308611
+            }}
+            zoom={5}
+          >
+            {markers.value.map(marker => (
+              <Marker
+                key={marker.id}
+                position={{ lat: marker.lat, lng: marker.lng }}
+                onClick={() => {
+                  setSelected(marker)
+                }}
+                icon={{
+                  url: marker.avatar,
+                  origin: new window.google.maps.Point(0, 0),
+                  anchor: new window.google.maps.Point(15, 15),
+                  scaledSize: new window.google.maps.Size(30, 30)
+                }}
+              />
+            ))}
+            {selected ? (
+              <InfoWindow
+                position={{ lat: selected.lat, lng: selected.lng }}
+                onCloseClick={() => {
+                  setSelected(null)
+                }}
+              >
+                <Box style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Avatar src={selected.avatar} style={{ marginRight: 10 }} />
+                  <Box style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ color: 'black' }}>{selected.name}</span>
+                    <Box style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                      <LocationOnRounded style={{ color: 'black' }} />
+                      <span style={{ color: 'black' }}>{selected.location}</span>
+                    </Box>
+                  </Box>
+                </Box>
+              </InfoWindow>
+            ) : null}
+          </GoogleMap>
+        )}
       </LoadingWrapper>
     </Box>
   )

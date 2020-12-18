@@ -24,6 +24,8 @@ export const getDataForMapOfSpeakers = async (
         return {
           location: speaker.contactInfo.location,
           name: speaker.name,
+          id: speaker.id,
+          avatar: speaker.avatar,
           longitude: loc.longitude,
           latitude: loc.latitude
         } as ISpeakerLocation
@@ -32,6 +34,6 @@ export const getDataForMapOfSpeakers = async (
       }
     })
   return (await Promise.all(promises))
-    .filter(el => el !== undefined)
+    .filter(el => el !== undefined && el.longitude !== undefined && el.latitude !== undefined)
     .sort((el1, el2) => Object.keys(el2).length - Object.keys(el1).length)
 }

@@ -1,9 +1,9 @@
-import { makeStyles } from '@material-ui/core'
+import { makeStyles, Theme } from '@material-ui/core'
 
-export const useStyles = makeStyles(() => ({
+export const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    marginRight: 400,
-    marginLeft: 400,
+    width: '100%',
+    height: '100%',
     display: 'flex',
     justifyContent: 'center'
   },
@@ -33,15 +33,15 @@ export const useStyles = makeStyles(() => ({
   },
   applyBtn: {
     display: 'flex',
-    justifyContent: 'center',
-    marginRight: 20
-  },
-  keplerBtnLink: {
-    color: 'inherit',
-    textDecoration: 'none'
-  },
-  keplerBtn: {
-    display: 'flex',
     justifyContent: 'center'
+  },
+  tools: {
+    marginRight: 400,
+    marginLeft: 400,
+    marginBottom: 40,
+    [theme.breakpoints.down('md')]: {
+      marginRight: 0,
+      marginLeft: 0
+    }
   }
 }))

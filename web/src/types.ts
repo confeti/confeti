@@ -50,6 +50,8 @@ export interface ISpeaker {
 export interface ISpeakerLocation {
   location: string
   name: string
+  id: string
+  avatar: string
   longitude: number
   latitude: number
 }
