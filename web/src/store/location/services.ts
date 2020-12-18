@@ -31,5 +31,7 @@ export const getDataForMapOfSpeakers = async (
         return undefined
       }
     })
-  return Promise.all(promises)
+  return (await Promise.all(promises))
+    .filter(el => el !== undefined)
+    .sort((el1, el2) => Object.keys(el2).length - Object.keys(el1).length)
 }
