@@ -1,7 +1,27 @@
 plugins {
     id("org.springframework.boot") version "2.3.5.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    checkstyle
+    id("org.sonarqube") version "3.1.1"
 }
+
+checkstyle {
+    configFile = file("$rootDir/checkstyle.xml")
+    toolVersion = "8.40"
+}
+
+buildscript {
+    repositories {
+        maven {
+            url = uri("https://plugins.gradle.org/m2/")
+        }
+    }
+    dependencies {
+        classpath("org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.1.1")
+    }
+}
+
+apply(plugin = "org.sonarqube")
 
 version = "1.0-SNAPSHOT"
 
