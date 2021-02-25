@@ -10,6 +10,18 @@ checkstyle {
     toolVersion = "8.40"
 }
 
+sonarqube {
+    properties {
+        //property("sonar.exclusions", "**/*Test.java")
+        property("sonar.login", "admin")
+        property("sonar.password", "Password123!")
+        property("sonar.exclusions", "src/test/**/*")
+        property("sonar.issue.ignore.multicriteria", "e1")
+        property("sonar.issue.ignore.multicriteria.e1.ruleKey", "squid:S1452")
+        property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/*.java")
+    }
+}
+
 buildscript {
     repositories {
         maven {
