@@ -24,10 +24,7 @@ import org.testcontainers.shaded.com.google.common.collect.Sets;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.confeti.controllers.core.StatisticControllerTestUtils.testGetListResponse;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,7 +49,7 @@ public class ConferenceControllerTest {
     private ConferenceController conferenceController;
 
     @Test
-    public void testGetCompanyStatRequestWithYear() {
+    public void testGetConferenceStatRequestWithYear() {
         final String conferenceName = "testConference";
         final int year = 1972;
         final long amount = 5L;
@@ -79,7 +76,7 @@ public class ConferenceControllerTest {
     }
 
     @Test
-    public void testGetCompanyStatRequestWithoutYearForOneYear() {
+    public void testGetConferenceStatRequestWithoutYearForOneYear() {
         final String conferenceName = "test-conference";
         final int year = 1972;
         final long amount = 5L;
@@ -106,7 +103,7 @@ public class ConferenceControllerTest {
     }
 
     @Test
-    public void testGetCompanyStatRequestWithoutYearForMultipleYears() {
+    public void testGetConferenceStatRequestWithoutYearForMultipleYears() {
         final String conferenceName = "test-conference";
         final int year1 = 1972;
         final long amount1 = 5L;
@@ -130,7 +127,7 @@ public class ConferenceControllerTest {
                                 .year(year2)
                                 .reportTotal(amount2)
                                 .build()
-                        )
+                                              )
                 ));
 
         WebTestClient
@@ -144,7 +141,7 @@ public class ConferenceControllerTest {
     }
 
     @Test
-    public void testGetAllCompaniesSuccess() {
+    public void testGetAllConferencesSuccess() {
         final List<Conference> conferences = Arrays.asList(
                 Conference.builder("company 1", 1917).build(),
                 Conference.builder("company 2", 1917).build(),
@@ -159,7 +156,7 @@ public class ConferenceControllerTest {
     }
 
     @Test
-    public void testGetAllCompaniesStatSuccess() {
+    public void testGetAllConferencesStatSuccess() {
         final String conference1 = "conference 1";
         final String conference2 = "conference 2";
 
@@ -200,7 +197,8 @@ public class ConferenceControllerTest {
                         .setYears(Map.of(1973, 4L, 1972, 1L, 1975, 9L))
         );
 
-        testGetListResponse(conferenceController, "/api/rest/conference/stat", statResponses, ConferenceStatResponse[].class);
+        testGetListResponse(conferenceController, "/api/rest/conference/stat", statResponses,
+                            ConferenceStatResponse[].class);
     }
 
     @Test
@@ -258,5 +256,51 @@ public class ConferenceControllerTest {
                 .expectStatus().isOk()
                 .expectBody(Status.class).isEqualTo(Status.SUCCESS);
         verify(reportService).upsert(any());
+    }
+
+    @Test
+    public void testGetConferencesBySpeakerId() {
+        final List<Conference> conferences = List.of(
+                Conference.builder("company 1", 1917).build(),
+                Conference.builder("company 2", 1917).build());
+        final UUID speakerId = UUID.randomUUID();
+
+        when(conferenceService.findBy(speakerId)).thenReturn(Flux.fromIterable(conferences));
+        testGetListResponse(conferenceController, String.format("/api/rest/conference?speaker_id=%s", speakerId),
+                            conferences,
+                            Conference[].class);
+        verify(conferenceService).findBy(speakerId);
+    }
+
+    @Test
+    public void testGetConferencesBySpeakerIdAndYear() {
+        final List<Conference> conferences = List.of(
+                Conference.builder("company 1", 1917).build(),
+                Conference.builder("company 2", 1917).build());
+        final UUID speakerId = UUID.randomUUID();
+        final int year = 1917;
+
+        when(conferenceService.findBy(speakerId, year)).thenReturn(Flux.fromIterable(conferences));
+        testGetListResponse(conferenceController,
+                            String.format("/api/rest/conference?speaker_id=%s&year=%d", speakerId, year),
+                            conferences,
+                            Conference[].class);
+        verify(conferenceService).findBy(speakerId, year);
+    }
+
+    @Test
+    public void testGetConferencesByConferenceName() {
+        final String conferenceName = "conf";
+        final List<Conference> conferences = List.of(
+                Conference.builder(conferenceName, 1917).build(),
+                Conference.builder(conferenceName, 1917).build());
+
+
+        when(conferenceService.findBy(conferenceName)).thenReturn(Flux.fromIterable(conferences));
+        testGetListResponse(conferenceController,
+                            String.format("/api/rest/conference/%s", conferenceName),
+                            conferences,
+                            Conference[].class);
+        verify(conferenceService).findBy(conferenceName);
     }
 }
