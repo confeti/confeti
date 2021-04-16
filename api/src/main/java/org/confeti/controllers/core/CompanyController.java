@@ -36,7 +36,7 @@ public class CompanyController {
 
     @GetMapping(path = "{" + COMPANY_NAME_URI_PARAMETER + "}/stat")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestCompany(
+    public Mono<ResponseEntity<Object>> handleStatRequestCompany(
             @PathVariable(COMPANY_NAME_URI_PARAMETER) final String companyName) {
         return handleSpecifiedRequest(reportStatsService.countCompanyStats(companyName),
                 ReportStatsByCompany::getYear,
@@ -47,7 +47,7 @@ public class CompanyController {
 
     @GetMapping(path = "{" + COMPANY_NAME_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestCompanyYear(
+    public Mono<ResponseEntity<Object>> handleStatRequestCompanyYear(
             @PathVariable(COMPANY_NAME_URI_PARAMETER) final String companyName,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
         return handleSpecifiedRequestWithKey(reportStatsService.countCompanyStatsForYear(companyName, year),

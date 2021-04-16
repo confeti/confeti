@@ -19,23 +19,23 @@ public final class StatisticControllerUtils {
         throw new AssertionError();
     }
 
-    public static <T extends ReportStats, K> Mono<ResponseEntity<?>> handleSpecifiedRequest(
+    public static <T extends ReportStats, K> Mono<ResponseEntity<Object>> handleSpecifiedRequest(
             final Flux<T> elements,
             final Function<T, K> keyMapper,
             final Function<Map<K, Long>, ?> responseConverter) {
         return elements
                 .collectMap(keyMapper, ReportStats::getReportTotal)
                 .map(responseConverter)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
 
-    public static <T extends ReportStats> Mono<ResponseEntity<?>> handleSpecifiedRequestWithKey(
+    public static <T extends ReportStats> Mono<ResponseEntity<Object>> handleSpecifiedRequestWithKey(
             final Mono<T> element,
             final Function<T, ?> responseConverter) {
         return element
                 .map(responseConverter)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
 

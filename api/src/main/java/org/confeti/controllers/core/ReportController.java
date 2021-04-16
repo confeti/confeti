@@ -38,64 +38,64 @@ public class ReportController {
 
     @GetMapping(path = "/stat/tag", params = {YEAR_URI_PARAMETER, CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleTagRequest(@RequestParam(YEAR_URI_PARAMETER) final int year,
+    public Mono<ResponseEntity<Object>> handleTagRequest(@RequestParam(YEAR_URI_PARAMETER) final int year,
                                                     @RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleRequest(year, conferenceName, Report::getTags);
     }
 
     @GetMapping(path = "/stat/tag", params = {CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleTagRequest(@RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
+    public Mono<ResponseEntity<Object>> handleTagRequest(@RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleRequest(conferenceName, Report::getTags);
     }
 
     @GetMapping(path = "/stat/tag")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleTagRequest(
+    public Mono<ResponseEntity<Object>> handleTagRequest(
             @RequestParam(value = YEAR_URI_PARAMETER, required = false) final Optional<Integer> year) {
         return handleRequest(year, Report::getTags);
     }
 
     @GetMapping(path = "/stat/language", params = {YEAR_URI_PARAMETER, CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleLanguageRequest(@RequestParam(YEAR_URI_PARAMETER) final int year,
+    public Mono<ResponseEntity<Object>> handleLanguageRequest(@RequestParam(YEAR_URI_PARAMETER) final int year,
                                                          @RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
-        return handleRequest(year, conferenceName, this::languageToSetConverter);
+        return handleRequest(year, conferenceName, ReportController::languageToSetConverter);
     }
 
     @GetMapping(path = "/stat/language", params = {CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleLanguageRequest(@RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
-        return handleRequest(conferenceName, this::languageToSetConverter);
+    public Mono<ResponseEntity<Object>> handleLanguageRequest(@RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
+        return handleRequest(conferenceName, ReportController::languageToSetConverter);
     }
 
     @GetMapping(path = "/stat/language")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleLanguageRequest(
+    public Mono<ResponseEntity<Object>> handleLanguageRequest(
             @RequestParam(value = YEAR_URI_PARAMETER, required = false) final Optional<Integer> year) {
-        return handleRequest(year, this::languageToSetConverter);
+        return handleRequest(year, ReportController::languageToSetConverter);
     }
 
-    private Mono<ResponseEntity<?>> handleRequest(final int year,
+    private Mono<ResponseEntity<Object>> handleRequest(final int year,
                                                   final String conferenceName,
                                                   final Function<Report, Collection<String>> reportConverter) {
         return countInfo(reportService.findByConference(conferenceName, year), reportConverter)
-                .<ResponseEntity<?>>map(map -> ResponseEntity.ok(new ReportResponse(conferenceName, Map.of(year, map))))
+                .<ResponseEntity<Object>>map(map -> ResponseEntity.ok(new ReportResponse(conferenceName, Map.of(year, map))))
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
 
-    private Mono<ResponseEntity<?>> handleRequest(final String conferenceName,
+    private Mono<ResponseEntity<Object>> handleRequest(final String conferenceName,
                                                   final Function<Report, Collection<String>> reportConverter) {
         return countInfoByYear(reportService.findByConference(conferenceName)
                         /* ATTENTION: in this case Set consists only 1 element */
                         .groupBy(report -> report.getConferences().iterator().next().getYear()),
                 reportConverter)
                 .map(map -> new ReportResponse(conferenceName, map))
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
 
-    private Mono<ResponseEntity<?>> handleRequest(final Optional<Integer> year,
+    private Mono<ResponseEntity<Object>> handleRequest(final Optional<Integer> year,
                                                   final Function<Report, Collection<String>> reportConverter) {
         return reportService.findAll()
                 .flatMap(report -> Flux.fromIterable(report.getConferences())
@@ -105,7 +105,7 @@ public class ReportController {
                 .flatMap(group -> countInfoByYear(group.groupBy(t -> t.getT1().getYear(), Tuple2::getT2), reportConverter)
                         .map(map -> new ReportResponse(group.key(), map)))
                 .collectList()
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
                 .onErrorResume(Exception.class, err -> Mono.just(ResponseEntity.badRequest().body(new ErrorResponse(err.getMessage()))));
     }
 
@@ -123,7 +123,7 @@ public class ReportController {
                 .collectMap(Tuple2::getT1, Tuple2::getT2);
     }
 
-    private Set<String> languageToSetConverter(final Report report) {
+    private static Set<String> languageToSetConverter(final Report report) {
         return Collections.singleton(report.getLanguage());
     }
 }

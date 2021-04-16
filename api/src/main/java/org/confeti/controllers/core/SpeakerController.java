@@ -76,7 +76,7 @@ public class SpeakerController {
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat/year")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestSpeakerYears(
+    public Mono<ResponseEntity<Object>> handleStatRequestSpeakerYears(
             @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerId) {
         return handleSpecifiedRequest(
                 reportStatsService.countSpeakerStatsForYear(speakerId),
@@ -88,7 +88,7 @@ public class SpeakerController {
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat/conference")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestSpeakerConferences(
+    public Mono<ResponseEntity<Object>> handleStatRequestSpeakerConferences(
             @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerId) {
         return handleSpecifiedRequest(
                 reportStatsService.countSpeakerStatsForConference(speakerId),
@@ -100,7 +100,7 @@ public class SpeakerController {
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestSpeakerYear(
+    public Mono<ResponseEntity<Object>> handleStatRequestSpeakerYear(
             @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerID,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
         return handleSpecifiedRequestWithKey(reportStatsService.countSpeakerStatsForYear(speakerID, year),
@@ -111,7 +111,7 @@ public class SpeakerController {
 
     @GetMapping(path = "{" + SPEAKER_ID_URI_PARAMETER + "}/stat", params = {CONFERENCE_NAME_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestSpeakerYear(
+    public Mono<ResponseEntity<Object>> handleStatRequestSpeakerYear(
             @PathVariable(SPEAKER_ID_URI_PARAMETER) final UUID speakerID,
             @RequestParam(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleSpecifiedRequestWithKey(reportStatsService.countSpeakerStatsForConference(speakerID, conferenceName),

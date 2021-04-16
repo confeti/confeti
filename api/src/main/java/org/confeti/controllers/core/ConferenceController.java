@@ -86,12 +86,12 @@ public class ConferenceController {
             @PathVariable(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName,
             @RequestParam(SPEAKER_ID_URI_PARAMETER) final UUID speakerId,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
-        return conferenceService.findBy(speakerId, year, conferenceName); //TODO: check is it conferenceName
+        return conferenceService.findBy(speakerId, year, conferenceName);
     }
 
     @GetMapping(path = "{" + CONFERENCE_NAME_URI_PARAMETER + "}/stat", params = {YEAR_URI_PARAMETER})
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestConferenceYear(
+    public Mono<ResponseEntity<Object>> handleStatRequestConferenceYear(
             @PathVariable(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName,
             @RequestParam(YEAR_URI_PARAMETER) final int year) {
         return handleSpecifiedRequestWithKey(reportStatsService.countConferenceStatsForYear(conferenceName, year),
@@ -102,7 +102,7 @@ public class ConferenceController {
 
     @GetMapping(path = "{" + CONFERENCE_NAME_URI_PARAMETER + "}/stat")
     @ResponseBody
-    public Mono<ResponseEntity<?>> handleStatRequestConference(
+    public Mono<ResponseEntity<Object>> handleStatRequestConference(
             @PathVariable(CONFERENCE_NAME_URI_PARAMETER) final String conferenceName) {
         return handleSpecifiedRequest(reportStatsService.countConferenceStats(conferenceName),
                 ReportStatsByConference::getYear,
