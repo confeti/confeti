@@ -1,6 +1,7 @@
 package org.confeti.controllers.core;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.confeti.controllers.dto.core.SpeakerStatResponseByConference;
 import org.confeti.controllers.dto.core.SpeakerStatResponseByYear;
 import org.confeti.service.ReportStatsService;
@@ -34,6 +35,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(value = REST_API_PATH + "/speaker", produces = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 public class SpeakerController {
 
     private final SpeakerService speakerService;

@@ -36,4 +36,14 @@ public final class StatisticControllerTestUtils {
         assertNotNull(response.getResponseBody());
         assertThat(Arrays.asList(response.getResponseBody()), containsInAnyOrder(expectedResponse.toArray()));
     }
+
+    public static void testErrorResponse(final Object controller, final String uri, int status) {
+        WebTestClient
+                .bindToController(controller)
+                .build()
+                .get()
+                .uri(uri)
+                .exchange()
+                .expectStatus().isEqualTo(status);
+    }
 }

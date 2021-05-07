@@ -187,4 +187,22 @@ public class CompanyControllerTest {
 
         testGetListResponse(companyController, "/api/rest/company/stat", statResponses, CompanyStatResponse[].class);
     }
+
+    @Test
+    public void testGetCompanyStatRequestWithYearError() {
+        final String companyName = "company-test";
+        final int year = 1972;
+        final long amount = 5L;
+
+        when(reportStatsService.countCompanyStatsForYear(companyName, 1972))
+                .thenReturn(Mono.error(new RuntimeException("EXCEPTION")));
+
+        WebTestClient
+                .bindToController(companyController)
+                .build()
+                .get()
+                .uri(String.format("/api/rest/company/%s/stat?year=%d", companyName, year))
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
 }

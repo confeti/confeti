@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.*;
 
+import static org.confeti.controllers.core.StatisticControllerTestUtils.testErrorResponse;
 import static org.confeti.controllers.core.StatisticControllerTestUtils.testGetListResponse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -302,5 +303,14 @@ public class ConferenceControllerTest {
                             conferences,
                             Conference[].class);
         verify(conferenceService).findBy(conferenceName);
+    }
+
+    @Test
+    public void testGetConferencesByConferenceNameError() {
+        final String conferenceName = "conf";
+
+        when(conferenceService.findBy(conferenceName)).thenReturn(Flux.error(new RuntimeException()));
+
+        testErrorResponse(conferenceController, String.format("/api/rest/conference/%s", conferenceName), 500);
     }
 }
