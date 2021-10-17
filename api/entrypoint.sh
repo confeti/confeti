@@ -3,10 +3,10 @@
 if [ -z $CONFETI_LOCAL_DB ] || [ $CONFETI_LOCAL_DB = true ]; then
     java --enable-preview -jar /confeti.jar
 else
-    if [ -z $ASTRA_CREDS ] || [ -z $ASTRA_PASSWD ]; then
-        echo "Credentials and password not set"
+    if [ -z $ASTRA_CLIENT_ID ] || [ -z $ASTRA_CLIENT_SECRET ] || [ -z $ASTRA_TOKEN ]; then
+        echo "Client id, client secret, token are not set"
         exit 1
     else
-        source ./setup.sh -c=$ASTRA_CREDS -p=$ASTRA_PASSWD && java --enable-preview -jar /confeti.jar
+        source ./setup.sh -i=$ASTRA_CLIENT_ID -s=$ASTRA_TOKEN -t= && java --enable-preview -jar /confeti.jar
     fi
 fi

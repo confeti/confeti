@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux'
 import { routes } from 'routes'
 import { useTheme } from 'hooks'
 import {
-  createMuiTheme,
+  createTheme,
   createStyles,
   makeStyles,
   Theme,
@@ -50,7 +50,7 @@ type AppProps = PropsFromRedux
 const App = ({ settings, changeSettings }: AppProps) => {
   const classes = useStyles()
   const [theme, toggleTheme] = useTheme(settings.themeMode)
-  const customTheme = createMuiTheme(theme)
+  const customTheme = createTheme(theme)
 
   const changeTheme = () => {
     changeSettings({ ...settings, themeMode: theme.palette!.type! === 'dark' ? 'light' : 'dark' })

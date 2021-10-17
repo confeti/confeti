@@ -10,11 +10,13 @@ configure(subprojects.filterNot(project(":web")::equals)) {
     apply(plugin = "java")
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
-    configure<JavaPluginConvention> {
-        sourceCompatibility = JavaVersion.VERSION_15
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(16))
+        }
     }
 
     tasks {
@@ -22,14 +24,5 @@ configure(subprojects.filterNot(project(":web")::equals)) {
             useJUnitPlatform()
         }
     }
-
-    tasks.withType<JavaCompile> {
-        options.compilerArgs.addAll(listOf("--enable-preview", "-Xlint:preview"))
-    }
-    tasks.withType<Test> {
-        jvmArgs("--enable-preview")
-    }
-    tasks.withType<JavaExec> {
-        jvmArgs("--enable-preview")
-    }
 }
+

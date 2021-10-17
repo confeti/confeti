@@ -31,8 +31,9 @@ services:
       - CASSANDRA_RF=1
       - CASSANDRA_DURABLE=true
       - CONFETI_LOCAL_DB=${CONFETI_LOCAL_DB}
-      - ASTRA_PASSWD=${ASTRA_PASSWD}
-      - ASTRA_CREDS=${ASTRA_CREDS}
+      - ASTRA_CLIENT_ID=${ASTRA_CLIENT_ID}
+      - ASTRA_CLIENT_SECRET=${ASTRA_CLIENT_SECRET}
+      - ASTRA_TOKEN=${ASTRA_TOKEN}
 #    depends_on:
 #      - cassandra
 
