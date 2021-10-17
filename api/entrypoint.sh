@@ -7,6 +7,6 @@ else
         echo "Client id, client secret, token are not set"
         exit 1
     else
-        source ./setup.sh -i=$ASTRA_CLIENT_ID -s=$ASTRA_TOKEN -t= && java --enable-preview -jar /confeti.jar
+        source ./setup.sh -i=$ASTRA_CLIENT_ID -s=$ASTRA_CLIENT_SECRET -t=$ASTRA_TOKEN && java --enable-preview -jar /confeti.jar
     fi
 fi
