@@ -2,8 +2,8 @@ version: '3'
 services:
   web:
     build:
-      context: ./
-      dockerfile: ./web/Dockerfile.local
+      context: ./web
+      dockerfile: ./Dockerfile.local
     expose:
       - 3000
     ports:
