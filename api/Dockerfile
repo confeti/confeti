@@ -1,9 +1,9 @@
-FROM gradle:jdk15 AS build
+FROM gradle:jdk16 AS build
 WORKDIR /app
 COPY . /app
 RUN gradle bootJar --no-daemon
 
-FROM openjdk:15-alpine
+FROM openjdk:16-alpine
 COPY --from=build /app/api/build/libs/*.jar confeti.jar
 COPY --from=build /app/setup.sh /app/api/entrypoint.sh ./
 RUN chmod +x setup.sh

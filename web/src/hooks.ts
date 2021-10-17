@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { ThemeOptions } from '@material-ui/core/styles/createMuiTheme'
-import { PaletteType } from '@material-ui/core'
+import { PaletteType, ThemeOptions } from '@material-ui/core'
 import { ThemeMode } from 'types'
 import customTheme, { colors } from './theme'
 

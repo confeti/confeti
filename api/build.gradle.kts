@@ -1,6 +1,6 @@
 plugins {
-    id("org.springframework.boot") version "2.3.5.RELEASE"
-    id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    id("org.springframework.boot") version "2.5.5"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
 version = "1.0-SNAPSHOT"
@@ -9,7 +9,7 @@ extra["cassandra-driver.version"] = "4.9.0"
 
 dependencies {
     // Lombok
-    val lombok = "org.projectlombok:lombok"
+    val lombok = "org.projectlombok:lombok:1.18.22"
     compileOnly(lombok)
     annotationProcessor(lombok)
     testCompileOnly(lombok)
@@ -41,7 +41,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.projectreactor:reactor-test")
 
-    testImplementation("org.testcontainers:testcontainers:1.15.0")
-    testImplementation("org.testcontainers:junit-jupiter:1.15.0")
-    testImplementation("org.testcontainers:cassandra:1.15.0")
+    testImplementation("org.testcontainers:testcontainers:1.16.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.16.0")
+    testImplementation("org.testcontainers:cassandra:1.16.0")
 }

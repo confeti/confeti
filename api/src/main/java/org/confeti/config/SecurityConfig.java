@@ -35,7 +35,7 @@ public class SecurityConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
         final var corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(Collections.singletonList(CorsConfiguration.ALL));
+        corsConfig.setAllowedOriginPatterns(Collections.singletonList(CorsConfiguration.ALL));
         corsConfig.addAllowedMethod(CorsConfiguration.ALL);
         corsConfig.addAllowedHeader(CorsConfiguration.ALL);
         corsConfig.setAllowCredentials(true);
